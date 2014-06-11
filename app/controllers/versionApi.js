@@ -8,37 +8,29 @@ var connection = mysql.createConnection({
 });
 connection.query('use mats_prod_copy');
 
-
-var when = require('promised-io/promise');
-
+var Q = require('Q');
 
 exports.registerDeployment = function () {
     return function (req, res, next) {
-        console.log("mjau");
-        console.log("req %s", req);
-//        console.log(req);
-        console.log("req.body %s", req.body);
-        validateProperties(req.body, next);
-        console.log("voff")
+        validateProperties(req.body);
 
-        var appname = req.body.application;
+        var appName = req.body.application;
         var envName = req.body.environment;
         var version = req.body.version;
         var deployedBy = req.body.deployedBy;
 
+        Q.allSettled(getApp(appName), getEnv(envName)).then(function (results) {
+            registerVersion(results, version, deployedBy, res)
+        }).catch(function (err) {
+                next(err);
+            }).done();
 
-        when.all(getEnv(envName), getApp(appname)).then(function (results) {
-            registerVersion(results, version, deployedBy)
-        });
-
-        res.send(200);
     }
 }
 
-function registerVersion(result, version, deployedBy) {
+function registerVersion(result, version, deployedBy, res) {
     var envId = result[0];
     var appId = result[1];
-    console.log("Got envId %s and appId %s", envId, appId);
 
     connection.query("update version set tom_date = ? where app_type = ? and env_type = ? and tom_date is NULL", [new Date(), appId, envId], function (err, res) {
         if (err) throw err;
@@ -50,11 +42,12 @@ function registerVersion(result, version, deployedBy) {
         console.log("Added new version with id " + res.insertId);
     })
 
+    res.send(200);
 }
 
 function createApp(appname) {
-    var def = when.defer();
-    console.log('Creating app');
+    var def = Q.defer();
+    console.log('Creating app %s', appname);
     connection.query('insert into t_application (app_name, ver_type, description, is_active) values(?,?,?,?)', [appname, 0, appname, 0], function (err, result) {
         if (err) throw  err;
         def.resolve(result.insertId);
@@ -64,7 +57,7 @@ function createApp(appname) {
 
 
 function createEnv(envName) {
-    var def = when.defer();
+    var def = Q.defer();
     console.log('Creating environment %s', envName);
     connection.query('insert into t_environment (env_name, is_active) values(?,?)', [envName, 0], function (err, result) {
         if (err) throw  err;
@@ -75,56 +68,53 @@ function createEnv(envName) {
 }
 
 function getApp(appname) {
-    var def = when.defer();
-    console.log("Finding appname %s", appname);
+    var deferred = Q.defer();
     connection.query('select app_id from t_application where app_name = ?', [appname], function (err, rows) {
-        if (err) throw  err;
-        console.log(rows);
-
-        if (rows.length === 0) {
-            console.log("No app");
+        if (err) {
+            deferred.reject(new Error(err));
+        } else if (rows.length === 0) {
             createApp(appname).then(function (val) {
-                def.resolve(val);
+                deferred.resolve(val);
             });
         } else if (rows.length === 1) {
             console.log('Application exists ' + rows[0].app_id);
-            def.resolve(rows[0].app_id);
+            deferred.resolve(rows[0].app_id);
         } else {
-            throw "something went wrong";
+            throw new Error("Something went wrong Q getting app");
         }
     });
-    return def.promise;
+    return deferred.promise;
 }
 
 function getEnv(envName) {
-    var def = when.defer();
-    connection.query("select env_id from t_environment where env_name = ?", [envName], function (err, rows) {
-        if (err) throw  err;
-        console.log(rows);
+    var deferred = Q.defer();
 
-        if (rows.length === 0) {
+    connection.query("select env_id from t_environment where env_name = ?", [envName], function (err, rows) {
+        if (err) {
+            deferred.reject(new Error(err));
+        } else if (rows.length === 0) {
             console.log("No env found");
             createEnv(envName).then(function (val) {
-                def.resolve(val);
+                deferred.resolve(val);
             });
         } else if (rows.length === 1) {
             var envId = rows[0].env_id;
             console.log('Environment exists ' + envId);
-            def.resolve(envId);
+            deferred.resolve(envId);
         } else {
-            throw "something went wrong";
+            throw new Error("Something went wrong Q getting env");
         }
     });
-    return def.promise;
+
+    return deferred.promise;
 }
 
-function validateProperties(jsonObj, next) {
-    console.log("json obj " + jsonObj);
+function validateProperties(jsonObj) {
     var requiredKeys = ["application", "environment", "version", "deployedBy"];
     for (var idx in requiredKeys) {
         var key = requiredKeys[idx]
         if (!_.has(jsonObj, key)) {
-            next(new Error("Unable to find required property "+ key));
+            throw new Error("Unable to find required property " + key);
         }
     }
 }

@@ -28,5 +28,5 @@ app.use(logError);
 app.use(errorHandler);
 
 app.listen(config.port, function () {
-    console.log("Ready for e-business");
+    console.log("Ready for e-business on port " + config.port );
 });
