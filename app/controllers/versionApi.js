@@ -1,12 +1,12 @@
 var _ = require('underscore');
 var mysql = require('mysql');
+var config = require("../../config/config");
 var connection = mysql.createConnection({
-    host: 'b27isvl001.preprod.local',
-    user: 'nagios',
-    password: 'mysql'
-    //,debug: ['ComQueryPacket', 'RowDataPacket']
+    host: config.dbUrl,
+    user: config.dbUser,
+    password: config.dbPassword
 });
-connection.query('use mats_prod_copy');
+connection.query('use ' + config.dbSchema);
 
 var Q = require('Q');
 
