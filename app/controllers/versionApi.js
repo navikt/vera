@@ -124,7 +124,7 @@ function validateProperties(jsonObj, next) {
     for (var idx in requiredKeys) {
         var key = requiredKeys[idx]
         if (!_.has(jsonObj, key)) {
-            next(new Error("Unable to find required property %s", key));
+            next(new Error("Unable to find required property "+ key));
         }
     }
 }
