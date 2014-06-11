@@ -1,14 +1,14 @@
 var _ = require('underscore');
 var mysql = require('mysql');
 var config = require("../../config/config");
+var Q = require('Q');
 var connection = mysql.createConnection({
     host: config.dbUrl,
     user: config.dbUser,
     password: config.dbPassword
 });
-connection.query('use ' + config.dbSchema);
 
-var Q = require('Q');
+connection.query('use ' + config.dbSchema);
 
 exports.registerDeployment = function () {
     return function (req, res, next) {

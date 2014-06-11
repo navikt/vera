@@ -2,6 +2,7 @@
   "name": "vera-rest",
   "description": "Vera REST service for registering versions in Vera",
   "version": "0.0.1",
+  "url": "",
   "author": {
     "name": "Mats Byfuglien",
     "email": "mats.byfuglien@nav.no"
@@ -15,8 +16,6 @@
     "morgan": "~1.1.1",
     "underscore": "~1.6.0",
     "mysql": "~2.3.2",
-    "promised-io": "~0.3.4",
-    "errorhandler": "~1.0.2",
     "q": "~1.0.1"
   },
   "devDependencies": {
