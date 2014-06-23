@@ -1,7 +1,7 @@
 var _ = require('underscore');
 var mysql = require('mysql');
 var config = require("../../config/config");
-var Q = require('Q');
+var Q = require('q');
 var connection = mysql.createConnection({
     host: config.dbUrl,
     user: config.dbUser,
@@ -19,7 +19,7 @@ exports.registerDeployment = function () {
         var version = req.body.version;
         var deployedBy = req.body.deployedBy;
 
-        Q.allSettled(getApp(appName), getEnv(envName)).then(function (results) {
+        Q.all([getApp(appName), getEnv(envName)]).then(function (results) {
             registerVersion(results, version, deployedBy, res)
         }).catch(function (err) {
                 next(err);
@@ -77,10 +77,12 @@ function getApp(appname) {
                 deferred.resolve(val);
             });
         } else if (rows.length === 1) {
-            console.log('Application exists ' + rows[0].app_id);
-            deferred.resolve(rows[0].app_id);
+            var applicationId = rows[0].app_id;
+            console.log('Application exists ' + applicationId);
+            deferred.resolve(applicationId);
+            console.log("Set resolve value to %s", applicationId);
         } else {
-            throw new Error("Something went wrong Q getting app");
+            throw new Error("Something went wrong when getting app");
         }
     });
     return deferred.promise;
@@ -102,7 +104,7 @@ function getEnv(envName) {
             console.log('Environment exists ' + envId);
             deferred.resolve(envId);
         } else {
-            throw new Error("Something went wrong Q getting env");
+            throw new Error("Something went wrong when getting env");
         }
     });
 
