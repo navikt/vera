@@ -1,5 +1,4 @@
 class FasitParams {
-
     String baseUrl = "https://fasit.adeo.no/conf"
     String envName
     String domain

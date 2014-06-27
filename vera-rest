@@ -1,7 +1,7 @@
 #!/bin/sh
 #
 # chkconfig: 35 99 99
-# Generic Nodejs init script
+# description: Generic Nodejs init script
 #
 
 . /etc/rc.d/init.d/functions
