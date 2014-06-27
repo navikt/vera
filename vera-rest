@@ -6,7 +6,7 @@
 
 . /etc/rc.d/init.d/functions
 
-APP_NAME=$0
+APP_NAME=$(echo $0| cut -d'/' -f4)
 USER="srvappserver"
 DAEMON="/usr/local/node/default/bin/node"
 ROOT_DIR="/app/$APP_NAME"
