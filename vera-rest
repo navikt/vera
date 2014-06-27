@@ -38,7 +38,7 @@ do_stop() {
         kill -9 $pid > /dev/null 2>&1 && echo_success || echo_failure
         RETVAL=$?
         echo
-        [ $RETVAL -eq 0 ] && rm -f $LOCK_FILE
+        rm -f $LOCK_FILE || echo 'no lock file deleted'
 }
 
 case "$1" in

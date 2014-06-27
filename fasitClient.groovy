@@ -40,12 +40,13 @@ def createApplicationProperties(fasitParams){
     applicationPropertiesFile.delete()
 
     dbResource = getFasitResource(fasitParams.baseUrl, "ApplicationProperties", "veraRestProperties", fasitParams.envName, fasitParams.domain )
-    applicationPropertiesFile << dbResource.property.value.text() + "\n"
+
+    dbResource.property.value.text().split().each { applicationPropertiesFile << "export $it\n" }
 
     def dbCredentialResource = getFasitResource(fasitParams.baseUrl, "Credential", "veraRestDbCredential", fasitParams.envName, fasitParams.domain)
     def dbUsername = dbCredentialResource.find {it['@name'] == 'username'}.value.text()
     def dbPassword = getPassword(dbCredentialResource.find {it['@name'] == 'password'}.ref.text(), fasitParams.username, fasitParams.password)
-    applicationPropertiesFile << "db_username=$dbUsername\ndb_password=$dbPassword"
+    applicationPropertiesFile << "export db_username=$dbUsername\nexport db_password=$dbPassword"
 }
 
 def getFasitResource(fasitBaseUrl, type, alias, envName, domain) {
