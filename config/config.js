@@ -3,7 +3,7 @@ var path = require('path'),
 
 var config = {
     root: rootPath,
-    port: process.env.PORT || 1337,
+    port: process.env.PORT || 9080,
     dbUrl: process.env['db_url'] || "heltfeilhost",
     dbUser: process.env['db_username'] || "hvemsomhelst",
     dbPassword: process.env['db_password'] || "<hemmelig>",

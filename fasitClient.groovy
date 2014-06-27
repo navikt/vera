@@ -5,11 +5,12 @@ class FasitParams {
     String appName = "vera-rest"
     String username
     String password
+    String workspacepath
 }
 
 
 
-def fasitParams  = new FasitParams(envName:System.getProperty("env"), domain:System.getProperty("domain"), username:System.getProperty("username"), password:System.getProperty("password"))
+def fasitParams  = new FasitParams(envName:build.buildVariableResolver.resolve("env"), domain:build.buildVariableResolver.resolve("domain"), username:build.buildVariableResolver.resolve("username"), password:build.buildVariableResolver.resolve("password"), workspacepath:build.workspace)
 
 println "fasitParams.username = $fasitParams.username"
 
@@ -20,7 +21,7 @@ def createServerInfoProperties(fasitParams){
     def connection = getConnection("$fasitParams.baseUrl/environments/$fasitParams.envName/applications/$fasitParams.appName")
 
     if( connection.responseCode == 200 || connection.responseCode == 201 ) {
-        File serverInfoFile = new File("serverinfo.properties")
+        File serverInfoFile = new File("$fasitParams.workspacepath/serverinfo.properties")
         serverInfoFile.delete()
         def application = new XmlParser().parseText(connection.content.text)
 
@@ -35,7 +36,7 @@ def createServerInfoProperties(fasitParams){
 }
 
 def createApplicationProperties(fasitParams){
-    File applicationPropertiesFile = new File("application.properties")
+    File applicationPropertiesFile = new File("$fasitParams.workspacepath/config.sh")
     applicationPropertiesFile.delete()
 
     dbResource = getFasitResource(fasitParams.baseUrl, "ApplicationProperties", "veraRestProperties", fasitParams.envName, fasitParams.domain )
