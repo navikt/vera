@@ -15,14 +15,14 @@ LOG_FILE="$ROOT_DIR/$APP_NAME.log"
 LOCK_FILE="/var/lock/subsys/$APP_NAME"
 CFG_FILE="$ROOT_DIR/config.sh"
 
-if [ -f $CFG_FILE ]; then
-    . $CFG_FILE
-fi
+#if [ -f $CFG_FILE ]; then
+#    . $CFG_FILE
+#fi
 
 do_start() {
         if [ ! -f "$LOCK_FILE" ] ; then
                 echo -n $"Starting $SERVER: "
-                runuser -l "$USER" -c "$DAEMON $SERVER >> $LOG_FILE &" && echo_success || echo_failure
+                runuser -l "$USER" -c "cd $ROOT_DIR && . $CFG_FILE && $DAEMON $SERVER >> $LOG_FILE &" && echo_success || echo_failure
                 RETVAL=$?
                 echo
                 [ $RETVAL -eq 0 ] && touch $LOCK_FILE
