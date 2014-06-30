@@ -8,7 +8,7 @@
 
 APP_NAME=$(echo $0| cut -d'/' -f4)
 USER="srvappserver"
-DAEMON="/usr/local/node/default/bin/node"
+DAEMON="nohup /usr/local/node/default/bin/node"
 ROOT_DIR="/app/$APP_NAME"
 SERVER="$ROOT_DIR/server.js"
 LOG_FILE="$ROOT_DIR/$APP_NAME.log"
@@ -22,7 +22,7 @@ CFG_FILE="$ROOT_DIR/config.sh"
 do_start() {
         if [ ! -f "$LOCK_FILE" ] ; then
                 echo -n $"Starting $SERVER: "
-                nohup runuser -l "$USER" -c "cd $ROOT_DIR && . $CFG_FILE && $DAEMON $SERVER >> $LOG_FILE &" && echo_success || echo_failure
+                runuser -l "$USER" -c "cd $ROOT_DIR && . $CFG_FILE && $DAEMON $SERVER >> $LOG_FILE &" && echo_success || echo_failure
                 RETVAL=$?
                 echo
                 [ $RETVAL -eq 0 ] && touch $LOCK_FILE
