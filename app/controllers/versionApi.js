@@ -29,8 +29,8 @@ exports.registerDeployment = function () {
 }
 
 function registerVersion(result, version, deployedBy, res) {
-    var envId = result[0];
-    var appId = result[1];
+    var appId = result[0];
+    var envId = result[1];
 
     connection.query("update version set tom_date = ? where app_type = ? and env_type = ? and tom_date is NULL", [new Date(), appId, envId], function (err, res) {
         if (err) throw err;
