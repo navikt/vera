@@ -18,7 +18,7 @@ CFG_FILE="$ROOT_DIR/config.sh"
 do_start() {
         if [ ! -f "$LOCK_FILE" ] ; then
                 echo -n $"Starting $SERVER: "
-                runuser -l "$USER" -c "cd $ROOT_DIR && . $CFG_FILE && nohup $DAEMON $SERVER < /dev/null >> $LOG_FILE 2>&1 &" && echo_success || echo_failure
+                runuser -l "$USER" -c "cd $ROOT_DIR && . $CFG_FILE &&  $DAEMON $SERVER < /dev/null >> $LOG_FILE 2>&1 &" && echo_success || echo_failure
                 RETVAL=$?
                 echo
                 [ $RETVAL -eq 0 ] && touch $LOCK_FILE
