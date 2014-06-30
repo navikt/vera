@@ -59,6 +59,6 @@ esac
 
 echo "hallo!"
 echo $RETVAL
-exit 0
+exit 10
 
 exit $RETVAL
