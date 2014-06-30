@@ -23,12 +23,9 @@ do_start() {
         if [ ! -f "$LOCK_FILE" ] ; then
                 echo -n $"Starting $SERVER: "
                 runuser -l "$USER" -c "cd $ROOT_DIR && . $CFG_FILE && $DAEMON $SERVER >> $LOG_FILE &" && echo_success || echo_failure
-                echo "hei etter runuser"
                 RETVAL=$?
                 echo
                 [ $RETVAL -eq 0 ] && touch $LOCK_FILE
-                echo "hei etter noe" && exit 0
-                exit 0
         else
                 echo "$SERVER is locked."
                 RETVAL=1
