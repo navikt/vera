@@ -8,16 +8,12 @@
 
 APP_NAME=$(echo $0| cut -d'/' -f4)
 USER="srvappserver"
-DAEMON="nohup /usr/local/node/default/bin/node"
+DAEMON="/usr/local/node/default/bin/node"
 ROOT_DIR="/app/$APP_NAME"
 SERVER="$ROOT_DIR/server.js"
 LOG_FILE="$ROOT_DIR/$APP_NAME.log"
 LOCK_FILE="/var/lock/subsys/$APP_NAME"
 CFG_FILE="$ROOT_DIR/config.sh"
-
-#if [ -f $CFG_FILE ]; then
-#    . $CFG_FILE
-#fi
 
 do_start() {
         if [ ! -f "$LOCK_FILE" ] ; then
@@ -56,9 +52,5 @@ case "$1" in
                 echo "Usage: $0 {start|stop|restart}"
                 RETVAL=1
 esac
-
-echo "hallo!"
-echo $RETVAL
-exit 10
 
 exit $RETVAL
