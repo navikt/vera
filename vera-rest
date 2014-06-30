@@ -27,7 +27,7 @@ do_start() {
                 RETVAL=$?
                 echo
                 [ $RETVAL -eq 0 ] && touch $LOCK_FILE
-                echo "hei etter noe"
+                echo "hei etter noe" && exit 0
                 exit 0
         else
                 echo "$SERVER is locked."
@@ -47,8 +47,6 @@ do_stop() {
 case "$1" in
         start)
                 do_start
-                echo "ferdig med start"
-                exit 0
                 ;;
         stop)
                 do_stop
@@ -62,5 +60,6 @@ case "$1" in
                 RETVAL=1
 esac
 
+echo "hallo!"
 
 exit $RETVAL
