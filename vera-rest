@@ -47,6 +47,8 @@ do_stop() {
 case "$1" in
         start)
                 do_start
+                echo "ferdig med start"
+                exit 0
                 ;;
         stop)
                 do_stop
