@@ -30,3 +30,7 @@ app.use(errorHandler);
 app.listen(config.port, function () {
     console.log("Ready for e-business on port " + config.port );
 });
+
+var app = express();
+
+module.exports = app;

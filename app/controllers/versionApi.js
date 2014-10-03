@@ -8,6 +8,15 @@ var pool = mysql.createPool({
     password: config.dbPassword,
     database: config.dbSchema
 });
+var app = require('express')();
+
+/*var resultObject = {
+    environment: "",
+    application: "",
+    version: "",
+    deployedBy: "",
+};
+*/
 
 exports.registerDeployment = function () {
     return function (req, res, next) {
@@ -18,13 +27,95 @@ exports.registerDeployment = function () {
         var version = req.body.version;
         var deployedBy = req.body.deployedBy;
 
-        Q.all([getApp(appName), getEnv(envName)]).then(function (results) {
+        Q.all([getApp(appName, true), getEnv(envName, true)]).then(function (results) {
             registerVersion(results, version, deployedBy, res)
         }).catch(function (err) {
             next(err);
         }).done();
 
     }
+}
+
+exports.getVersionByNameAndEnv = function () {
+    return function (req, res, next) {
+
+        res.contentType("application/json");
+
+        console.log("");
+        var appName = req.query.application;
+        var envName = req.query.environment;
+
+        if (envName == "" || envName == null) {
+            console.log("Enviroment name not provided.");
+        }
+        if (appName == "" || appName == null) {
+            console.log("Application name not provided.");
+        }
+
+
+        //res.send(appName);
+        console.log("Name " + appName);
+        //getExistingApplicationIdByName(appName);
+        Q.all([getApp(appName, false), getEnv(envName, false)]).then(function (results) {
+            var ver = getVersionInfo(results, appName, envName, res);
+
+            
+            console.log("aaa");
+            console.log("Version: " + ver);
+/*            var ret = {
+                environment: envName,
+                application: appName,
+                version: ver
+            }*/
+            //res.send(ret);
+            //res.sent(200);
+ 
+            //registerVersion(results, version, deployedBy, res)
+
+        }).catch(function (err) {
+            console.log("Failed to get id for application or environment. Returning empty list");
+            res.send("{}");
+            //next(err);
+        
+        }).done();
+
+    }
+ 
+}
+
+
+function getVersionInfo(result, version, deployedBy, res) {
+    var appId = result[0];
+    var envId = result[1];
+    //var ret;
+
+    console.log("Getting version info for appID " + appId + " in envID " + envId);
+    console.log("select version from version where app_type = " + appId + " and env_type = " + envId + " and tom_date is NULL");
+
+    pool.getConnection(function (err, connection) {
+        if (err) throw err;
+
+        connection.query("select version from version where app_type = ? and env_type = ? and tom_date is NULL order by ver_id DESC", [appId, envId], function (err, row) {
+            if (err) { 
+                console.log("Failed to get version info for application");
+                throw err;
+            }
+            
+            var ret = row[0].version;
+            console.log("Got version for application: ", row[0], " version ", ret);
+
+            //res.send(resultObject)
+            //res.send(row[0]);
+             
+        });
+
+        connection.release();
+    });
+
+    console.log("### Returning version ", ret);
+    //return ret;
+    // Empty list if not found
+    res.send(200);
 }
 
 function registerVersion(result, version, deployedBy, res) {
@@ -88,9 +179,11 @@ function createEnv(envName) {
     return def.promise;
 }
 
-function getApp(appname) {
+function getApp(appname, createIfMissing) {
     var deferred = Q.defer();
 
+    console.log(config.dbUrl);
+    //console.log("host: " + pool.get(host));
     pool.getConnection(function (err, connection) {
         if (err) throw err;
 
@@ -98,15 +191,20 @@ function getApp(appname) {
             if (err) {
                 deferred.reject(new Error(err));
             } else if (rows.length === 0) {
-                createApp(appname).then(function (val) {
-                    deferred.resolve(val);
-                });
+                if (createIfMissing) { 
+                    console.log("No app found. Will create it now.");
+                    createApp(appname).then(function (val) {
+                        deferred.resolve(val);
+                    });
+                }
+                else deferred.reject(new Error("Application does not exist."));
             } else if (rows.length === 1) {
                 var applicationId = rows[0].app_id;
-                console.log('Application exists ' + applicationId);
+                console.log('Application exists with ID ' + applicationId);
                 deferred.resolve(applicationId);
-                console.log("Set resolve value to %s", applicationId);
+                //console.log("Set resolve value to %s", applicationId);
             } else {
+                console.log("eee");
                 throw new Error("Something went wrong when getting app");
             }
         });
@@ -114,10 +212,10 @@ function getApp(appname) {
         connection.release();
     });
 
-    return deferred.promise;
+return deferred.promise;
 }
 
-function getEnv(envName) {
+function getEnv(envName, createIfMissing) {
     var deferred = Q.defer();
 
     pool.getConnection(function (err, connection) {
@@ -127,13 +225,18 @@ function getEnv(envName) {
             if (err) {
                 deferred.reject(new Error(err));
             } else if (rows.length === 0) {
-                console.log("No env found");
-                createEnv(envName).then(function (val) {
-                    deferred.resolve(val);
-                });
+                if (createIfMissing) {
+                    console.log("No env found. Will create it now.");
+                    createEnv(envName).then(function (val) {
+                        deferred.resolve(val);
+                    });
+                }
+                else {
+                    deferred.reject(new Error("Environment does not exist."));
+                }
             } else if (rows.length === 1) {
                 var envId = rows[0].env_id;
-                console.log('Environment exists ' + envId);
+                console.log('Environment exists with ID ' + envId);
                 deferred.resolve(envId);
             } else {
                 throw new Error("Something went wrong when getting env");
