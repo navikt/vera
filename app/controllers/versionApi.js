@@ -10,14 +10,6 @@ var pool = mysql.createPool({
 });
 var app = require('express')();
 
-/*var resultObject = {
-    environment: "",
-    application: "",
-    version: "",
-    deployedBy: "",
-};
-*/
-
 exports.registerDeployment = function () {
     return function (req, res, next) {
         validateProperties(req.body);
@@ -36,7 +28,7 @@ exports.registerDeployment = function () {
     }
 }
 
-exports.getVersionByNameAndEnv = function () {
+exports.getVersion = function () {
     return function (req, res, next) {
 
         res.contentType("application/json");
@@ -52,42 +44,43 @@ exports.getVersionByNameAndEnv = function () {
             console.log("Application name not provided.");
         }
 
-
-        //res.send(appName);
-        console.log("Name " + appName);
-        //getExistingApplicationIdByName(appName);
         Q.all([getApp(appName, false), getEnv(envName, false)]).then(function (results) {
-            var ver = getVersionInfo(results, appName, envName, res);
-
             
-            console.log("aaa");
-            console.log("Version: " + ver);
-/*            var ret = {
-                environment: envName,
-                application: appName,
-                version: ver
-            }*/
-            //res.send(ret);
-            //res.sent(200);
- 
-            //registerVersion(results, version, deployedBy, res)
+            getVersionInfo(results, appName, envName, res, function(version) {
+                var retObj = createReturnObject(appName, envName, version);
+                res.write(JSON.stringify(retObj));
+                res.send();    
+            });
 
         }).catch(function (err) {
-            console.log("Failed to get id for application or environment. Returning empty list");
-            res.send("{}");
-            //next(err);
-        
+            console.log("Failed to get id for application or environment. Returning an empty object.");
+
+            // Something went wrong, so lets return an empty object
+            var retObj = createReturnObject("", "", "");
+            res.write(JSON.stringify(retObj));
+            res.send();
+            //next(err); 
+
         }).done();
 
     }
- 
+
 }
 
+function createReturnObject(application, environment, version) {
 
-function getVersionInfo(result, version, deployedBy, res) {
+    var objToJson = { };
+    objToJson.application = application; 
+    objToJson.environment = environment;
+    objToJson.version = version;
+    return objToJson;
+
+}
+
+function getVersionInfo(result, version, deployedBy, res, callback) {
     var appId = result[0];
     var envId = result[1];
-    //var ret;
+    var ret = "this string is sent before our SQL query return. Must fix. ";
 
     console.log("Getting version info for appID " + appId + " in envID " + envId);
     console.log("select version from version where app_type = " + appId + " and env_type = " + envId + " and tom_date is NULL");
@@ -96,26 +89,24 @@ function getVersionInfo(result, version, deployedBy, res) {
         if (err) throw err;
 
         connection.query("select version from version where app_type = ? and env_type = ? and tom_date is NULL order by ver_id DESC", [appId, envId], function (err, row) {
+            
             if (err) { 
+            
                 console.log("Failed to get version info for application");
                 throw err;
             }
             
+            
             var ret = row[0].version;
             console.log("Got version for application: ", row[0], " version ", ret);
 
-            //res.send(resultObject)
-            //res.send(row[0]);
-             
+            callback(ret);
+
         });
 
         connection.release();
     });
 
-    console.log("### Returning version ", ret);
-    //return ret;
-    // Empty list if not found
-    res.send(200);
 }
 
 function registerVersion(result, version, deployedBy, res) {
@@ -246,7 +237,7 @@ function getEnv(envName, createIfMissing) {
         connection.release();
     });
 
-    return deferred.promise;
+return deferred.promise;
 }
 
 function validateProperties(jsonObj) {
