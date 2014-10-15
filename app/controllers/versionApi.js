@@ -39,7 +39,6 @@ exports.getVersion = function () {
         var appName = req.query.application;
         var envName = req.query.environment;
 
-        console.log("Environment: " + envName);
         if (isAbsent(envName) && isPresent(appName)) { 
             console.log("Enviroment name not provided.");
             getVersionByApplication(appName, function(listEnvsAndVersion) {
@@ -97,14 +96,53 @@ exports.getVersion = function () {
 
             }).done(); 
 
-        }
+        } 
         else {
-            var retObj = createReturnObject("", "", "");
-            res.write(JSON.stringify(retObj));
-            res.send();
+            //getVersionByApplication(appName, function(listEnvsAndVersion) {
+
+            getAllVersions(function(listAllVersion) {
+
+                var list = [];
+                for (var key in listAllVersion) {
+                    var appName = listAllVersion[key].app_name;
+                    var envName = listAllVersion[key].env_name;
+                    var version = listAllVersion[key].version;
+                    var retObj = createReturnObject(appName, envName, version);
+                    list.push(retObj);
+                }
+
+                res.write(JSON.stringify(list));
+                res.send();    
+
+            });
+
         }
     }
 }
+
+function getAllVersions(callback) {
+    //var sqlStatement = "select * from version where tom_date is null and ver_type in (0, 11) order by env_type, app_type;";
+    var sqlStatement = "select * from view_version";
+        //var sqlStatement = "select app_type,version from version where env_type = ? and tom_date is NULL order by ver_id DESC";
+        console.log(sqlStatement);  
+
+        pool.getConnection(function (err, connection) {
+            if (err) throw err;
+
+            connection.query(sqlStatement, function (err, row) {
+
+                if (err) {  
+                    console.log("Failed to get list of all applications");
+                    throw err;
+                }
+
+                connection.release();
+                callback(row);
+
+            })
+        });    
+    }
+
 
 
 function isAbsent(parm) {
@@ -170,51 +208,42 @@ function getAllApplications(callback) {
 
             var appId = results[0];
             var sqlStatement = "select env_name,version from version join t_environment on version.env_type = t_environment.env_id where app_type = ? and tom_date is NULL order by ver_id DESC;";
-        //var sqlStatement = "select app_type,version from version where env_type = ? and tom_date is NULL order by ver_id DESC";
-        console.log(sqlStatement);  
+            console.log(sqlStatement);  
 
-        pool.getConnection(function (err, connection) {
-            if (err) throw err;
+            pool.getConnection(function (err, connection) {
+                if (err) throw err;
 
-            connection.query(sqlStatement, appId, function (err, row) {
+                connection.query(sqlStatement, appId, function (err, row) {
 
-                if (err) {  
-                    console.log("Failed to get version info for application");
-                    throw err;
-                }
+                    if (err) {  
+                        console.log("Failed to get version info for application");
+                        throw err;
+                    }
 
+                    connection.release();
+                    callback(row);
 
-                //var ret = row[0].version;
-                // console.log(row); 
-                //console.log("Got version for application: ", row[0], " version ", ret);
-                connection.release();
-                callback(row);
+                });
 
             });
-
-        });
-    }).catch(function (err) {
-        console.log("Failed to get id for environment. Returning an empty object.");
-        console.log(err); 
+        }).catch(function (err) {
+            console.log("Failed to get id for environment. Returning an empty object.");
+            console.log(err); 
             // Something went wrong, so lets return an empty object
             var retObj = createReturnObject("", "", "");
             callback(retObj);
-            //res.write(JSON.stringify(retObj));
-            //res.send();
-            //next(err); 
-
         }).done();    
-}
+    }
 
 
 
-function getVersionByEnvironment(envName, callback) {
-    var deferred = Q.defer();
+    function getVersionByEnvironment(envName, callback) {
+        var deferred = Q.defer();
 
-    Q.all([getEnv(envName, false)]).then(function (results) {
+        Q.all([getEnv(envName, false)]).then(function (results) {
 
-        var envId = results[0];
-        var sqlStatement = "select app_name,version from version join t_application on version.app_type = t_application.app_id where env_type = ? and tom_date is NULL order by ver_id DESC";
+            var envId = results[0];
+            var sqlStatement = "select app_name,version from version join t_application on version.app_type = t_application.app_id where env_type = ? and tom_date is NULL order by ver_id DESC";
         //var sqlStatement = "select app_type,version from version where env_type = ? and tom_date is NULL order by ver_id DESC";
         //console.log("Getting app_type,version info envname " + envName + " with envID " + envId); 
         console.log("select version from version where env_type = " + envId + " and tom_date is NULL");
