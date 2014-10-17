@@ -92,7 +92,7 @@ describe('Vera GET', function() {
         }
         )})
 
-    it('must support wildcard application filter', function(done) {
+    it('must support single wildcard in application filter', function(done) {
         request(url).get('/version?application=pensjon*&environment=t6')
         .expect(200)
         .end(function(err, res) {
@@ -112,6 +112,28 @@ describe('Vera GET', function() {
 
         }
         )})
+
+    it('must support multiple wildcards in application filter', function(done) {
+        request(url).get('/version?application=*aa*&environment=t1')
+        .expect(200)
+        .end(function(err, res) {
+            if (err) { 
+                console.log("ERROR");
+                throw err;
+            }
+            else {
+                expect(res.body).to.have.length.above(1);
+        
+                /* Verify some random data */
+                expect(res.body[0].application).to.contain('aa');
+                expect(res.body[0].environment).to.equal('T1');
+                
+                done();  
+            }
+
+        }
+        )})
+
 
     it('emtpy filter must return all applications in all environments', function(done) {
         request(url).get('/version')
@@ -143,7 +165,7 @@ describe('Vera GET', function() {
                 throw err;
             }
             else {
-                console.log(res.body);
+                //console.log(res.body);
                 expect(res.body).to.have.length(1);
 
                 /* Verify some random data */
@@ -166,7 +188,7 @@ describe('Vera GET', function() {
                 throw err;
             }
             else {
-                console.log(res.body);
+                //console.log(res.body);
                 expect(res.body).to.have.length(1);
 
                 /* Verify some random data */

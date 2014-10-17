@@ -43,103 +43,15 @@ exports.getVersion = function () {
     }
 }
 
-/*        if (isAbsent(envName) && isPresent(appName)) { 
-            console.log("Enviroment name not provided.");
-            getVersionByApplication(appName, function(listEnvsAndVersion) {
 
-                var list = [];
-                for (var key in listEnvsAndVersion) {
-                    var envName = listEnvsAndVersion[key].env_name;
-                    var version = listEnvsAndVersion[key].version;
-                    var retObj = createReturnObject(appName, envName, version);
-                    list.push(retObj);
-                }
-
-                res.write(JSON.stringify(list));
-                res.send();    
-
-            });
-        } 
-        else if (isAbsent(appName) && isPresent(envName)) {
-            console.log("Application name not provided.");
-
-            getVersionByEnvironment(envName).then(function(listAppsAndVersion) {
-
-                var list = [];
-                for (var key in listAppsAndVersion) {
-                    var appName = listAppsAndVersion[key].app_name;
-                    var version = listAppsAndVersion[key].version;
-                    var retObj = createReturnObject(appName, envName, version);
-                    list.push(retObj);
-                }
-
-                res.write(JSON.stringify(list));
-                res.send();    
-
-            });
-        }
-
-        else if (isPresent(appName) && isPresent(envName)) {
-
-            console.log("appName: " + appName + ", envName: " + envName);  
-            getVersionInfoByName(appName, envName, function(err, listAppsAndVersion) {
-                if (err != null) {
-                    console.log("Failed to get data. Returning an empty object.");
-                    console.log(err); 
-                    // Something went wrong, so lets return an empty object
-                    var retObj = createReturnObject("", "", "");
-                    res.write(JSON.stringify(retObj));
-                    res.send();                        
-                }
-                else {
-                    
-                    var list = [];
-                    for (var key in listAppsAndVersion) {
-
-                        var appName = listAppsAndVersion[key].app_name;
-                        var envName = listAppsAndVersion[key].env_name;
-                        var version = listAppsAndVersion[key].version;
-                        var retObj = createReturnObject(appName, envName, version);
-                        list.push(retObj);
-                        //console.log("Added " + appName + " in environment " + envName); 
-                    }
-
-                    res.write(JSON.stringify(list));
-                    res.send();    
-                }
-            })
-
-    } 
-        else {
-
-                getAllVersions(function(listAllVersion) {
-
-                    var list = [];
-                    for (var key in listAllVersion) {
-                        var appName = listAllVersion[key].app_name;
-                        var envName = listAllVersion[key].env_name;
-                        var version = listAllVersion[key].version;
-                        var retObj = createReturnObject(appName, envName, version);
-                        list.push(retObj);
-                    }
-
-                    res.write(JSON.stringify(list));
-                    res.send();    
-
-                });
-
-            }
-        }
-    }*/
-
-    function getVersions(res, appName, envName) {
+function getVersions(res, appName, envName) {
 
     console.log("appName: " + appName + ", envName: " + envName);  
-            getVersionInfoByName(appName, envName, function(err, listAppsAndVersion) {
-                if (err != null) {
-                    console.log("Failed to get data. Returning an empty object.");
-                    console.log(err); 
-                    
+    getVersionInfoByName(appName, envName, function(err, listAppsAndVersion) {
+        if (err != null) {
+            console.log("Failed to get data. Returning an empty object.");
+            console.log(err); 
+
                     // Something went wrong, so lets return an empty object
                     var retObj = createReturnObject("", "", "");
                     res.write(JSON.stringify([retObj]));  
@@ -147,7 +59,7 @@ exports.getVersion = function () {
                     res.send();                        
                 }
                 else {
-                    
+
                     var list = [];
                     for (var key in listAppsAndVersion) {
 
@@ -165,35 +77,35 @@ exports.getVersion = function () {
                 } 
             })
 
+}
+
+function getVersionInfoByName(appName, envName, callback) {
+
+    if (appName != null) {
+        appName = appName.replace(/\*/g, "%"); 
+    }
+    else {
+        appName = "%";
+    }
+    if (envName != null) {
+        envName = envName.replace(/\*/g, "%"); 
+    }
+    else {
+        envName = "%"; 
     }
 
-    function getVersionInfoByName(appName, envName, callback) {
+    console.log("Looking up " + appName + " in env " + envName); 
+    pool.getConnection(function (err, connection) {
+        if (err) throw err; 
 
-        if (appName != null) {
-            appName = appName.replace("*", "%");
-        }
-        else {
-            appName = "%"; 
-        }
-        if (envName != null) {
-            envName = envName.replace("*", "%");  
-        }
-        else {
-            envName = "%"; 
-        }
-
-        console.log("Looking up " + appName + " in env " + envName); 
-        pool.getConnection(function (err, connection) {
-            if (err) throw err;
-
-            connection.query("select env_name,app_name,version from view_version where app_name like ? and env_name like ?", [appName, envName], function (err, rows) {
-                if (err) {
-                    callback(err);
-                    return;
-                } else if (rows.length === 0) {
-                    callback("zero results");
-                    return;
-                } else if (rows.length > 0) {
+        connection.query("select env_name,app_name,version from view_version where app_name like ? and env_name like ?", [appName, envName], function (err, rows) {
+            if (err) {
+                callback(err);
+                return;
+            } else if (rows.length === 0) {
+                callback("zero results");
+                return;
+            } else if (rows.length > 0) {
                 callback(null, rows);
 
             } else {
@@ -201,173 +113,8 @@ exports.getVersion = function () {
             }
         });
 
-            connection.release();
-        });
-
-    }
-
-    function getAllVersions(callback) {
-    //var sqlStatement = "select * from version where tom_date is null and ver_type in (0, 11) order by env_type, app_type;";
-    var sqlStatement = "select * from view_version";
-        //var sqlStatement = "select app_type,version from version where env_type = ? and tom_date is NULL order by ver_id DESC";
-        console.log(sqlStatement);  
-
-        pool.getConnection(function (err, connection) {
-            if (err) throw err;
-
-            connection.query(sqlStatement, function (err, row) {
-
-                if (err) {  
-                    console.log("Failed to get list of all applications");
-                    throw err;
-                }
-
-                connection.release();
-                callback(row);
-
-            })
-        });    
-    }
-
-
-
-    function isAbsent(parm) {
-        if (parm == "" || parm == null) return true;
-        return false;
-    }
-
-    function isPresent(parm) {
-        if (parm == "" || parm == null) return false;
-        return true;
-    }
-
-    function getAllEnvironments() {
-        var deferred = Q.defer();
-
-        pool.getConnection(function (err, connection) {
-            if (err) throw err;
-
-            connection.query("select env_name from t_environment", function (err, rows) {
-                if (err) {
-                    deferred.reject(new Error(err));
-                } else if (rows.length === 0) {
-                    deferred.reject(new Error("The database returned zero environments."));
-                } else if (rows.length > 0) {
-                //ound these environments: ");
-                //console.log(rows);
-                deferred.resolve(rows);
-            } else {
-                throw new Error("Something went wrong when getting environments");
-            }
-        });
-
-            connection.release();
-        });
-
-        return deferred.promise;
-    }
-
-    function getAllApplications(callback) {
-        var sqlStatement = "select app_name from t_application;";
-        //var sqlStatement = "select app_type,version from version where env_type = ? and tom_date is NULL order by ver_id DESC";
-        console.log(sqlStatement);  
-
-        pool.getConnection(function (err, connection) {
-            if (err) throw err;
-
-            connection.query(sqlStatement, function (err, row) {
-
-                if (err) {  
-                    console.log("Failed to get list of all applications");
-                    throw err;
-                }
-
-                connection.release();
-                callback(row);
-
-            })
-        });    
-    }
-
-    function getVersionByApplication(appName, callback) {
-        Q.all([getApp(appName, false)]).then(function (results) {
-
-            var appId = results[0];
-            var sqlStatement = "select env_name,version from version join t_environment on version.env_type = t_environment.env_id where app_type = ? and tom_date is NULL order by ver_id DESC;";
-            console.log(sqlStatement);  
-
-            pool.getConnection(function (err, connection) {
-                if (err) throw err;
-
-                connection.query(sqlStatement, appId, function (err, row) {
-
-                    if (err) {  
-                        console.log("Failed to get version info for application");
-                        throw err;
-                    }
-
-                    connection.release();
-                    callback(row);
-
-                });
-
-            });
-        }).catch(function (err) {
-            console.log("Failed to get id for environment. Returning an empty object.");
-            console.log(err); 
-            // Something went wrong, so lets return an empty object
-            var retObj = createReturnObject("", "", "");
-            callback(retObj);
-        }).done();    
-    }
-
-
-
-    function getVersionByEnvironment(envName, callback) {
-        var deferred = Q.defer();
-
-        Q.all([getEnv(envName, false)]).then(function (results) {
-
-            var envId = results[0];
-            var sqlStatement = "select app_name,version from version join t_application on version.app_type = t_application.app_id where env_type = ? and tom_date is NULL order by ver_id DESC";
-        //var sqlStatement = "select app_type,version from version where env_type = ? and tom_date is NULL order by ver_id DESC";
-        //console.log("Getting app_type,version info envname " + envName + " with envID " + envId); 
-        console.log("select version from version where env_type = " + envId + " and tom_date is NULL");
-
-        pool.getConnection(function (err, connection) {
-            if (err) throw err;
-
-            connection.query(sqlStatement, envId, function (err, row) {
-
-                if (err) { 
-                    console.log("Failed to get version info for application");
-                    throw err;
-                }
-
-                //console.log("Row: " + row);  
-                //var ret = row[0].version;
-                //console.logq("Got version for application: ", row[0], " version ", ret);
-                connection.release();
-                //callback(row);
-                deferred.resolve(row);
-
-            });
-
-        });
-    }).catch(function (err) {
-        console.log("Failed to get id for environment. Returning an empty object.");
-        console.log(err); 
-            // Something went wrong, so lets return an empty object
-            var retObj = createReturnObject("", "", "");
-            //callback(retObj);
-            deferred.reject(retObj);
-            //res.write(JSON.stringify(retObj));
-            //res.send();
-            //next(err); 
-
-        }).done();    
-    //console.log("Ferdig med promise.")
-    return deferred.promise;
+        connection.release();
+    });
 
 }
 
@@ -381,35 +128,6 @@ function createReturnObject(application, environment, version) {
 
 }
 
-function getVersionInfo(result, version, deployedBy, res, callback) {
-    var appId = result[0];
-    var envId = result[1];    
-
-    console.log("Getting version info for appID " + appId + " in envID " + envId);
-    console.log("select version from version where app_type = " + appId + " and env_type = " + envId + " and tom_date is NULL");
-
-    pool.getConnection(function (err, connection) {
-        if (err) throw err;
-
-        connection.query("select version from version where app_type = ? and env_type = ? and tom_date is NULL order by ver_id DESC", [appId, envId], function (err, row) {
-
-            if (err) { 
-                console.log("Failed to get version info for application");
-                throw err;
-            }
-            
-            
-            var ret = row[0].version;
-            console.log("Got version for application: ", row[0], " version ", ret);
-
-            callback(ret);
-
-        });
-
-        connection.release();
-    });
-
-}
 
 function registerVersion(result, version, deployedBy, res) {
     var appId = result[0];
