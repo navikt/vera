@@ -39,9 +39,11 @@ exports.getVersion = function () {
         var appName = req.query.application;
         var envName = req.query.environment;
 
-        
+        getVersions(res, appName, envName);
+    }
+}
 
-        if (isAbsent(envName) && isPresent(appName)) { 
+/*        if (isAbsent(envName) && isPresent(appName)) { 
             console.log("Enviroment name not provided.");
             getVersionByApplication(appName, function(listEnvsAndVersion) {
 
@@ -128,12 +130,57 @@ exports.getVersion = function () {
 
             }
         }
+    }*/
+
+    function getVersions(res, appName, envName) {
+
+    console.log("appName: " + appName + ", envName: " + envName);  
+            getVersionInfoByName(appName, envName, function(err, listAppsAndVersion) {
+                if (err != null) {
+                    console.log("Failed to get data. Returning an empty object.");
+                    console.log(err); 
+                    
+                    // Something went wrong, so lets return an empty object
+                    var retObj = createReturnObject("", "", "");
+                    res.write(JSON.stringify([retObj]));  
+
+                    res.send();                        
+                }
+                else {
+                    
+                    var list = [];
+                    for (var key in listAppsAndVersion) {
+
+                        var appName = listAppsAndVersion[key].app_name;
+                        var envName = listAppsAndVersion[key].env_name;
+                        var version = listAppsAndVersion[key].version;
+                        var retObj = createReturnObject(appName, envName, version);
+                        list.push(retObj);
+                        //console.log("Added " + appName + " in environment " + envName); 
+                    }
+
+                    res.write(JSON.stringify(list));
+                    console.log("Sending this back to the client: " + JSON.stringify(list));  
+                    res.send();    
+                } 
+            })
+
     }
 
     function getVersionInfoByName(appName, envName, callback) {
 
-        appName = appName.replace("*", "%");
-        envName = envName.replace("*", "%"); 
+        if (appName != null) {
+            appName = appName.replace("*", "%");
+        }
+        else {
+            appName = "%"; 
+        }
+        if (envName != null) {
+            envName = envName.replace("*", "%");  
+        }
+        else {
+            envName = "%"; 
+        }
 
         console.log("Looking up " + appName + " in env " + envName); 
         pool.getConnection(function (err, connection) {
@@ -147,7 +194,7 @@ exports.getVersion = function () {
                     callback("zero results");
                     return;
                 } else if (rows.length > 0) {
-                callback(null, rows); 
+                callback(null, rows);
 
             } else {
                 throw new Error("Something went wrong when getting environments");

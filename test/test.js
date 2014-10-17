@@ -147,7 +147,7 @@ describe('Vera GET', function() {
                 expect(res.body).to.have.length(1);
 
                 /* Verify some random data */
-                expect(res.body[0].application).to.contain('');
+                expect(res.body[0].application).to.equal('');
                 expect(res.body[0].environment).to.equal('');
                 expect(res.body[0].environment).to.equal('');
 
@@ -170,7 +170,7 @@ describe('Vera GET', function() {
                 expect(res.body).to.have.length(1);
 
                 /* Verify some random data */
-                expect(res.body[0].application).to.contain('');
+                expect(res.body[0].application).to.equal('');
                 expect(res.body[0].environment).to.equal('');
                 expect(res.body[0].environment).to.equal('');
 
