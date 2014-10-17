@@ -39,6 +39,8 @@ exports.getVersion = function () {
         var appName = req.query.application;
         var envName = req.query.environment;
 
+        
+
         if (isAbsent(envName) && isPresent(appName)) { 
             console.log("Enviroment name not provided.");
             getVersionByApplication(appName, function(listEnvsAndVersion) {
@@ -78,29 +80,35 @@ exports.getVersion = function () {
         else if (isPresent(appName) && isPresent(envName)) {
 
             console.log("appName: " + appName + ", envName: " + envName);  
-            getVersionInfoByName(appName, envName, function(listAppsAndVersion) {
-                console.log("Creating list..");
-            var list = [];
-             for (var key in listAppsAndVersion) {
+            getVersionInfoByName(appName, envName, function(err, listAppsAndVersion) {
+                if (err != null) {
+                    console.log("Failed to get data. Returning an empty object.");
+                    console.log(err); 
+                    // Something went wrong, so lets return an empty object
+                    var retObj = createReturnObject("", "", "");
+                    res.write(JSON.stringify(retObj));
+                    res.send();                        
+                }
+                else {
+                    
+                    var list = [];
+                    for (var key in listAppsAndVersion) {
 
-                var appName = listAppsAndVersion[key].app_name;
-                var envName = listAppsAndVersion[key].env_name;
-                var version = listAppsAndVersion[key].version;
-                var retObj = createReturnObject(appName, envName, version);
-                list.push(retObj);
-                console.log("Added " + appName + " in environment " + envName); 
-                
-            }
+                        var appName = listAppsAndVersion[key].app_name;
+                        var envName = listAppsAndVersion[key].env_name;
+                        var version = listAppsAndVersion[key].version;
+                        var retObj = createReturnObject(appName, envName, version);
+                        list.push(retObj);
+                        //console.log("Added " + appName + " in environment " + envName); 
+                    }
 
-            res.write(JSON.stringify(list));
-            res.send();    
+                    res.write(JSON.stringify(list));
+                    res.send();    
+                }
+            })
 
-        });
-
-
-        } 
+    } 
         else {
-            //getVersionByApplication(appName, function(listEnvsAndVersion) {
 
                 getAllVersions(function(listAllVersion) {
 
@@ -121,26 +129,26 @@ exports.getVersion = function () {
             }
         }
     }
- 
+
     function getVersionInfoByName(appName, envName, callback) {
 
         appName = appName.replace("*", "%");
         envName = envName.replace("*", "%"); 
-      
+
         console.log("Looking up " + appName + " in env " + envName); 
         pool.getConnection(function (err, connection) {
             if (err) throw err;
 
             connection.query("select env_name,app_name,version from view_version where app_name like ? and env_name like ?", [appName, envName], function (err, rows) {
                 if (err) {
-                    throw new Error(err);
+                    callback(err);
+                    return;
                 } else if (rows.length === 0) {
-                    throw new Error("The database returned zero environments.");
+                    callback("zero results");
+                    return;
                 } else if (rows.length > 0) {
-                //ound these environments: ");
-                callback(rows); 
-    
-                //deferred.resolve(rows);
+                callback(null, rows); 
+
             } else {
                 throw new Error("Something went wrong when getting environments");
             }

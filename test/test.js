@@ -20,9 +20,9 @@ describe('JsonBodyValidation', function () {
             }
             else { 
                 //console.log(res.body); // Response from the API 
-                expect(res.body).to.have.property('application');
-                expect(res.body).to.have.property('environment');
-                expect(res.body).to.have.property('version');
+                expect(res.body[0]).to.have.property('application');
+                expect(res.body[0]).to.have.property('environment');
+                expect(res.body[0]).to.have.property('version');
                 done();    
             }
 
@@ -42,8 +42,8 @@ describe('Vera GET', function() {
                 throw err;
             }
             else {
-                expect(res.body.application).to.equal('pensjon-fss');
-                expect(res.body.environment).to.equal('t5');
+                expect(res.body[0].application).to.equal('pensjon-fss');
+                expect(res.body[0].environment).to.equal('T5');
                 expect(res.body.version).not.to.be.null;
                 
                 done();  
@@ -101,12 +101,12 @@ describe('Vera GET', function() {
                 throw err;
             }
             else {
-                //console.log(res.body);
-                //expect(res.body).to.have.length(2);
-                console.log("TODO");
+                expect(res.body).to.have.length(2);
+        
                 /* Verify some random data */
-                //expect(res.body).to.deep.include.members([ { application: "pensjon-fss", environment: "q4", version: "8.1.28" } ]);
-
+                expect(res.body[0].application).to.contain('pensjon');
+                expect(res.body[0].environment).to.equal('T6');
+                
                 done();  
             }
 
@@ -122,11 +122,57 @@ describe('Vera GET', function() {
                 throw err;
             }
             else {
-                console.log(res.body);
+                //console.log(res.body);
                 expect(res.body).to.have.length.above(2);
 
                 /* Verify some random data */
                 //expect(res.body).to.deep.include.members([ { application: "pensjon-fss", environment: "q4", version: "8.1.28" } ]);
+
+                done();  
+            }
+
+        }
+        )})
+
+        it('non-existing applications should return empty list', function(done) {
+        request(url).get('/version?application=doesnotexist')
+        .expect(200)
+        .end(function(err, res) {
+            if (err) { 
+                console.log("ERROR");
+                throw err;
+            }
+            else {
+                console.log(res.body);
+                expect(res.body).to.have.length(1);
+
+                /* Verify some random data */
+                expect(res.body[0].application).to.contain('');
+                expect(res.body[0].environment).to.equal('');
+                expect(res.body[0].environment).to.equal('');
+
+                done();  
+            }
+
+        }
+        )})
+
+        it('non-existing environment should return empty list', function(done) {
+        request(url).get('/version?application=pensjon-fss&environment=E1')
+        .expect(200)
+        .end(function(err, res) {
+            if (err) { 
+                console.log("ERROR");
+                throw err;
+            }
+            else {
+                console.log(res.body);
+                expect(res.body).to.have.length(1);
+
+                /* Verify some random data */
+                expect(res.body[0].application).to.contain('');
+                expect(res.body[0].environment).to.equal('');
+                expect(res.body[0].environment).to.equal('');
 
                 done();  
             }
