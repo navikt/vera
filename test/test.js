@@ -23,6 +23,8 @@ describe('JsonBodyValidation', function () {
                 expect(res.body[0]).to.have.property('application');
                 expect(res.body[0]).to.have.property('environment');
                 expect(res.body[0]).to.have.property('version');
+                expect(res.body[0]).to.have.property('deployer');
+
                 done();    
             }
 

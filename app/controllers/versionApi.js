@@ -53,7 +53,7 @@ function getVersions(res, appName, envName) {
             console.log(err); 
 
                     // Something went wrong, so lets return an empty object
-                    var retObj = createReturnObject("", "", "");
+                    var retObj = createReturnObject("", "", "", "");
                     res.write(JSON.stringify([retObj]));  
 
                     res.send();                        
@@ -66,7 +66,8 @@ function getVersions(res, appName, envName) {
                         var appName = listAppsAndVersion[key].app_name;
                         var envName = listAppsAndVersion[key].env_name;
                         var version = listAppsAndVersion[key].version;
-                        var retObj = createReturnObject(appName, envName, version);
+                        var deployer = listAppsAndVersion[key].deployer;
+                        var retObj = createReturnObject(appName, envName, version, deployer);
                         list.push(retObj);
                         //console.log("Added " + appName + " in environment " + envName); 
                     }
@@ -98,7 +99,7 @@ function getVersionInfoByName(appName, envName, callback) {
     pool.getConnection(function (err, connection) {
         if (err) throw err; 
 
-        connection.query("select env_name,app_name,version from view_version where app_name like ? and env_name like ?", [appName, envName], function (err, rows) {
+        connection.query("select env_name,app_name,version,deployer from view_version where app_name like ? and env_name like ?", [appName, envName], function (err, rows) {
             if (err) {
                 callback(err);
                 return;
@@ -118,12 +119,13 @@ function getVersionInfoByName(appName, envName, callback) {
 
 }
 
-function createReturnObject(application, environment, version) {
+function createReturnObject(application, environment, version, deployer) {
 
     var objToJson = { };
     objToJson.application = application; 
     objToJson.environment = environment;
     objToJson.version = version;
+    objToJson.deployer = deployer;
     return objToJson;
 
 }
