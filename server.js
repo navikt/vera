@@ -27,10 +27,8 @@ var errorHandler = function(err, req, res, next) {
 app.use(logError);
 app.use(errorHandler);
 
+app.use(express.static(__dirname + "/public"));
+
 app.listen(config.port, function () {
     console.log("Ready for e-business on port " + config.port );
 });
-
-var app = express();
-
-module.exports = app;
