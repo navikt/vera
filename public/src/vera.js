@@ -1,6 +1,5 @@
 /** @jsx React.DOM */
 
-
 var InstanceTable = React.createClass({
 
     getInitialState: function () {
@@ -10,14 +9,14 @@ var InstanceTable = React.createClass({
         this.fetchInstances();
     },
     fetchInstances: function () {
-        $.getJSON("test.json").done(function (data) {
+        $.getJSON(this.props.versionsProvider).done(function (data) {
             this.setState({versionData: data})
         }.bind(this));
     },
 
     render: function () {
         return (
-            <table>
+            <table className='table table-striped'>
                 <thead>
                     <tr>
                         <th>application</th>
@@ -36,23 +35,28 @@ var InstanceTable = React.createClass({
     }
 });
 
-
 var ApplicationRow = React.createClass({
     render: function () {
         return (
             <tr>
                 <td>{this.props.application.name}</td>
                 {this.props.application.instances.map(function(instance){
-                    return <td>{instance.version}</td>
+                    return <TableDataWrapper key={instance.environment} content={instance.version} />
                 })}
             </tr>
         )
     }
+});
+
+var TableDataWrapper = React.createClass({
+    render: function () {
+        return (
+            <td>{this.props.content}</td>
+        )
+    }
 })
 
-
 React.render(
-    <InstanceTable />
+    <InstanceTable versionsProvider="http://localhost:9080/test.json" />
     , document.getElementById('content')
 );
-
