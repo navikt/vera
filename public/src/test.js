@@ -1,9 +1,7 @@
-var _ = require('lodash');
 var http = require('http');
-require('natural-compare-lite')
-fs = require('fs')
-
-//http.get("http://b27isvl001.preprod.local:9080/version", function(res) {
+fs = require('fs');
+var _ = require('lodash');
+var veraparser = require('./vera-parser.js');
 
     var rawdata = [
         {
@@ -182,59 +180,41 @@ fs = require('fs')
         }
     ]
 
-    function doingStuff(versionJson) {
+getFromRealVera();
 
-        environments = getDistinctEnvironments(versionJson);
-
-        var applicationInstancesGroupedByApplication = _.chain(versionJson).groupBy(function(element) {
-            return element['application']
-
-        }).value();
-
-        var applications = Object.keys(applicationInstancesGroupedByApplication);
-        var tableContents = [];
-        _.forEach(applications, function(element) {
-            tableContents.push(generateApplicationRow(environments, element, applicationInstancesGroupedByApplication[element]))
+function getFromRealVera() {
+    http.get("http://localhost:9080/version", function(response) {
+        var jsonResponse = '';
+        response.on('data', function(data) {
+            jsonResponse += data;
         });
 
-        generateHtml(environments, tableContents);
-
-    }
-
-
-
-function getDistinctEnvironments(versionData) {
-    var environments = _.chain(versionData).pluck('environment').uniq(function(element) {
-        return element.toLowerCase();
-    }).sortBy(String).value();
-    environments.unshift('Application');
-
-    return environments;
-}
-
-function generateApplicationRow(columns, appName, applicationInstances) {
-    var rowData = Array.apply(null, Array(columns.length -1))
-    rowData.unshift(appName)
-
-    for(var i = 1; i < columns.length; i++) {
-        var filtered = _.filter(applicationInstances, function(appInstance) {
-            return appInstance.environment === columns[i]
+        response.on('end', function() {
+            //veraparser.filterEnv(JSON.parse(jsonResponse), ['t1', 'p', 'q'], veraparser.builVersionMatrix)
+            veraparser.builVersionMatrix(JSON.parse(jsonResponse), generateVersionMatrix);
+            //veraparser.builVersionTimeLine(JSON.parse(jsonResponse), generateHtml);
         });
-
-        if(filtered.length === 1 ) {
-            rowData[i] = _.first(filtered);
-        }
-    }
-    return rowData;
+    });
 }
 
-doingStuff(rawdata);
+function generateHtml(tableHeader, tableRows) {
+    var html = "<html><body><table border='1'>";
+    html += "<thead><tr><th>" + tableHeader.join("</th><th>") + "</th><tr></thead>";
 
-function generateHtml(environments, tableContents) {
-    var html = "<html><body>";
-    html += "<table border='1'>";
-    html += "<thead><tr><th>" + environments.join("</th><th>") + "</th><tr></thead>";
+    _.forEach(tableRows, function(row) {
+        html += "<tr><td>" + row.join("</td><td>") + "</td></tr>";
+    });
 
+    html += "</body></html>";
+
+    console.log(html)
+    console.log("Wrote vera.html")
+    fs.writeFile("vera.html", html)
+}
+
+
+function generateVersionMatrix(tableHeader, tableContents) {
+    var tableRows = [];
     _.forEach(tableContents, function(row) {
         var rowArray = [row[0]]
         for(var i = 1; i < row.length; i++ ) {
@@ -242,15 +222,10 @@ function generateHtml(environments, tableContents) {
                 rowArray.push(row[i].version)
             }
             else {
-                rowArray.push("na")
+                rowArray.push("")
             }
-
         }
-        html += "<tr><td>" + rowArray.join("</td><td>") + "</td></tr>";
-    });
-
-    html += "</body></html>";
-
-    console.log(html)
-    fs.writeFile("vera.html", html)
+        tableRows.push(rowArray);
+    })
+    generateHtml(tableHeader, tableRows);
 }
