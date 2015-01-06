@@ -1,12 +1,8 @@
 var React = require('react');
-var _ = require('lodash');
 
 module.exports = React.createClass({
 
     getInitialState: function(){
-        var keys = _.keys(this.props.items[0]);
-        console.log("Got the following keys: " + keys);
-
         return { filterString: '', filterString2: '' };
     },
 

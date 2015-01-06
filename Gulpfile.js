@@ -9,7 +9,7 @@ var size = require('gulp-size');
 var del = require('del');
 
 gulp.task('js', ['clean'], function() {
-    browserify('./public/src/js/vera.jsx')
+    browserify('./app.jsx')
         .transform(reactify)
         .bundle()
         .pipe(source('vera.js'))
@@ -25,7 +25,7 @@ gulp.task('copy-css', ['clean'], function(){
 });
 
 gulp.task('watch', function(){
-    gulp.watch('./public/src/js/**/*.jsx', ['js']);
+    gulp.watch('./public/src/js/**/*.jsx', ['js', 'copy-css']);
 });
 
 gulp.task('clean', function(cb){
