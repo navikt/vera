@@ -22,10 +22,12 @@ module.exports = React.createClass({
         var filterString  = this.state.filterString.trim().toLowerCase();
         var filterString2  = this.state.filterString2.trim().toLowerCase();
 
-        return <table>
+        return <table className='table table-striped'>
             <tr>
                 <th><input type="text" value={this.state.filterString} onChange={this.handleChange} /></th>
                 <th><input type="text" value={this.state.filterString2} onChange={this.handleChange2} /></th>
+                <th>deployer</th>
+                <th>version</th>
             </tr>
             <tbody>
                     {this.props.items
@@ -35,7 +37,7 @@ module.exports = React.createClass({
                             return application.indexOf(filterString) > -1 && environment.indexOf(filterString2) > -1;
                         })
                         .map(function(elem){
-                            return <tr><td>{elem.application}</td><td>{elem.environment}</td></tr>
+                            return <tr><td>{elem.application}</td><td>{elem.environment}</td><td>{elem.deployer}</td><td>{elem.version}</td></tr>
                         })}
             </tbody>
         </table>

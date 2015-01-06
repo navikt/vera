@@ -6,8 +6,9 @@ var reactify = require('reactify');
 var source = require('vinyl-source-stream');
 var uglify = require('gulp-uglify');
 var size = require('gulp-size');
+var del = require('del');
 
-gulp.task('js', function() {
+gulp.task('js', ['clean'], function() {
     browserify('./public/src/js/vera.jsx')
         .transform(reactify)
         .bundle()
@@ -22,5 +23,16 @@ gulp.task('watch', function(){
     gulp.watch('./public/src/js/**/*.jsx', ['js']);
 });
 
-gulp.task('default', ['watch', 'js']);
+gulp.task('copy-css', ['clean'], function(){
+    gulp.src('./node_modules/bootstrap/dist/css/bootstrap.css')
+    .pipe(gulp.dest('./public/build/'))
+});
+
+gulp.task('clean', function(cb){
+    del(['./public/build'], cb);
+})
+
+gulp.task('default', ['watch', 'clean', 'js', 'copy-css']);
+
+
 
