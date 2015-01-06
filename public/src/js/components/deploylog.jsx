@@ -30,10 +30,12 @@ module.exports = React.createClass({
             <tbody>
                     {this.props.items
                         .filter(function(elem){
-                            return elem.app.indexOf(filterString) > -1 && elem.env.indexOf(filterString2) > -1;
+                            var application = elem.application.toLowerCase();
+                            var environment = elem.environment.toLowerCase();
+                            return application.indexOf(filterString) > -1 && environment.indexOf(filterString2) > -1;
                         })
                         .map(function(elem){
-                            return <tr><td>{elem.app}</td><td>{elem.env}</td></tr>
+                            return <tr><td>{elem.application}</td><td>{elem.environment}</td></tr>
                         })}
             </tbody>
         </table>

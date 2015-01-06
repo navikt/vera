@@ -4,6 +4,12 @@ var express = require('express'),
     config = require('./config/config'),
     app = express();
 
+var cors = function(req, res, next){
+    res.setHeader("Access-Control-Allow-Origin", "*");
+    return next();
+}
+
+app.use(cors);
 app.use(bodyParser());
 app.use(dexter());
 
@@ -23,6 +29,7 @@ var errorHandler = function(err, req, res, next) {
         error: err.message
     });
 };
+
 
 app.use(logError);
 app.use(errorHandler);
