@@ -19,20 +19,22 @@ gulp.task('js', ['clean'], function() {
         .pipe(gulp.dest('./public/build/'));
 })
 
-gulp.task('watch', function(){
-    gulp.watch('./public/src/js/**/*.jsx', ['js']);
-});
-
 gulp.task('copy-css', ['clean'], function(){
     gulp.src('./node_modules/bootstrap/dist/css/bootstrap.css')
     .pipe(gulp.dest('./public/build/'))
 });
 
+gulp.task('watch', function(){
+    gulp.watch('./public/src/js/**/*.jsx', ['js']);
+});
+
 gulp.task('clean', function(cb){
     del(['./public/build'], cb);
-})
+});
 
-gulp.task('default', ['watch', 'clean', 'js', 'copy-css']);
+gulp.task('build', ['js', 'copy-css']);
+
+gulp.task('default', ['watch', 'build']);
 
 
 
