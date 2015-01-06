@@ -2,7 +2,7 @@ var _ = require('underscore');
 var mysql = require('mysql');
 var config = require("../../config/config");
 var Q = require('q');
-var async = require('async');
+//var async = require('async');
 
 var pool = mysql.createPool({
     host: config.dbUrl,
