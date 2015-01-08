@@ -9,7 +9,7 @@ module.exports = LogRow = React.createClass({
             <td>{event.environment}</td>
             <td>{event.deployer}</td>
             <td>{event.version}</td>
-            <td>{moment(event.timestamp).format('DD.MM.YY HH:mm:ss')}</td>
+            <td>{moment(event.timestamp).format('DD-MM-YY HH:mm:ss')}</td>
         </tr>
     }
 });
