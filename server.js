@@ -2,6 +2,7 @@ var express = require('express'),
     bodyParser = require('body-parser'),
     dexter = require('morgan'),
     config = require('./config/config'),
+    mongoose = require('mongoose'),
     app = express();
 
 var cors = function(req, res, next){
@@ -16,7 +17,6 @@ app.use(dexter());
 app.set('port', config.port);
 require('./config/routes')(app);
 
-
 var logError = function(err, req, res, next){
     console.log("Error: %s", err.message);
     return next(err);
@@ -30,6 +30,8 @@ var errorHandler = function(err, req, res, next) {
     });
 };
 
+mongoose.connect('mongodb://e34apsl00652.devillo.no/deploy_log');
+var db = mongoose.connection;
 
 app.use(logError);
 app.use(errorHandler);

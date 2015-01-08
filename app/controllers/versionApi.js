@@ -2,7 +2,8 @@ var _ = require('underscore');
 var mysql = require('mysql');
 var config = require("../../config/config");
 var Q = require('q');
-//var async = require('async');
+var mongoose = require('mongoose');
+var Event = require('../models/event');
 
 var pool = mysql.createPool({
     host: config.dbUrl,
@@ -10,7 +11,20 @@ var pool = mysql.createPool({
     password: config.dbPassword,
     database: config.dbSchema
 });
+
 var app = require('express')();
+
+exports.getEvents = function(){
+    return function(req, res, next){
+
+        var query = function(err, events){
+            res.write(JSON.stringify(events));
+            res.send();
+        }
+
+        Event.find().limit(10).sort([['timestamp', 'descending']]).exec(query);
+    }
+}
 
 exports.registerDeployment = function () {
     return function (req, res, next) {
@@ -120,14 +134,12 @@ function getVersionInfoByName(appName, envName, callback) {
 }
 
 function createReturnObject(application, environment, version, deployer) {
-
     var objToJson = { };
     objToJson.application = application; 
     objToJson.environment = environment;
     objToJson.version = version;
     objToJson.deployer = deployer;
     return objToJson;
-
 }
 
 

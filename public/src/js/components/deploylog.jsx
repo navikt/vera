@@ -37,8 +37,7 @@ module.exports = DeployLog = React.createClass({
                     {this.props.items
                         .filter(nonMatchingEvents)
                         .map(function(elem){
-                            //TODO returnere en id på hvert element fra REST-tjenesten?
-                            return <LogRow key={elem.environment + elem.application + elem.version} event={elem} />
+                            return <LogRow key={elem._id} event={elem} />
                         })}
             </tbody>
         </table>
