@@ -30,8 +30,10 @@ var errorHandler = function(err, req, res, next) {
     });
 };
 
-mongoose.connect('mongodb://e34apsl00652.devillo.no/deploy_log');
+mongoose.connect(config.dbUrl);
 var db = mongoose.connection;
+
+db.on('error', console.error.bind(console, 'connection error:'));
 
 app.use(logError);
 app.use(errorHandler);

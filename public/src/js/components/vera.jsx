@@ -16,7 +16,9 @@ module.exports = Vera = React.createClass({
 
     render: function() {
         return (
-            <DeployLog items={this.state.items} />
+            <div className="container">
+                <DeployLog items={this.state.items} />
+            </div>
         )
     }
 })

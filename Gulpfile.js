@@ -25,7 +25,7 @@ gulp.task('copy-css', ['clean'], function(){
 });
 
 gulp.task('watch', function(){
-    gulp.watch('./public/src/js/**/*.jsx', ['js', 'copy-css']);
+    gulp.watch(['./public/src/js/**/*.jsx', './app.jsx'], ['js', 'copy-css']);
 });
 
 gulp.task('clean', function(cb){

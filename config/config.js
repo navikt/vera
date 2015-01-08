@@ -4,10 +4,9 @@ var path = require('path'),
 var config = {
     root: rootPath,
     port: process.env.PORT || 9080,
-    dbUrl: process.env['db_url'] || "heltfeilhost",
+    dbUrl: process.env['db_url'] || "mongodb://localhost/deploy_log",
     dbUser: process.env['db_username'] || "hvemsomhelst",
-    dbPassword: process.env['db_password'] || "<hemmelig>",
-    dbSchema: process.env['db_schema'] || "R4321-B-ALTINN"
+    dbPassword: process.env['db_password'] || "<hemmelig>"
 }
 
 module.exports = config
