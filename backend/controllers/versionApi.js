@@ -1,4 +1,4 @@
-var config = require("../../config/config");
+var config = require("../config/config");
 var Event = require('../models/event');
 var _ = require('lodash');
 

@@ -1,5 +1,5 @@
 module.exports = function(app) {
-    var versionApi = require('../app/controllers/versionApi');
+    var versionApi = require('../controllers/versionApi');
 
     app.post('/version', versionApi.registerDeployment());
     app.get('/version', versionApi.getVersion());
