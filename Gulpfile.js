@@ -16,20 +16,20 @@ gulp.task('js', ['clean'], function() {
         .pipe(buffer())
 //        .pipe(uglify())
         .pipe(size())
-        .pipe(gulp.dest('./public/build/'));
+        .pipe(gulp.dest('./frontend/build/'));
 })
 
 gulp.task('copy-css', ['clean'], function(){
     gulp.src('./node_modules/bootstrap/dist/css/bootstrap.css')
-    .pipe(gulp.dest('./public/build/'))
+    .pipe(gulp.dest('./frontend/build/'))
 });
 
 gulp.task('watch', function(){
-    gulp.watch(['./public/src/js/**/*.jsx', './app.jsx'], ['js', 'copy-css']);
+    gulp.watch(['./frontend/src/js/**/*.jsx', './app.jsx'], ['js', 'copy-css']);
 });
 
 gulp.task('clean', function(cb){
-    del(['./public/build'], cb);
+    del(['./frontend/build'], cb);
 });
 
 gulp.task('build', ['js', 'copy-css']);

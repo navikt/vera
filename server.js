@@ -1,7 +1,7 @@
 var express = require('express'),
     bodyParser = require('body-parser'),
     dexter = require('morgan'),
-    config = require('./config/config'),
+    config = require('./backend/config/config'),
     mongoose = require('mongoose'),
     app = express();
 
@@ -15,7 +15,7 @@ app.use(bodyParser());
 app.use(dexter());
 
 app.set('port', config.port);
-require('./config/routes')(app);
+require('./backend/config/routes')(app);
 
 var logError = function(err, req, res, next){
     console.log("Error: %s", err.message);
