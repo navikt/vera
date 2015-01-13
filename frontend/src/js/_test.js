@@ -191,7 +191,7 @@ function getFromRealVera() {
 
         response.on('end', function() {
             //veraparser.filterEnv(JSON.parse(jsonResponse), ['t1', 'p', 'q'], veraparser.builVersionMatrix)
-            veraparser.builVersionMatrix(JSON.parse(jsonResponse), generateVersionMatrix);
+            veraparser.buildVersionMatrix(JSON.parse(jsonResponse), generateVersionMatrix);
             //veraparser.builVersionTimeLine(JSON.parse(jsonResponse), generateHtml);
         });
     });

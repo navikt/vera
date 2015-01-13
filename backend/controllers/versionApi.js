@@ -1,16 +1,32 @@
 var config = require("../config/config");
 var Event = require('../models/event');
 var _ = require('lodash');
+var JSONStream = require('JSONStream');
 
 exports.getVersion = function () {
     return function (req, res, next) {
-
         var resultHandler = function (err, events) {
             res.write(JSON.stringify(events));
             res.send();
         }
 
         Event.find().limit(1337).sort([['timestamp', 'descending']]).exec(resultHandler);
+        //var stream = Event.find().limit(1000).stream({ transform: JSON.stringify }).pipe(res);
+    }
+}
+
+exports.getCurrentVersions = function () {
+    return function (req, res, next) {
+        //Event.find({latest: true})
+        //    .stream({transform: JSON.stringify})
+        //    .pipe(res);
+
+        var resultHandler = function (err, events) {
+            res.write(JSON.stringify(events));
+            res.send();
+        }
+
+        Event.find({latest: true}).exec(resultHandler);
     }
 }
 
