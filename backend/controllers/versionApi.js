@@ -10,17 +10,12 @@ exports.getVersion = function () {
             res.send();
         }
 
-        Event.find().limit(1337).sort([['timestamp', 'descending']]).exec(resultHandler);
-        //var stream = Event.find().limit(1000).stream({ transform: JSON.stringify }).pipe(res);
+        Event.find().limit(69).sort([['timestamp', 'descending']]).exec(resultHandler);
     }
 }
 
 exports.getCurrentVersions = function () {
     return function (req, res, next) {
-        //Event.find({latest: true})
-        //    .stream({transform: JSON.stringify})
-        //    .pipe(res);
-
         var resultHandler = function (err, events) {
             res.write(JSON.stringify(events));
             res.send();

@@ -7,7 +7,6 @@ var eventSchema = mongoose.Schema({
     latest: Boolean,
     deployer: String,
     timestamp: Date
-
 });
 
 eventSchema.statics.createFromObject = function(obj) {
