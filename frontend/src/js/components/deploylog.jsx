@@ -21,7 +21,8 @@ module.exports = DeployLog = React.createClass({
     },
 
     componentDidMount: function(){
-        $.getJSON(this.props.restUrl).done(function (data) {
+        console.log("component was mounted!");
+        $.getJSON('http://localhost:9080/version').done(function (data) {
             this.setState({items: data})
         }.bind(this));
     },

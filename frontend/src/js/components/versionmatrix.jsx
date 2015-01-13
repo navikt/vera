@@ -8,7 +8,7 @@ module.exports = VersionMatrix = React.createClass({
     },
 
     componentDidMount: function () {
-        $.getJSON(this.props.restUrl).done(function (data) {
+        $.getJSON('http://localhost:9080/cv').done(function (data) {
             //this.setState({items: data})
             util.buildVersionMatrix(data, function (headers, body) {
                 this.setState({headers: headers, body: body});
