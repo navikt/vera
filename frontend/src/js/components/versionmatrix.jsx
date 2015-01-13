@@ -1,6 +1,7 @@
 var React = require('react');
 var util = require('../../vera-parser')
 var $ = require('jquery');
+var MatrixRow = require('./matrixrow.jsx');
 
 module.exports = VersionMatrix = React.createClass({
     getInitialState: function () {
@@ -9,7 +10,6 @@ module.exports = VersionMatrix = React.createClass({
 
     componentDidMount: function () {
         $.getJSON('http://localhost:9080/cv').done(function (data) {
-            //this.setState({items: data})
             util.buildVersionMatrix(data, function (headers, body) {
                 this.setState({headers: headers, body: body});
             }.bind(this));
@@ -17,27 +17,18 @@ module.exports = VersionMatrix = React.createClass({
     },
 
     render: function () {
-
         var headers = this.state.headers;
         var body = this.state.body;
 
         return <table className='table table-striped'>
             <tr>
-            {headers.map(function(header){return <th>{header}</th>})}
+            {headers.map(function(header){
+                return <th>{header}</th>
+            })}
             </tr>
             <tbody>
             {body.map(function(row){
-                return <tr>{row.map(function(rowelem){
-                    if (!rowelem){
-                        return <td>-</td>
-                    }
-                    if (typeof rowelem == 'string'){
-                        return <td>{rowelem}</td>
-                    }
-                    else {
-                        return <td>{rowelem.version}</td>
-                    }
-                })}</tr>
+                return <MatrixRow rowObject={row} />
             })}
             </tbody>
         </table>
