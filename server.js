@@ -22,6 +22,8 @@ var logError = function(err, req, res, next){
     return next(err);
 }
 
+
+
 var errorHandler = function(err, req, res, next) {
     res.send({
         status: res.statusCode,
@@ -38,7 +40,7 @@ db.on('error', console.error.bind(console, 'connection error:'));
 app.use(logError);
 app.use(errorHandler);
 
-app.use(express.static(__dirname + "/public"));
+app.use(express.static(__dirname + "/frontend"));
 
 app.listen(config.port, function () {
     console.log("Ready for e-business on port " + config.port );
