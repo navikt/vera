@@ -23,12 +23,12 @@ module.exports = VersionMatrix = React.createClass({
         return <table className='table table-striped'>
             <tr>
             {headers.map(function(header){
-                return <th>{header}</th>
+                return <th key={header}>{header}</th>
             })}
             </tr>
             <tbody>
             {body.map(function(row){
-                return <MatrixRow rowObject={row} />
+                return <MatrixRow key={row[0]} rowObject={row} />
             })}
             </tbody>
         </table>
