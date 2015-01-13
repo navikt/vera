@@ -1,7 +1,7 @@
 var _ = require('lodash');
 
 module.exports = {
-    builVersionMatrix: function (versionData, callback) {
+    buildVersionMatrix: function (versionData, callback) {
         var tableHeader = getDistinctEnvironments(versionData);
 
         var applicationInstancesGroupedByApplication = _.chain(versionData).groupBy(function (element) {

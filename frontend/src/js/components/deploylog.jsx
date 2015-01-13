@@ -1,11 +1,12 @@
 var React = require('react');
 
+var $ = require('jquery');
 var LogRow = require('./logrow.jsx')
 
 module.exports = DeployLog = React.createClass({
-
     getInitialState: function () {
         return {
+            items: [],
             applicationFilter: '',
             environmentFilter: '',
             deployerFilter: '',
@@ -17,6 +18,13 @@ module.exports = DeployLog = React.createClass({
     handleChange: function (e) {
         this.state[e.target.id] = e.target.value
         this.setState(this.state);
+    },
+
+    componentDidMount: function(){
+        console.log("component was mounted!");
+        $.getJSON('http://localhost:9080/version').done(function (data) {
+            this.setState({items: data})
+        }.bind(this));
     },
 
     render: function () {
@@ -42,7 +50,7 @@ module.exports = DeployLog = React.createClass({
 
         return (
             <div>
-                <h1>Events ({this.props.items.filter(nonMatchingEvents).length + "/" + this.props.items.length})</h1>
+                <h1>Events ({this.state.items.filter(nonMatchingEvents).length + "/" + this.state.items.length})</h1>
                 <table className='table table-striped'>
                     <tr>
                         <th>application</th>
@@ -69,7 +77,7 @@ module.exports = DeployLog = React.createClass({
                         </th>
                     </tr>
                     <tbody>
-                        {this.props.items
+                        {this.state.items
                             .filter(nonMatchingEvents)
                             .map(function (elem) {
                                 return <LogRow key={elem._id} event={elem} />

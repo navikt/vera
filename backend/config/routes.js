@@ -3,4 +3,5 @@ module.exports = function(app) {
 
     app.post('/version', versionApi.registerDeployment());
     app.get('/version', versionApi.getVersion());
+    app.get('/cv', versionApi.getCurrentVersions());
 }
