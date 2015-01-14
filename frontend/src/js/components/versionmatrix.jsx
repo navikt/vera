@@ -3,32 +3,38 @@ var util = require('../../vera-parser')
 var $ = require('jquery');
 var MatrixRow = require('./matrixrow.jsx');
 
+
 module.exports = VersionMatrix = React.createClass({
     getInitialState: function () {
         return {
+            jsonData: [],
             headers: [],
-            body: [],
-            applicationFilter: '',
-            environmentFilter: ''
+            body: []
         }
+    },
+
+    updateMatrixData: function(headers, body) {
+        this.setState({headers: headers, body: body})
     },
 
     componentDidMount: function () {
         $.getJSON('http://localhost:9080/cv').done(function (data) {
-            util.buildVersionMatrix(data, function (headers, body) {
-                this.setState({headers: headers, body: body});
-            }.bind(this));
+            this.state.jsonData = data;
+            util.buildVersionMatrix(data, this.updateMatrixData);
         }.bind(this));
     },
 
     handleChange: function (e) {
-        this.setState({
-            applicationFilter: this.refs.applicationFilter.getDOMNode().value,
-            environmentFilter: this.refs.environmentFilter.getDOMNode().value
-        }, function(){
-            this.refs.applicationFilter.getDOMNode().value = "";
-            this.refs.environmentFilter.getDOMNode().value = "";
-        });
+            var applicationFilter = this.refs.applicationFilter.getDOMNode().value.toLowerCase();
+            var environmentFilter = this.refs.environmentFilter.getDOMNode().value.toLowerCase();
+
+            var filteredJsonData = this.state.jsonData.filter(function(versionEntry) {
+                return versionEntry.application.toLowerCase().indexOf(applicationFilter) > -1 &&
+                    versionEntry.environment.toLowerCase().indexOf(environmentFilter) > -1
+
+            });
+            util.buildVersionMatrix(filteredJsonData, this.updateMatrixData);
+            e.preventDefault();
     },
 
     render: function () {
@@ -40,7 +46,7 @@ module.exports = VersionMatrix = React.createClass({
                     <div className="form-group">
                         <input ref="applicationFilter" type="text" className="form-control" placeholder="Applications filter..."></input>
                         <input ref="environmentFilter" type="text" className="form-control" placeholder="Environments filter..."></input>
-                        <button className="btn btn-default" type="button" onClick={this.handleChange}>Apply</button>
+                        <input type="submit" className="btn btn-default" onClick={this.handleChange} value="Apply" />
                     </div>
                 </form>
 
@@ -59,6 +65,4 @@ module.exports = VersionMatrix = React.createClass({
             </div>
         )
     }
-
-
 });

@@ -21,6 +21,9 @@ module.exports = DeployLog = React.createClass({
     },
 
     componentDidMount: function(){
+        console.log("Jau");
+        console.log(this.refs);
+        console.log(this.refs.query);
         console.log("component was mounted!");
         $.getJSON('http://localhost:9080/version').done(function (data) {
             this.setState({items: data})
@@ -28,6 +31,7 @@ module.exports = DeployLog = React.createClass({
     },
 
     render: function () {
+
         var applicationFilter = this.state.applicationFilter.trim().toLowerCase();
         var environmentFilter = this.state.environmentFilter.trim().toLowerCase();
         var deployerFilter = this.state.deployerFilter.trim().toLowerCase();

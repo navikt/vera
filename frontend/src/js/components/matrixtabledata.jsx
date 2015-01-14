@@ -1,4 +1,6 @@
 var React = require('react');
+var Router = require('react-router');
+var Link = Router.Link;
 
 module.exports = MatrixTableData = React.createClass({
     render: function () {
@@ -7,9 +9,9 @@ module.exports = MatrixTableData = React.createClass({
             return <td>-</td>
         }
         if (typeof rowElem == 'string'){
-            return <td>{rowElem}</td>
+            return <td><Link to="firehose">{rowElem}</Link></td>
         } else {
-            return <td>{rowElem.version}</td>
+            return <td><Link to="firehose">{rowElem.version}</Link></td>
         }
     }
 });
