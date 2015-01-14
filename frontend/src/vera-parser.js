@@ -18,32 +18,6 @@ module.exports = {
         });
 
         callback(tableHeader, tableContents);
-    },
-
-    builVersionTimeLine: function (versionData, callback) {
-        //var tableHeader = ['Application', 'Version', 'Environment', 'Deployed by', 'Last deployment'];
-        var tableHeader = ['Application', 'Version', 'Environment', 'Deployed by'];
-        var tableContents = [];
-
-        _.chain(versionData).sortBy(function (element) {
-            return element.application.toLowerCase();
-        }).forEach(function(rowdata){
-            tableContents.push([rowdata.application, rowdata.version, rowdata.environment, rowdata.deployer]);
-        });
-
-        callback(tableHeader, tableContents);
-
-    },
-
-    filterEnv: function (versionData, filters, callback) {
-        _.forEach(filters, function (filter) {
-            console.log("\n\n******")
-            console.log(filter)
-            _.filter(versionData, function (appInstance) {
-                console.log(appInstance.environment)
-                return appInstance.environment.indexOf(filter) >= 0;
-            })
-        })
     }
 }
 

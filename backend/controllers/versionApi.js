@@ -1,7 +1,6 @@
 var config = require("../config/config");
 var Event = require('../models/event');
 var _ = require('lodash');
-var JSONStream = require('JSONStream');
 
 exports.getVersion = function () {
     return function (req, res, next) {
@@ -10,7 +9,15 @@ exports.getVersion = function () {
             res.send();
         }
 
-        Event.find().limit(69).sort([['timestamp', 'descending']]).exec(resultHandler);
+        var whereFilter = {};
+        if(req.query.app) {
+            whereFilter.application = new RegExp(req.query.app, "i");
+        }
+        if(req.query.env) {
+            whereFilter.environment = new RegExp(req.query.env, "i");
+        }
+
+        Event.find(whereFilter).limit(69).sort([['timestamp', 'descending']]).exec(resultHandler);
     }
 }
 

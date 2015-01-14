@@ -9,7 +9,7 @@ module.exports = MatrixTableData = React.createClass({
             return <td>-</td>
         }
         if (typeof rowElem == 'string'){
-            return <td><Link to="firehose" query={{app: rowElem}}>{rowElem}</Link></td>
+            return <td><strong><Link to="firehose" query={{app: rowElem}}>{rowElem}</Link></strong></td>
         } else {
             return <td><Link to="firehose" query={{env: rowElem.environment, app: rowElem.application}}>{rowElem.version}</Link></td>
         }

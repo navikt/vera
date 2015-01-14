@@ -37,6 +37,12 @@ module.exports = VersionMatrix = React.createClass({
             e.preventDefault();
     },
 
+    clear: function (e) {
+        this.refs.applicationFilter.getDOMNode().value = '';
+        this.refs.environmentFilter.getDOMNode().value = '';
+        util.buildVersionMatrix(this.state.jsonData, this.updateMatrixData);
+    },
+
     render: function () {
         var headers = this.state.headers;
         var body = this.state.body;
@@ -47,6 +53,7 @@ module.exports = VersionMatrix = React.createClass({
                         <input ref="applicationFilter" type="text" className="form-control" placeholder="Applications filter..."></input>
                         <input ref="environmentFilter" type="text" className="form-control" placeholder="Environments filter..."></input>
                         <input type="submit" className="btn btn-default" onClick={this.handleChange} value="Apply" />
+                        <input type="button" className="btn btn-danger" onClick={this.clear} value="Clear" />
                     </div>
                 </form>
 

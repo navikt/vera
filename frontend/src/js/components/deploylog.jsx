@@ -25,8 +25,19 @@ module.exports = DeployLog = React.createClass({
     },
 
     componentDidMount: function () {
-        $.getJSON('http://localhost:9080/version').done(function (data) {
-            this.setState({items: data, applicationFilter: this.getQuery().app ? this.getQuery().app : "", environmentFilter: this.getQuery().env ? this.getQuery().env : ""})
+        var queryParams = [];
+        if(this.getQuery().app) {
+            queryParams.push("app=" + this.getQuery().app);
+            this.state.applicationFilter =  this.getQuery().app;
+        }
+
+        if(this.getQuery().env) {
+            queryParams.push("env=" + this.getQuery().env);
+            this.state.environmentFilter =  this.getQuery().env;
+        }
+
+        $.getJSON('http://localhost:9080/version?' + queryParams.join("&")).done(function (data) {
+            this.setState({items: data})
         }.bind(this));
     },
 
