@@ -1,9 +1,13 @@
 var React = require('react');
 
 var $ = require('jquery');
-var LogRow = require('./logrow.jsx')
+var LogRow = require('./logrow.jsx');
+var Router = require('react-router');
 
 module.exports = DeployLog = React.createClass({
+
+    mixins: [Router.State],
+
     getInitialState: function () {
         return {
             items: [],
@@ -20,14 +24,11 @@ module.exports = DeployLog = React.createClass({
         this.setState(this.state);
     },
 
-    componentDidMount: function(){
-        console.log("Jau");
-        console.log(this.getQuery());
-        console.log("component was mounted!");
+    componentDidMount: function () {
         $.getJSON('http://localhost:9080/version').done(function (data) {
-            this.setState({items: data})
+            this.setState({items: data, applicationFilter: this.getQuery().app ? this.getQuery().app : "", environmentFilter: this.getQuery().env ? this.getQuery().env : ""})
         }.bind(this));
-    }.bind(this),
+    },
 
     render: function () {
 
@@ -64,10 +65,10 @@ module.exports = DeployLog = React.createClass({
                     </tr>
                     <tr>
                         <th>
-                            <input id="applicationFilter" type="text" onChange={this.handleChange} />
+                            <input id="applicationFilter" value={this.state.applicationFilter} type="text" onChange={this.handleChange} />
                         </th>
                         <th>
-                            <input id="environmentFilter" type="text" onChange={this.handleChange} />
+                            <input id="environmentFilter" value={this.state.environmentFilter} type="text" onChange={this.handleChange} />
                         </th>
                         <th>
                             <input id="deployerFilter" type="text" onChange={this.handleChange} />
