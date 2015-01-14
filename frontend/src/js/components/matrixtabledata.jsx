@@ -11,7 +11,7 @@ module.exports = MatrixTableData = React.createClass({
         if (typeof rowElem == 'string'){
             return <td><Link to="firehose">{rowElem}</Link></td>
         } else {
-            return <td><Link to="firehose">{rowElem.version}</Link></td>
+            return <td><Link to="kvakk" query={{env: "t1", app: "bisys"}}>{rowElem.version}</Link></td>
         }
     }
 });

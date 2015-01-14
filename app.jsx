@@ -38,7 +38,8 @@ var routes = (
     <Route handler={Vera}>
         <DefaultRoute handler={DeployLog} />
         <Route name="matrix" handler={VersionMatrix} />
-        <Route name="firehose" handler={DeployLog} />
+        <Route name="firehose" handler={DeployLog}/>
+        <Route name="kvakk" handler={DeployLog} />
     </Route>
 )
 

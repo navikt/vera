@@ -22,13 +22,12 @@ module.exports = DeployLog = React.createClass({
 
     componentDidMount: function(){
         console.log("Jau");
-        console.log(this.refs);
-        console.log(this.refs.query);
+        console.log(this.getQuery());
         console.log("component was mounted!");
         $.getJSON('http://localhost:9080/version').done(function (data) {
             this.setState({items: data})
         }.bind(this));
-    },
+    }.bind(this),
 
     render: function () {
 
