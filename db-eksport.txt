@@ -1,0 +1,35 @@
+select version, fom_date, deployer, env_name, app_name from version, t_environment, t_application where (env_type = env_id and app_type = app_id) into outfile '/tmp/eksport3.csv' fields terminated by ',' enclosed by '"' escaped by '';
+
+sed s/NULL/\"\"/g < /tmp/eksport.csv > /tmp/vera_eksport_fixed.csv
+
+legg til headerlinje (kan dette gjøres i eksporten?)
+
+mongoimport --db deploy_log --collection events --type csv --file vera_eksport_fixed_with_header.csv --headerline
+
+select version, fom_date, tom_date, deployer, env_name, app_name from version, t_environment, t_application where (env_type = env_id and app_type = app_id) into outfile '/tmp/eksport3.csv' fields terminated by ',' enclosed by '"' escaped by '';
+
+(fixdata.sh)
+#!/bin/bash
+
+awk '
+    BEGIN {
+        FS=OFS=","
+    }
+    {
+        if ($3 != "\"\""){
+            $3="0"
+        } else {
+            $3="1"
+        }
+
+        print $0
+    }
+' eksport-vera-fixed.csv > output_without_fnuttz.csv
+
+
+// sett alle events med latest 0 til false
+db.events.find({latest: 0}).forEach(function(a){a.latest = false; db.events.save(a);})
+
+// la alle timestamps være på isodate formatet
+db.events.find().forEach(function(a){a.timestamp = ISODate(a.timestamp); db.events.save(a)});
+

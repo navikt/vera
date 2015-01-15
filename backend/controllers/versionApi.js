@@ -18,10 +18,20 @@ exports.getVersion = function () {
             whereFilter.environment = new RegExp(req.query.env, "i");
         }
         if (req.query.since){
-            whereFilter.timestamp = { "$gte": moment().subtract(7, 'd') }
+            var since = req.query.since;
+            var numberFollowedByString = /(^[0-9]+)([a-zA-Z]+$)/;
+            if (numberFollowedByString.test(since)){
+                var matches = since.match(numberFollowedByString);
+                var duration = matches[1];
+                var durationType = matches[2];
+                whereFilter.timestamp = { "$gte": moment().subtract(duration, durationType).format() }
+            } else {
+                res.statusCode = 400;
+                throw new Error("Invalid format for parameter 'since'. Format should be <number><period>, e.g. '7days'. See http://momentjs.com/docs/#/manipulating for more info");
+            }
         }
 
-        Event.find(whereFilter).limit(69).sort([['timestamp', 'descending']]).exec(resultHandler);
+        Event.find(whereFilter).sort([['timestamp', 'descending']]).exec(resultHandler);
     }
 }
 
