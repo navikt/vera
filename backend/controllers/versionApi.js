@@ -1,6 +1,7 @@
 var config = require("../config/config");
 var Event = require('../models/event');
 var _ = require('lodash');
+var moment = require('moment');
 
 exports.getVersion = function () {
     return function (req, res, next) {
@@ -10,11 +11,14 @@ exports.getVersion = function () {
         }
 
         var whereFilter = {};
-        if(req.query.app) {
+        if (req.query.app) {
             whereFilter.application = new RegExp(req.query.app, "i");
         }
-        if(req.query.env) {
+        if (req.query.env) {
             whereFilter.environment = new RegExp(req.query.env, "i");
+        }
+        if (req.query.since){
+            whereFilter.timestamp = { "$gte": moment().subtract(7, 'd') }
         }
 
         Event.find(whereFilter).limit(69).sort([['timestamp', 'descending']]).exec(resultHandler);
@@ -39,14 +43,25 @@ exports.registerDeployment = function () {
             throw new Error(err);
         });
 
-        var event = Event.createFromObject(req.body);
+        Event.update({
+            environment: new RegExp(req.body.environment, "i"),
+            application: new RegExp(req.body.application, "i"),
+            latest: true
+        }, {latest: false}, {multi: true}, function(err, numAffected, raw){
 
-        event.save(function (err, event) {
             if (err) {
-                res.statusCode = 500;
-                throw new Error("Unable to save event", err);
+                console.error(err);
             }
-            res.send(200, JSON.stringify(event));
+
+            var event = Event.createFromObject(req.body);
+
+            event.save(function (err, event) {
+                if (err) {
+                    res.statusCode = 500;
+                    throw new Error("Unable to save event", err);
+                }
+                res.send(200, JSON.stringify(event));
+            });
         });
     }
 }

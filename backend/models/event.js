@@ -10,12 +10,11 @@ var eventSchema = mongoose.Schema({
 });
 
 eventSchema.statics.createFromObject = function(obj) {
-    //TODO sett alle andre til false
     return new Event({
-        application: obj.application,
-        environment: obj.environment,
-        version: obj.version,
-        deployer: obj.deployedBy,
+        application: obj.application.toLowerCase().trim(),
+        environment: obj.environment.toLowerCase().trim(),
+        version: obj.version.trim(),
+        deployer: obj.deployedBy.trim(),
         timestamp: new Date(),
         latest: true
     });

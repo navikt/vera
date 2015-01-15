@@ -28,11 +28,22 @@ module.exports = VersionMatrix = React.createClass({
             var applicationFilter = this.refs.applicationFilter.getDOMNode().value.toLowerCase();
             var environmentFilter = this.refs.environmentFilter.getDOMNode().value.toLowerCase();
 
-            var filteredJsonData = this.state.jsonData.filter(function(versionEntry) {
-                return versionEntry.application.toLowerCase().indexOf(applicationFilter) > -1 &&
-                    versionEntry.environment.toLowerCase().indexOf(environmentFilter) > -1
+            var isElementIn = function(filter, element, property){
+                var filters = filter.split(",");
+                for (var i=0; i<filters.length; i++){
+                    if (element[property].toLowerCase().indexOf(filters[i].trim()) > -1){
+                        return true;
+                    }
+                }
+                return false;
+            }
 
+            var filteredJsonData = this.state.jsonData.filter(function(elem) {
+                return isElementIn(applicationFilter, elem, "application");
+            }).filter(function(elem) {
+                return isElementIn(environmentFilter, elem, "environment");
             });
+
             util.buildVersionMatrix(filteredJsonData, this.updateMatrixData);
             e.preventDefault();
     },
@@ -60,7 +71,7 @@ module.exports = VersionMatrix = React.createClass({
                 <table className="table table-striped">
                     <tr>
                     {headers.map(function (header) {
-                        return <th key={header}>{header}</th>
+                        return <th key={header}>{header.toUpperCase()}</th>
                     })}
                     </tr>
                     <tbody>
