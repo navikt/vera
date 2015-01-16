@@ -5,36 +5,58 @@ var browserify = require('browserify');
 var reactify = require('reactify');
 var source = require('vinyl-source-stream');
 var uglify = require('gulp-uglify');
+var rename = require('gulp-rename');
 var size = require('gulp-size');
 var del = require('del');
 
-gulp.task('js', ['clean'], function() {
-    browserify('./app.jsx')
-        .transform(reactify)
-        .bundle()
-        .pipe(source('vera.js'))
-        .pipe(buffer())
-//        .pipe(uglify())
-        .pipe(size())
-        .pipe(gulp.dest('./frontend/build/'));
+var paths = {
+    js: ['./frontend/src/js/**/*.jsx', './app.jsx'],
+    css: ['./frontend/src/css/*.css'],
+    buildDir: './frontend/build',
+    jsBuild: './frontend/build/js',
+    cssBuild: './frontend/build/css'
+}
+
+del.sync(paths.buildDir);
+
+gulp.task('compile-js', function () {
+    var compileJavascript = function () {
+        browserify('./app.jsx')
+            .transform(reactify)
+            .bundle()
+            .pipe(source('vera.js'))
+            .pipe(buffer())
+            //.pipe(uglify())
+            .pipe(size())
+            .pipe(gulp.dest(paths.jsBuild));
+    };
+
+    del(paths.jsBuild, compileJavascript);
 })
 
-gulp.task('copy-css', ['clean'], function(){
-    gulp.src('./node_modules/bootstrap/dist/css/bootstrap.css')
-    .pipe(gulp.dest('./frontend/build/'))
+gulp.task('copy-css', function () {
+    var copyCss = function () {
+        gulp.src('./node_modules/bootstrap/dist/css/bootstrap.css')
+            .pipe(gulp.dest(paths.cssBuild));
+        gulp.src('./node_modules/react-select/dist/default.css')
+            .pipe(rename('react-select.css'))
+            .pipe(gulp.dest(paths.cssBuild));
+    };
+
+    del(paths.cssBuild, copyCss);
 });
 
-gulp.task('watch', function(){
-    gulp.watch(['./frontend/src/js/**/*.jsx', './app.jsx'], ['js', 'copy-css']);
+gulp.task('copy-indexhtml', function () {
+    gulp.src('./frontend/src/index.html')
+        .pipe(gulp.dest(paths.buildDir));
 });
 
-gulp.task('clean', function(cb){
-    del(['./frontend/build'], cb);
+gulp.task('watch', function () {
+    gulp.watch(paths.js, ['compile-js']);
+    gulp.watch(paths.css, ['copy-css']);
 });
 
-gulp.task('build', ['js', 'copy-css']);
-
-gulp.task('default', ['watch', 'build']);
+gulp.task('default', ['watch', 'compile-js', 'copy-css', 'copy-indexhtml']);
 
 
 

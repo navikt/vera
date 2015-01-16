@@ -40,7 +40,7 @@ db.on('error', console.error.bind(console, 'connection error:'));
 app.use(logError);
 app.use(errorHandler);
 
-app.use(express.static(__dirname + "/frontend"));
+app.use(express.static(__dirname + "/frontend/build"));
 
 app.listen(config.port, function () {
     console.log("Ready for e-business on port " + config.port );
