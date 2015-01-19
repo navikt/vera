@@ -12,6 +12,7 @@ module.exports = DeployLog = React.createClass({
         return {
             items: [],
             loaded: false,
+            itemRenderCount: 50,
             applicationFilter: '',
             environmentFilter: '',
             deployerFilter: '',
@@ -42,6 +43,10 @@ module.exports = DeployLog = React.createClass({
         }.bind(this));
     },
 
+    viewMoreResults: function () {
+        this.setState({itemRenderCount: this.state.itemRenderCount + 50})
+    },
+
     render: function () {
         var applicationFilter = this.state.applicationFilter.toLowerCase();
         var environmentFilter = this.state.environmentFilter.toLowerCase();
@@ -64,7 +69,7 @@ module.exports = DeployLog = React.createClass({
         }
 
         var filteredEvents = this.state.items.filter(nonMatchingEvents);
-        var eventsToRender = filteredEvents.slice(0, 50);
+        var eventsToRender = filteredEvents.slice(0, this.state.itemRenderCount);
 
         return (
             <div>
@@ -95,6 +100,7 @@ module.exports = DeployLog = React.createClass({
                             })}
                         </tbody>
                     </table>
+                    <button type="button" className="btn btn-link" onClick={this.viewMoreResults}>View more results...</button>
                 </Loader>
             </div>
         )
