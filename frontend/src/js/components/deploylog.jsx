@@ -56,11 +56,11 @@ module.exports = DeployLog = React.createClass({
             var version = elem.version;
             var timestamp = elem.timestamp;
 
-            return application.indexOf(applicationFilter) > -1
-                && environment.indexOf(environmentFilter) > -1
-                && deployer.indexOf(deployerFilter) > -1
-                && version.indexOf(versionFilter) > -1
-                && timestamp.toString().indexOf(timestampFilter) > -1;
+            return application.toLowerCase().indexOf(applicationFilter) > -1
+                && environment.toLowerCase().indexOf(environmentFilter) > -1
+                && deployer.toLowerCase().indexOf(deployerFilter) > -1
+                && version.toLowerCase().indexOf(versionFilter) > -1
+                && timestamp.toString().toLowerCase().indexOf(timestampFilter) > -1;
         }
 
         var filteredEvents = this.state.items.filter(nonMatchingEvents);
