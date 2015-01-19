@@ -22,8 +22,6 @@ var logError = function(err, req, res, next){
     return next(err);
 }
 
-
-
 var errorHandler = function(err, req, res, next) {
     res.send({
         status: res.statusCode,

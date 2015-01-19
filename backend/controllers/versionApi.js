@@ -31,7 +31,8 @@ exports.getVersion = function () {
             }
         }
 
-        Event.find(whereFilter).limit(10).sort([['timestamp', 'descending']]).exec(resultHandler);
+        Event.find(whereFilter).sort([['timestamp', 'descending']]).exec(resultHandler);
+
     }
 }
 

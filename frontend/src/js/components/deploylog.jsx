@@ -1,9 +1,8 @@
 var React = require('react');
-
 var $ = require('jquery');
-var LogRow = require('./logrow.jsx');
 var Router = require('react-router');
-var Select = require('react-select');
+var Loader = require('react-loader');
+var LogRow = require('./logrow.jsx');
 
 module.exports = DeployLog = React.createClass({
 
@@ -12,6 +11,7 @@ module.exports = DeployLog = React.createClass({
     getInitialState: function () {
         return {
             items: [],
+            loaded: false,
             applicationFilter: '',
             environmentFilter: '',
             deployerFilter: '',
@@ -37,22 +37,12 @@ module.exports = DeployLog = React.createClass({
             this.state.environmentFilter = this.getQuery().env;
         }
 
-        var url = 'http://localhost:9080/version?' + queryParams.join("&");
-        console.log("url", url);
-        $.getJSON(url).done(function (data) {
-            console.log("got data:" + data.length);
-            this.setState({items: data})
-            console.log(data);
+        $.getJSON('http://localhost:9080/version?' + queryParams.join("&")).done(function (data) {
+            this.setState({items: data, loaded: true})
         }.bind(this));
     },
 
     render: function () {
-
-        var options = [
-            {value: 'one', label: 'One'},
-            {value: 'two', label: 'Two'}
-        ];
-
         var applicationFilter = this.state.applicationFilter.toLowerCase();
         var environmentFilter = this.state.environmentFilter.toLowerCase();
         var deployerFilter = this.state.deployerFilter.toLowerCase();
@@ -73,67 +63,40 @@ module.exports = DeployLog = React.createClass({
                 && timestamp.toString().indexOf(timestampFilter) > -1;
         }
 
+        var filteredEvents = this.state.items.filter(nonMatchingEvents);
+        var eventsToRender = filteredEvents.slice(0, 50);
+
         return (
             <div>
-
-                <div><h2>Events ({this.state.items.filter(nonMatchingEvents).length + "/" + this.state.items.length})</h2>
-                    <div className="pull-right col-xs-3">
-                        <TimeSpanSelector />
-                    </div>
-                </div>
-
-                <table className='table table-striped'>
-                    <tr>
-                        <th>
-                            <input id="applicationFilter" placeholder="Application" value={this.state.applicationFilter} type="text" onChange={this.handleChange} />
-                        </th>
-                        <th>
-                            <input id="environmentFilter" placeholder="Environment" value={this.state.environmentFilter} type="text" onChange={this.handleChange} />
-                        </th>
-                        <th>
-                            <input id="deployerFilter" placeholder="Deployer" type="text" onChange={this.handleChange} />
-                        </th>
-                        <th>
-                            <input id="versionFilter" placeholder="Version" type="text" onChange={this.handleChange} />
-                        </th>
-                        <th>
-                            <input id="timestampFilter" placeholder="Timestamp" type="text" onChange={this.handleChange} />
-                        </th>
-                    </tr>
-                    <tbody>
-                        {this.state.items
-                            .filter(nonMatchingEvents)
+                <h2>Events ({filteredEvents.length + "/" + this.state.items.length})</h2>
+                <Loader loaded={this.state.loaded}>
+                    <table className='table table-striped'>
+                        <tr>
+                            <th>
+                                <input id="applicationFilter" placeholder="Application" value={this.state.applicationFilter} type="text" onChange={this.handleChange} />
+                            </th>
+                            <th>
+                                <input id="environmentFilter" placeholder="Environment" value={this.state.environmentFilter} type="text" onChange={this.handleChange} />
+                            </th>
+                            <th>
+                                <input id="deployerFilter" placeholder="Deployer" type="text" onChange={this.handleChange} />
+                            </th>
+                            <th>
+                                <input id="versionFilter" placeholder="Version" type="text" onChange={this.handleChange} />
+                            </th>
+                            <th>
+                                <input id="timestampFilter" placeholder="Timestamp" type="text" onChange={this.handleChange} />
+                            </th>
+                        </tr>
+                        <tbody>
+                        {eventsToRender
                             .map(function (elem) {
                                 return <LogRow key={elem._id} event={elem} />
                             })}
-                    </tbody>
-                </table>
+                        </tbody>
+                    </table>
+                </Loader>
             </div>
         )
     }
 });
-
-var TimeSpanSelector = React.createClass({
-    getInitialState: function () {
-        return {
-            selectValue: ''
-        }
-    },
-    updateValue: function (newValue) {
-        this.setState({
-            selectValue: newValue || null
-        });
-    },
-    render: function () {
-        var ops = [
-            {label: 'aaaaaaaaaaaaaaaaaaaaaaa', value: 'a'},
-            {label: 'bbbbbbbbbbbbbbbbbbbbbbb', value: 'b'}
-        ];
-
-        return (
-            <Select options={ops} value={this.state.selectValue} onChange={this.updateValue} />
-        );
-    }
-});
-
-

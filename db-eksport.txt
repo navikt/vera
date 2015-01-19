@@ -33,3 +33,6 @@ db.events.find({latest: 0}).forEach(function(a){a.latest = false; db.events.save
 // la alle timestamps være på isodate formatet
 db.events.find().forEach(function(a){a.timestamp = ISODate(a.timestamp); db.events.save(a)});
 
+// fjern events der application er tom
+db.events.find({ application: { $exists: false}}).forEach(function(e){db.events.remove(e);})
+
