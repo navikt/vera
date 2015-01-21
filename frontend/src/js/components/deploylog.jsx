@@ -94,9 +94,8 @@ module.exports = DeployLog = React.createClass({
                             </th>
                         </tr>
                         <tbody>
-                        {eventsToRender
-                            .map(function (elem) {
-                                return <LogRow key={elem._id} event={elem} />
+                        {eventsToRender.map(function (elem) {
+                                return <LogRow key={elem.id} event={elem} />
                             })}
                         </tbody>
                     </table>
