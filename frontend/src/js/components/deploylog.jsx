@@ -1,7 +1,6 @@
-var React = require('react');
+var React = require('react/addons');
 var $ = require('jquery');
 var Router = require('react-router');
-var Loader = require('react-loader');
 var LogRow = require('./logrow.jsx');
 
 module.exports = DeployLog = React.createClass({
@@ -38,9 +37,13 @@ module.exports = DeployLog = React.createClass({
             this.state.environmentFilter = this.getQuery().env;
         }
 
-        $.getJSON('http://localhost:9080/version?' + queryParams.join("&")).done(function (data) {
-            this.setState({items: data, loaded: true})
+        $.getJSON('http://localhost:9080/version?last=6month').done(function (data) {
+            this.setState({items: data})
+            $.getJSON('http://localhost:9080/version?' + queryParams.join("&")).done(function (data) {
+                this.setState({items: data, loaded: true})
+            }.bind(this));
         }.bind(this));
+
     },
 
     viewMoreResults: function () {
@@ -70,12 +73,18 @@ module.exports = DeployLog = React.createClass({
 
         var filteredEvents = this.state.items.filter(nonMatchingEvents);
         var eventsToRender = filteredEvents.slice(0, this.state.itemRenderCount);
+        var cx = React.addons.classSet;
+        var spinnerClasses = cx({
+            'fa': true,
+            'fa-spinner': true,
+            'fa-spin': true,
+            'hidden': this.state.loaded
+        });
 
         return (
-            <div>
-                <h2>Events ({filteredEvents.length + "/" + this.state.items.length})</h2>
-                <Loader loaded={this.state.loaded}>
-                    <table className='table table-striped'>
+            <div className="container">
+                <h2>Events <small>{filteredEvents.length + "/" + this.state.items.length} <i className={spinnerClasses}></i></small></h2>
+                    <table className='table'>
                         <tr>
                             <th>
                                 <input id="applicationFilter" placeholder="Application" value={this.state.applicationFilter} type="text" onChange={this.handleChange} />
@@ -101,7 +110,7 @@ module.exports = DeployLog = React.createClass({
                         </tbody>
                     </table>
                     <button type="button" className="btn btn-link" onClick={this.viewMoreResults}>View more results...</button>
-                </Loader>
+
             </div>
         )
     }

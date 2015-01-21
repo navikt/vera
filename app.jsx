@@ -11,10 +11,10 @@ var Vera = React.createClass({
     render: function () {
         return (
             <div>
-                <nav className="navbar navbar-inverse">
-                    <div className="container-fluid">
+                <nav className="navbar navbar-static-top vera-header">
+                    <div className="container">
                         <div className="navbar-header">
-                            <a className="navbar-brand" href="#">VERA</a>
+                            <a className="navbar-brand" href="#"><i className="fa fa-book"></i> VERA</a>
                         </div>
                         <ul className="nav navbar-nav">
                             <li>

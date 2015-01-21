@@ -2,6 +2,7 @@
 logs
 *.log
 
+frontend/build
 
 # Runtime data
 pids

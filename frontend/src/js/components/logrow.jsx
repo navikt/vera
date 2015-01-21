@@ -4,7 +4,8 @@ var moment = require('moment');
 module.exports = LogRow = React.createClass({
     render: function () {
         var event = this.props.event;
-        return <tr>
+
+        return <tr className={this.props.event.latest ? "success" : ""}>
             <td>{event.application.toLowerCase()}</td>
             <td>{event.environment.toUpperCase()}</td>
             <td>{event.deployer}</td>

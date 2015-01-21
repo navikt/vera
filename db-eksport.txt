@@ -27,8 +27,9 @@ awk '
 ' eksport-vera-fixed.csv > output_without_fnuttz.csv
 
 
-// sett alle events med latest 0 til false
+// sett alle events med latest 0 til false og 1 til true
 db.events.find({latest: 0}).forEach(function(a){a.latest = false; db.events.save(a);})
+db.events.find({latest: 1}).forEach(function(a){a.latest = true; db.events.save(a);})
 
 // la alle timestamps være på isodate formatet
 db.events.find().forEach(function(a){a.timestamp = ISODate(a.timestamp); db.events.save(a)});
