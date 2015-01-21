@@ -1,6 +1,5 @@
 var config = require("../config/config");
 var Event = require('../models/event');
-var mongoose = require('mongoose');
 var _ = require('lodash');
 var moment = require('moment');
 
