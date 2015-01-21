@@ -26,9 +26,9 @@ var Vera = React.createClass({
                         </ul>
                     </div>
                 </nav>
-                <div>
-                    <RouteHandler />
-                </div>
+
+                <RouteHandler />
+
             </div>
         )
     }

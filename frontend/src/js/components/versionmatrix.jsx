@@ -23,12 +23,6 @@ module.exports = VersionMatrix = React.createClass({
             this.state.jsonData = data;
             util.buildVersionMatrix(data, this.updateMatrixData);
         }.bind(this));
-
-        var table = $(this.refs.thematrix.getDOMNode());
-        console.log(table);
-        table.sticky();
-
-
     },
 
     handleChange: function (e) {
@@ -69,27 +63,33 @@ module.exports = VersionMatrix = React.createClass({
 
         return (
             <div className="container-fluid">
-                <form id="myform" className="form-inline">
-                    <div className="form-group">
-                        <input ref="applicationFilter" type="text" className="form-control" placeholder="Applications filter..."></input>
-                        <input ref="environmentFilter" type="text" className="form-control" placeholder="Environments filter..."></input>
-                        <input type="submit" className="btn btn-default" onClick={this.handleChange} value="Apply" />
-                        <input type="button" className="btn btn-danger" onClick={this.clear} value="Clear" />
+
+                <div className="panel panel-default ">
+                    <div className="panel-body">
+                        <form id="myform" className="form-inline">
+                            <div className="form-group">
+                                <input ref="applicationFilter" type="text" className="form-control" placeholder="applications"></input>
+                                <input ref="environmentFilter" type="text" className="form-control" placeholder="environments"></input>
+                                <input type="submit" className="btn btn-default" onClick={this.handleChange} value="Apply" />
+                                <input type="button" className="btn btn-danger" onClick={this.clear} value="Clear" />
+                            </div>
+                        </form>
                     </div>
-                </form>
+
+                </div>
 
                 <table ref="thematrix" className="table table-bordered table-striped">
                     <thead>
-                    <tr>
-                    {headers.map(function (header) {
-                        return <th key={header}>{header.toUpperCase()}</th>
-                    })}
-                    </tr>
-                        </thead>
+                        <tr>
+                        {headers.map(function (header) {
+                            return <th key={header}>{header.toUpperCase()}</th>
+                        })}
+                        </tr>
+                    </thead>
                     <tbody>
-                    {body.map(function (row) {
-                        return <MatrixRow key={row[0]} rowObject={row} />
-                    })}
+                        {body.map(function (row) {
+                            return <MatrixRow key={row[0]} rowObject={row} />
+                        })}
                     </tbody>
                 </table>
             </div>
