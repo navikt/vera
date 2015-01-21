@@ -1,4 +1,5 @@
 var mongoose = require('mongoose');
+var moment = require('moment');
 
 mongoose.Error.messages.general.required = "Property {PATH} is required in JSON request";
 
@@ -14,6 +15,7 @@ var eventSchema = mongoose.Schema({
 eventSchema.set('toJSON', {getters: true, transform: function(doc, ret, options) {
     delete ret.__v;
     delete ret._id;
+    ret.timestamp = moment(ret.timestamp).format('DD-MM-YY HH:mm:ss');
 }});
 
 eventSchema.statics.createFromObject = function(obj) {

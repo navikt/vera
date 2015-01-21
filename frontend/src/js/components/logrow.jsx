@@ -1,16 +1,20 @@
-var React = require('react');
-var moment = require('moment');
+var React = require('react/addons');
 
 module.exports = LogRow = React.createClass({
     render: function () {
         var event = this.props.event;
+        var newVersionAsterisk = React.addons.classSet({
+            "fa": true,
+            "fa-asterisk": true,
+            "hidden": !this.props.event.latest
+        });
 
-        return <tr className={this.props.event.latest ? "success" : ""}>
+        return <tr>
             <td>{event.application.toLowerCase()}</td>
             <td>{event.environment.toUpperCase()}</td>
             <td>{event.deployer}</td>
-            <td>{event.version}</td>
-            <td>{moment(event.timestamp).format('DD-MM-YY HH:mm:ss')}</td>
+            <td>{event.version} <small><sup><i className={newVersionAsterisk}></i></sup></small></td>
+            <td>{event.timestamp}</td>
         </tr>
     }
 });

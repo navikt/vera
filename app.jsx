@@ -12,16 +12,16 @@ var Vera = React.createClass({
         return (
             <div>
                 <nav className="navbar navbar-static-top vera-header">
-                    <div className="container">
+                    <div className="container-fluid">
                         <div className="navbar-header">
-                            <a className="navbar-brand" href="#"><i className="fa fa-book"></i> VERA</a>
+                            <a className="navbar-brand" href="#"><i className="fa fa-book"></i> vera</a>
                         </div>
                         <ul className="nav navbar-nav">
                             <li>
-                                <Link to="firehose">FIREHOSE</Link>
+                                <Link to="firehose">log</Link>
                             </li>
                             <li>
-                                <Link to="matrix">THE_MATRIX</Link>
+                                <Link to="matrix">matrix</Link>
                             </li>
                         </ul>
                     </div>

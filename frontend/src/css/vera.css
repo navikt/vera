@@ -3,17 +3,19 @@ nav.vera-header {
     color: #ffffff;
 }
 
-a {
+a, a:visited {
     color: #ffffff;
 }
 
-/*table {*/
-    /*background-color: #74889d;*/
-    /*color: #ffffff;*/
-    /*border-color: #000000;*/
-    /*border-top: 1px solid #000;*/
-/*}*/
+.navbar-nav > li > a:hover, .navbar-nav > li > a:focus, .navbar-nav > li > a.active {
+    background-color: #6e8398;
+    color: #fff;
+}
 
-body {
-    background-color: #E4E4E4;
+a:hover {
+    color: #e27c1e;
+}
+
+i.fa-asterisk {
+    color: #e27c1e;
 }

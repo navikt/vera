@@ -84,22 +84,22 @@ module.exports = DeployLog = React.createClass({
         return (
             <div className="container">
                 <h2>Events <small>{filteredEvents.length + "/" + this.state.items.length} <i className={spinnerClasses}></i></small></h2>
-                    <table className='table'>
+                    <table className='table table-striped'>
                         <tr>
                             <th>
-                                <input id="applicationFilter" placeholder="Application" value={this.state.applicationFilter} type="text" onChange={this.handleChange} />
+                                <input id="applicationFilter" className="form-control" placeholder="Application" value={this.state.applicationFilter} type="text" onChange={this.handleChange} />
                             </th>
                             <th>
-                                <input id="environmentFilter" placeholder="Environment" value={this.state.environmentFilter} type="text" onChange={this.handleChange} />
+                                <input id="environmentFilter" className="form-control" placeholder="Environment" value={this.state.environmentFilter} type="text" onChange={this.handleChange} />
                             </th>
                             <th>
-                                <input id="deployerFilter" placeholder="Deployer" type="text" onChange={this.handleChange} />
+                                <input id="deployerFilter" className="form-control" placeholder="Deployer" type="text" onChange={this.handleChange} />
                             </th>
                             <th>
-                                <input id="versionFilter" placeholder="Version" type="text" onChange={this.handleChange} />
+                                <input id="versionFilter" className="form-control" placeholder="Version" type="text" onChange={this.handleChange} />
                             </th>
                             <th>
-                                <input id="timestampFilter" placeholder="Timestamp" type="text" onChange={this.handleChange} />
+                                <input id="timestampFilter" className="form-control" placeholder="Timestamp" type="text" onChange={this.handleChange} />
                             </th>
                         </tr>
                         <tbody>
