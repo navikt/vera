@@ -11,7 +11,7 @@ var del = require('del');
 
 var paths = {
     js: ['./frontend/src/js/**/*.jsx', './app.jsx'],
-    css: ['./frontend/src/css/*.css'],
+    css: ['./frontend/src/css/*.css', './frontend/src/css/*.js'],
     buildDir: './frontend/build',
     jsBuild: './frontend/build/js',
     cssBuild: './frontend/build/css'
@@ -40,6 +40,10 @@ gulp.task('copy-css', function () {
             .pipe(gulp.dest(paths.cssBuild));
         gulp.src('./node_modules/react-select/dist/default.css')
             .pipe(rename('react-select.css'))
+            .pipe(gulp.dest(paths.cssBuild));
+        gulp.src('./frontend/src/css/vera.css')
+            .pipe(gulp.dest(paths.cssBuild));
+        gulp.src('./frontend/src/css/sticky.min.js')
             .pipe(gulp.dest(paths.cssBuild));
     };
 

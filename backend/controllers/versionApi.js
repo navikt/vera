@@ -1,5 +1,6 @@
 var config = require("../config/config");
 var Event = require('../models/event');
+var mongoose = require('mongoose');
 var _ = require('lodash');
 var moment = require('moment');
 
@@ -32,7 +33,6 @@ exports.getVersion = function () {
         }
 
         Event.find(whereFilter).sort([['timestamp', 'descending']]).exec(resultHandler);
-
     }
 }
 
@@ -48,41 +48,39 @@ exports.getCurrentVersions = function () {
 }
 
 exports.registerDeployment = function () {
-    return function (req, res, next) {
-        validateProperties(req.body, function (err) {
-            res.statusCode = 400;
-            throw new Error(err);
+    function handleErrors(err, res) {
+        if (err.name !== 'ValidationError') {
+            res.statusCode = 500;
+            throw new Error("Unable to save event", err);
+        }
+        var mappedErrors = [];
+        Object.keys(err.errors).forEach(function(elem) {
+            console.log("Errors")
+            mappedErrors.push(err.errors[elem].message);
         });
+        res.send({status: 400, message: mappedErrors.join(", ")});
+    }
 
+    return function (req, res, next) {
         Event.update({
             environment: new RegExp(req.body.environment, "i"),
             application: new RegExp(req.body.application, "i"),
             latest: true
         }, {latest: false}, {multi: true}, function(err, numAffected, raw){
 
-            if (err) {
-                console.error(err);
-            }
+            if (err) { console.error(err); }
 
             var event = Event.createFromObject(req.body);
-
             event.save(function (err, event) {
-                if (err) {
-                    res.statusCode = 500;
-                    throw new Error("Unable to save event", err);
+                if(err) {
+                    handleErrors(err, res);
                 }
-                res.send(200, JSON.stringify(event));
+                else {
+                    res.send(200, JSON.stringify(event.toJSON()));
+                }
             });
         });
     }
 }
 
-function validateProperties(jsonObj, error) {
-    var requiredKeys = ["application", "environment", "version", "deployedBy"];
-    for (var idx in requiredKeys) {
-        var key = requiredKeys[idx]
-        if (!_.has(jsonObj, key)) {
-            error("Unable to find required property " + key);
-        }
-    }
-}
+

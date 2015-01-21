@@ -1,5 +1,3 @@
-select version, fom_date, deployer, env_name, app_name from version, t_environment, t_application where (env_type = env_id and app_type = app_id) into outfile '/tmp/eksport3.csv' fields terminated by ',' enclosed by '"' escaped by '';
-
 sed s/NULL/\"\"/g < /tmp/eksport.csv > /tmp/vera_eksport_fixed.csv
 
 legg til headerlinje (kan dette gjøres i eksporten?)
@@ -29,6 +27,7 @@ awk '
 
 // sett alle events med latest 0 til false
 db.events.find({latest: 0}).forEach(function(a){a.latest = false; db.events.save(a);})
+db.events.find({latest: 1}).forEach(function(a){a.latest = true; db.events.save(a);})
 
 // la alle timestamps være på isodate formatet
 db.events.find().forEach(function(a){a.timestamp = ISODate(a.timestamp); db.events.save(a)});
@@ -36,3 +35,13 @@ db.events.find().forEach(function(a){a.timestamp = ISODate(a.timestamp); db.even
 // fjern events der application er tom
 db.events.find({ application: { $exists: false}}).forEach(function(e){db.events.remove(e);})
 
+//fjern events der environment er tom
+db.events.find({ environment: ""}).forEach(function(e){db.events.remove(e);})
+
+//lowercase env og app
+db.events.find().forEach(function(e){e.application = e.application.toLowerCase(); e.environment = e.environment.toLowerCase(); db.events.save(e);})
+
+// remove shitty environments
+db.events.find({$or: [{environment: 'k3'}, {environment: 'k7'}, {environment: 'o1'}, {environment: 'o2'}]} ).forEach(function(e){db.events.remove(e)})
+
+//Sjekk hva som skjer med Plaster.
