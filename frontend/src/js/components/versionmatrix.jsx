@@ -57,6 +57,14 @@ module.exports = VersionMatrix = React.createClass({
 
     },
 
+    newDeployments: function(e) {
+        var filteredData = this.state.jsonData.filter(function(elem) {
+            return elem.newDeployment;
+        });
+
+        util.buildVersionMatrix(filteredData, this.updateMatrixData)
+    },
+
     render: function () {
         var headers = this.state.headers;
         var body = this.state.body;
@@ -74,6 +82,11 @@ module.exports = VersionMatrix = React.createClass({
                                 <input type="button" className="btn btn-danger" onClick={this.clear} value="Clear" />
                             </div>
                         </form>
+                        <form id="quickfilterForm" className="form-inline">
+                            <div className="form-group">
+                                <label htmlFor="quickFilters">quick filters</label><input type="button" id="quickFilters" className="btn btn-info" onClick={this.newDeployments} value="new stuff" />
+                            </div>
+                        </form>
                     </div>
 
                 </div>
@@ -88,7 +101,7 @@ module.exports = VersionMatrix = React.createClass({
                     </thead>
                     <tbody>
                         {body.map(function (row) {
-                            return <MatrixRow key={row[0]} rowObject={row} />
+                            return <MatrixRow key={row[0]} rowObject={row}/>
                         })}
                     </tbody>
                 </table>
