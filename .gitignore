@@ -4,6 +4,8 @@ logs
 
 frontend/build
 
+docker
+
 # Runtime data
 pids
 *.pid
