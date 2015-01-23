@@ -15,5 +15,6 @@ npm install
 gulp dist
 
 cp -r dist $WORKDIR
+cp Dockerfile $WORKDIR
 
 
