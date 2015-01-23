@@ -7,3 +7,6 @@ RUN yum install -y /tmp/nodejs/*.rpm
 ADD mongodb.tar.gz /opt/mongodb
 COPY dist /opt/vera
 
+RUN mkdir /opt/mongodb/vera_db
+
+
