@@ -10,4 +10,10 @@ curl http://utviklerportalen.adeo.no/software/mongodb/mongodb-linux-x86_64-2.6.6
 
 cd $WORKDIR && cp ../package.json . && npm install --production && rm package.json
 
+npm install
+
+gulp dist
+
+cp -r dist $WORKDIR
+
 
