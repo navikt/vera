@@ -16,17 +16,16 @@ var paths = {
     jsBuild: './frontend/build/js',
     cssBuild: './frontend/build/css',
     fontsBuild: './frontend/build/fonts',
-    dockerBuild: './docker',
+    distDir: './dist',
     indexHtml: './frontend/src/index.html'
 }
 
-gulp.task('compile-js', function () {
+gulp.task('compile-js-dev', function () {
     return browserify('./app.jsx')
         .transform(reactify)
         .bundle()
         .pipe(source('vera.js'))
         .pipe(buffer())
-        //.pipe(uglify())
         .pipe(size())
         .pipe(gulp.dest(paths.jsBuild));
 });
@@ -52,14 +51,14 @@ gulp.task('watch', function () {
     gulp.watch(paths.indexHtml, ['copy-indexhtml']);
 });
 
-gulp.task('handle-docker-files', function () {
-    del(paths.dockerBuild, function () {
+gulp.task('handle-dist-files', function () {
+    del(paths.distDir, function () {
         gulp.src(paths.buildDir + '/**/*')
-            .pipe(gulp.dest(paths.dockerBuild + '/frontend/build'));
+            .pipe(gulp.dest(paths.distDir + '/frontend/build'));
         gulp.src('./server.js')
-            .pipe(gulp.dest(paths.dockerBuild));
+            .pipe(gulp.dest(paths.distDir));
         gulp.src('./backend/**/*')
-            .pipe(gulp.dest(paths.dockerBuild + '/backend'));
+            .pipe(gulp.dest(paths.distDir + '/backend'));
     })
 });
 
@@ -73,8 +72,8 @@ gulp.task('clean-build', function () {
     runSequence('clean', 'build');
 });
 
-gulp.task('build', ['compile-js', 'copy-css', 'copy-fonts', 'copy-indexhtml']);
+gulp.task('build', ['compile-js-dev', 'copy-css', 'copy-fonts', 'copy-indexhtml']);
 
-gulp.task('docker', function () {
-    runSequence('clean', 'build', 'handle-docker-files');
+gulp.task('dist', function () {
+    runSequence('clean', 'build', 'handle-dist-files');
 });
