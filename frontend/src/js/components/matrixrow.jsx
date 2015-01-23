@@ -5,7 +5,7 @@ var MatrixTableData = require('./matrixtabledata.jsx');
 module.exports = MatrixRow = React.createClass({
     render: function(){
         return <tr>{this.props.rowObject.map(function(rowElem){
-            return <MatrixTableData key={uuid.v1()} rowElem={rowElem} />
+            return <MatrixTableData key={uuid.v1()} rowElem={rowElem}/>
         })}</tr>
     }
 });

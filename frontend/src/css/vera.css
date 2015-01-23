@@ -21,11 +21,11 @@ a {
 }
 
 a:hover {
-    color: #e27c1e;
+    color: #ff8522;
 }
 
-i.fa-asterisk {
-    color: #e27c1e;
+i.fa-asterisk, i.fa-flag, i.fa-arrow-up {
+    color: #ff8522;
 }
 
 

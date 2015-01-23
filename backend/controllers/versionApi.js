@@ -47,6 +47,10 @@ exports.getCurrentVersions = function () {
 }
 
 exports.registerDeployment = function () {
+    function logErrorHandler(err) {
+        if (err) { console.error(err); }
+    }
+
     function handleErrors(err, res) {
         if (err.name !== 'ValidationError') {
             res.statusCode = 500;
@@ -54,30 +58,36 @@ exports.registerDeployment = function () {
         }
         var mappedErrors = [];
         Object.keys(err.errors).forEach(function(elem) {
-            console.log("Errors")
             mappedErrors.push(err.errors[elem].message);
         });
         res.send({status: 400, message: mappedErrors.join(", ")});
     }
 
+    /**
+     * Creates a new event object, and stores it in mongo if there are no validation errors
+     * If a new event document is successfully created, the existing documents for this application and environment are
+     * updated so that latest is set to false
+     * */
     return function (req, res, next) {
-        Event.update({
-            environment: new RegExp(req.body.environment, "i"),
-            application: new RegExp(req.body.application, "i"),
+        var event = Event.createFromObject(req.body);
+
+        Event.find({
+            environment: new RegExp(event.environment, "i"),
+            application: new RegExp(event.application, "i"),
             latest: true
-        }, {latest: false}, {multi: true}, function(err, numAffected, raw){
-
-            if (err) { console.error(err); }
-
-            var event = Event.createFromObject(req.body);
-            event.save(function (err, event) {
+        }).exec( function(err, events){
+            event.save(function (err, savedEvent) {
                 if(err) {
                     handleErrors(err, res);
                 }
                 else {
-                    res.send(200, JSON.stringify(event.toJSON()));
+                    events.forEach(function(e) {
+                        e.latest = false;
+                        e.save(logErrorHandler);
+                    })
+                    res.send(200, JSON.stringify(savedEvent.toJSON()));
                 }
-            });
+            }.bind(events));
         });
     }
 }

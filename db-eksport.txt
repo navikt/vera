@@ -44,4 +44,9 @@ db.events.find().forEach(function(e){e.application = e.application.toLowerCase()
 // remove shitty environments
 db.events.find({$or: [{environment: 'k3'}, {environment: 'k7'}, {environment: 'o1'}, {environment: 'o2'}]} ).forEach(function(e){db.events.remove(e)})
 
-//Sjekk hva som skjer med Plaster.
+//REMOVE all entries where version is - as these are useless.
+db.events.find({version: '-' }).forEach(function(e){db.events.remove(e)})
+db.events.find({version: 'n.p' }).forEach(function(e){db.events.remove(e)})
+db.events.find({version: 'No MF-vn.' }).forEach(function(e){db.events.remove(e)})
+
+//TODO NB OSV Sjekk hva som skjer med Plaster.

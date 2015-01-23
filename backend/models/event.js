@@ -12,9 +12,15 @@ var eventSchema = mongoose.Schema({
     timestamp: Date
 });
 
+function isDeployedIsLast24Hrs(event) {
+    return moment(event.timestamp).isAfter(moment().subtract(24, 'hours'));
+}
+
 eventSchema.set('toJSON', {getters: true, transform: function(doc, ret, options) {
     delete ret.__v;
     delete ret._id;
+    //ret.deployTime = ret.timestamp;
+    ret.newDeployment = isDeployedIsLast24Hrs(ret); // TODO, ta tiden med og uten denne...
     ret.timestamp = moment(ret.timestamp).format('DD-MM-YY HH:mm:ss');
 }});
 
