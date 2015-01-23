@@ -8,6 +8,7 @@ var uglify = require('gulp-uglify');
 var rename = require('gulp-rename');
 var size = require('gulp-size');
 var del = require('del');
+var runSequence = require('run-sequence');
 var fs = require('fs');
 
 var paths = {
@@ -17,13 +18,9 @@ var paths = {
     jsBuild: './frontend/build/js',
     cssBuild: './frontend/build/css',
     fontsBuild: './frontend/build/fonts',
-    dockerBuild: './docker'
+    dockerBuild: './docker',
+    indexHtml: './frontend/src/index.html'
 }
-
-
-gulp.task('clean', function(cb){
-    return del(paths.buildDir, cb);
-});
 
 gulp.task('compile-js', function () {
     return browserify('./app.jsx')
@@ -47,39 +44,39 @@ gulp.task('copy-fonts', function () {
 });
 
 gulp.task('copy-indexhtml', function () {
-    return gulp.src('./frontend/src/index.html')
+    return gulp.src(paths.indexHtml)
         .pipe(gulp.dest(paths.buildDir));
 });
 
 gulp.task('watch', function () {
     gulp.watch(paths.js, ['compile-js']);
     gulp.watch(paths.css, ['copy-css']);
+    gulp.watch(paths.indexHtml, ['copy-indexhtml']);
 });
 
-
-gulp.task('docker-clean', function (cb) {
-    return del(paths.dockerBuild, cb);
+gulp.task('handle-docker-files', function () {
+    del(paths.dockerBuild, function () {
+        gulp.src(paths.buildDir + '/**/*')
+            .pipe(gulp.dest(paths.dockerBuild + '/frontend'));
+        gulp.src('./server.js')
+            .pipe(gulp.dest(paths.dockerBuild));
+        gulp.src('./backend/**/*')
+            .pipe(gulp.dest(paths.dockerBuild + '/backend'));
+    })
 });
 
-gulp.task('copy-frontend', ['build', 'docker-clean'], function () {
-    return gulp.src(paths.buildDir + '/**/*')
-        .pipe(gulp.dest(paths.dockerBuild + '/frontend'));
+gulp.task('clean', function (cb) {
+    return del(paths.buildDir, cb);
 });
 
-gulp.task('copy-serverjs',['docker-clean'], function () {
-    return gulp.src('./server.js')
-        .pipe(gulp.dest(paths.dockerBuild));
+gulp.task('default', ['watch', 'clean-build']);
+
+gulp.task('clean-build', function () {
+    runSequence('clean', 'build');
 });
 
-gulp.task('copy-backend',['docker-clean'], function(){
-    return gulp.src('./backend/**/*')
-        .pipe(gulp.dest(paths.dockerBuild + '/backend'));
+gulp.task('build', ['compile-js', 'copy-css', 'copy-fonts', 'copy-indexhtml']);
+
+gulp.task('docker', function () {
+    runSequence('clean', 'build', 'handle-docker-files');
 });
-
-gulp.task('default', ['watch', 'build']);
-
-gulp.task('build',['clean'], function(){
-    gulp.start('compile-js', 'copy-css', 'copy-fonts', 'copy-indexhtml');
-});
-
-gulp.task('docker', ['docker-clean', 'build', 'copy-frontend', 'copy-backend', 'copy-serverjs']);
