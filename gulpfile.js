@@ -1,5 +1,4 @@
 var gulp = require('gulp');
-
 var buffer = require('vinyl-buffer');
 var browserify = require('browserify');
 var reactify = require('reactify');
@@ -9,7 +8,6 @@ var rename = require('gulp-rename');
 var size = require('gulp-size');
 var del = require('del');
 var runSequence = require('run-sequence');
-var fs = require('fs');
 
 var paths = {
     js: ['./frontend/src/js/**/*.jsx', './app.jsx'],
@@ -57,7 +55,7 @@ gulp.task('watch', function () {
 gulp.task('handle-docker-files', function () {
     del(paths.dockerBuild, function () {
         gulp.src(paths.buildDir + '/**/*')
-            .pipe(gulp.dest(paths.dockerBuild + '/frontend'));
+            .pipe(gulp.dest(paths.dockerBuild + '/frontend/build'));
         gulp.src('./server.js')
             .pipe(gulp.dest(paths.dockerBuild));
         gulp.src('./backend/**/*')
