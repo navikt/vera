@@ -18,5 +18,5 @@ gulp dist
 
 cp -r dist $DOCKERDIR
 cp Dockerfile $DOCKERDIR
-
+cp start.sh $DOCKERDIR
 

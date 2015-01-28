@@ -9,4 +9,6 @@ COPY dist /opt/vera
 
 RUN mkdir /opt/mongodb/vera_db
 
-
+COPY start.sh /opt/
+RUN chmod +x /opt/start.sh
+CMD ["/opt/start.sh"]
