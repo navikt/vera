@@ -37,9 +37,9 @@ module.exports = DeployLog = React.createClass({
             this.state.environmentFilter = this.getQuery().env;
         }
 
-        $.getJSON('http://localhost:9080/version?last=6month').done(function (data) {
+        $.getJSON('/version?last=6month').done(function (data) {
             this.setState({items: data})
-            $.getJSON('http://localhost:9080/version?' + queryParams.join("&")).done(function (data) {
+            $.getJSON('/version?' + queryParams.join("&")).done(function (data) {
                 this.setState({items: data, loaded: true})
             }.bind(this));
         }.bind(this));

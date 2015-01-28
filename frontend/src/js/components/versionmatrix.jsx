@@ -19,7 +19,7 @@ module.exports = VersionMatrix = React.createClass({
 
 
     componentDidMount: function () {
-        $.getJSON('http://localhost:9080/cv').done(function (data) {
+        $.getJSON('/cv').done(function (data) {
             this.state.jsonData = data;
             util.buildVersionMatrix(data, this.updateMatrixData);
         }.bind(this));
