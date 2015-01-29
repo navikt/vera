@@ -46,7 +46,7 @@ gulp.task('copy-indexhtml', function () {
 });
 
 gulp.task('watch', function () {
-    gulp.watch(paths.js, ['compile-js']);
+    gulp.watch(paths.js, ['compile-js-dev']);
     gulp.watch(paths.css, ['copy-css']);
     gulp.watch(paths.indexHtml, ['copy-indexhtml']);
 });

@@ -7,21 +7,27 @@ var eventSchema = mongoose.Schema({
     application: {type: String, lowercase: true, trim: true, required: true},
     environment: {type: String, lowercase: true, trim: true, required: true},
     version: {type: String, trim: true, required: true},
-    latest: Boolean,
     deployer: {type: String, trim: true, required: true},
-    timestamp: Date
+    deployed_timestamp: Date,
+    replaced_timestamp: Date
 });
 
 function isDeployedIsLast24Hrs(event) {
-    return moment(event.timestamp).isAfter(moment().subtract(24, 'hours'));
+    return moment(event.deployed_timestamp).isAfter(moment().subtract(24, 'hours'));
 }
 
 eventSchema.set('toJSON', {getters: true, transform: function(doc, ret, options) {
     delete ret.__v;
     delete ret._id;
     //ret.deployTime = ret.timestamp;
-    ret.newDeployment = isDeployedIsLast24Hrs(ret); // TODO, ta tiden med og uten denne...
-    ret.timestamp = moment(ret.timestamp).format('DD-MM-YY HH:mm:ss');
+    //ret.newDeployment = isDeployedIsLast24Hrs(ret); // TODO, ta tiden med og uten denne...
+    ret.deployed_timestamp = moment(ret.deployed_timestamp).format('DD-MM-YY HH:mm:ss');
+    if (ret.replaced_timestamp){
+        ret.replaced_timestamp = moment(ret.replaced_timestamp).format('DD-MM-YY HH:mm:ss');
+    } else {
+        ret.replaced_timestamp = ""
+    }
+
 }});
 
 eventSchema.statics.createFromObject = function(obj) {
@@ -30,8 +36,8 @@ eventSchema.statics.createFromObject = function(obj) {
         environment: obj.environment,
         version: obj.version,
         deployer: obj.deployedBy,
-        timestamp: new Date(),
-        latest: true
+        deployed_timestamp: new Date(),
+        replaced_timestamp: null
     });
 }
 

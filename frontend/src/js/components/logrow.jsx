@@ -14,7 +14,8 @@ module.exports = LogRow = React.createClass({
             <td>{event.environment.toUpperCase()}</td>
             <td>{event.deployer}</td>
             <td>{event.version} <small><sup><i className={newVersionAsterisk}></i></sup></small></td>
-            <td>{event.timestamp}</td>
+            <td>{event.deployed_timestamp}</td>
+            <td>{event.replaced_timestamp}</td>
         </tr>
     }
 });

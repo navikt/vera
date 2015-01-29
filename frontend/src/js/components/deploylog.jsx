@@ -16,7 +16,8 @@ module.exports = DeployLog = React.createClass({
             environmentFilter: '',
             deployerFilter: '',
             versionFilter: '',
-            timestampFilter: ''
+            deployedTimestampFilter: '',
+            replacedTimestampFilter: ''
         };
     },
 
@@ -37,7 +38,7 @@ module.exports = DeployLog = React.createClass({
             this.state.environmentFilter = this.getQuery().env;
         }
 
-        $.getJSON('/version?last=6month').done(function (data) {
+        $.getJSON('/version?last=1month').done(function (data) {
             this.setState({items: data})
             $.getJSON('/version?' + queryParams.join("&")).done(function (data) {
                 this.setState({items: data, loaded: true})
@@ -55,20 +56,23 @@ module.exports = DeployLog = React.createClass({
         var environmentFilter = this.state.environmentFilter.toLowerCase();
         var deployerFilter = this.state.deployerFilter.toLowerCase();
         var versionFilter = this.state.versionFilter.toLowerCase();
-        var timestampFilter = this.state.timestampFilter.toLowerCase();
+        var deployedTimestampFilter = this.state.deployedTimestampFilter.toLowerCase();
+        var replacedTimestampFilter = this.state.replacedTimestampFilter.toLowerCase();
 
         var nonMatchingEvents = function (elem) {
             var application = elem.application;
             var environment = elem.environment;
             var deployer = elem.deployer;
             var version = elem.version;
-            var timestamp = elem.timestamp;
+            var deployedTimestamp = elem.deployed_timestamp;
+            var replacedTimestamp = elem.replaced_timestamp;
 
             return application.toLowerCase().indexOf(applicationFilter) > -1
                 && environment.toLowerCase().indexOf(environmentFilter) > -1
                 && deployer.toLowerCase().indexOf(deployerFilter) > -1
                 && version.toLowerCase().indexOf(versionFilter) > -1
-                && timestamp.toString().toLowerCase().indexOf(timestampFilter) > -1;
+                && deployedTimestamp.toString().toLowerCase().indexOf(deployedTimestampFilter) > -1
+                && replacedTimestamp.toString().toLowerCase().indexOf(replacedTimestampFilter) > -1;
         }
 
         var filteredEvents = this.state.items.filter(nonMatchingEvents);
@@ -99,7 +103,10 @@ module.exports = DeployLog = React.createClass({
                                 <input id="versionFilter" className="form-control" placeholder="version" type="text" onChange={this.handleChange} />
                             </th>
                             <th>
-                                <input id="timestampFilter" className="form-control" placeholder="timestamp" type="text" onChange={this.handleChange} />
+                                <input id="deployedTimestampFilter" className="form-control" placeholder="deployed" type="text" onChange={this.handleChange} />
+                            </th>
+                            <th>
+                                <input id="replacedTimestampFilter" className="form-control" placeholder="replaced" type="text" onChange={this.handleChange} />
                             </th>
                         </tr>
                         <tbody>
