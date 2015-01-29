@@ -12,6 +12,9 @@ db.events.find().forEach(function(e){e.application = e.application.toLowerCase()
 print("fjern ubrukte miljøer");
 db.events.find({$or: [{environment: 'k3'}, {environment: 'k7'}, {environment: 'o1'}, {environment: 'o2'}]} ).forEach(function(e){db.events.remove(e)})
 
+print("fjerner miljøer events for tomme miljøer")
+db.events.find({environment: ''}).forEach(function(e){db.events.remove(e);})
+
 print("fjern alle ubrukelige versjoner");
 db.events.find({$or:[{version: '-' },{version: 'n.p'},{version: 'No MF-vn.'}]}).forEach(function(e){db.events.remove(e)} )
 print("done");
