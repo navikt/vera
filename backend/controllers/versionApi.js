@@ -84,8 +84,6 @@ exports.registerDeployment = function () {
             application: new RegExp(event.application, "i"),
             replaced_timestamp: ""
         }).exec( function(err, events){
-            console.log("skun ha savet noe da")
-            console.log(events)
             event.save(function (err, savedEvent) {
                 if(err) {
                     handleErrors(err, res);

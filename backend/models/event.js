@@ -6,6 +6,7 @@ mongoose.Error.messages.general.required = "Property {PATH} is required in JSON 
 var eventSchema = mongoose.Schema({
     application: {type: String, lowercase: true, trim: true, required: true},
     environment: {type: String, lowercase: true, trim: true, required: true},
+    environmentClass: String,
     version: {type: String, trim: true, required: true},
     deployer: {type: String, trim: true, required: true},
     deployed_timestamp: Date,
@@ -26,6 +27,14 @@ eventSchema.set('toJSON', {getters: true, transform: function(doc, ret, options)
 
 }});
 
+function getEnvClassFromEnv(environment) {
+    var potentialEnvClass =  environment.charAt(0);
+    if(potentialEnvClass === "t" || potentialEnvClass === "q" || potentialEnvClass === "p") {
+        return potentialEnvClass;
+    }
+    return "u";
+}
+
 eventSchema.statics.createFromObject = function(obj) {
     return new Event({
         application: obj.application,
@@ -33,7 +42,8 @@ eventSchema.statics.createFromObject = function(obj) {
         version: obj.version,
         deployer: obj.deployedBy,
         deployed_timestamp: new Date(),
-        replaced_timestamp: null
+        replaced_timestamp: null,
+        environmentClass: (obj.environmentClass) ? obj.environmentClass : getEnvClassFromEnv(obj.environment)
     });
 }
 
