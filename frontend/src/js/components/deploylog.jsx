@@ -100,32 +100,27 @@ module.exports = DeployLog = React.createClass({
         });
 
         var currentVersionToggleClasses = cx({
-            'btn': true,
-            'btn-xs': true,
-            'btn-warning': true,
-            'active': this.state.onlyCurrentVersions
+            "btn": true,
+            "btn-default": true,
+            "btn-sm": true,
+            /*"vera-filter": true,*/
+            "active": this.state.onlyCurrentVersions
         });
 
         return (
-
-
-
             <div className="container">
-                    <div className="panel panel-default">
-                        <div className="panel-body">
-                            <h2>events
-                                <small>  {filteredEvents.length + "/" + this.state.items.length}
-                                      <i className={spinnerClasses}></i>
-                                </small>
-                            </h2>
-                                <div className="pull-right" data-toggle="buttons" role="group">
-                                    <label className={currentVersionToggleClasses} >
-                                        <input ref="bauer" type="checkbox" autoComplete="off" onClick={this.toggleCurrentVersionFilter} />
-                                    show current application
-                                    </label>
-                                </div>
-                    </div>
-                </div>
+                        <h2>events
+                            <small>  {filteredEvents.length + "/" + this.state.items.length}
+                                <i className={spinnerClasses}></i>
+                            </small>
+                            <div className="pull-right" data-toggle="buttons" role="group">
+                                <label className={currentVersionToggleClasses} >
+                                    <input ref="bauer" type="checkbox" autoComplete="off" onClick={this.toggleCurrentVersionFilter} />
+                                current apps
+                                </label>
+                            </div>
+                        </h2>
+
                 <table className='table table-bordered table-striped'>
                     <tr>
                         <th>

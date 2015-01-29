@@ -7,10 +7,20 @@ nav.vera-header {
     color: #ffffff;
 }
 
-.navbar-nav > li > a:hover, .navbar-nav > li > a:focus, .navbar-nav > li > a.active {
+.navbar-nav > li > a:hover, .navbar-nav > li > a:focus, .navbar-nav > li > a.active, .vera-filter {
     background-color: #6e8398;
     color: #fff;
 }
+
+/*.vera-filter:hover {*/
+    /*background-color: #4E5D6C;*/
+    /*color: #fff;*/
+/*}*/
+
+/*.vera-filter.active {*/
+    /*background-color: hotpink;*/
+    /*color: #fff;*/
+/*}*/
 
 .form-control {
     font-weight: bold;
