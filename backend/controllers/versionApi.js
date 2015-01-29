@@ -3,11 +3,17 @@ var Event = require('../models/event');
 var _ = require('lodash');
 var moment = require('moment');
 
+
+var start;
+var stop;
+
 exports.getVersion = function () {
     return function (req, res, next) {
         var resultHandler = function (err, events) {
             res.write(JSON.stringify(events));
             res.send();
+            stop = Date.now();
+            console.log(stop-start)
         }
 
         var whereFilter = {};
@@ -30,7 +36,7 @@ exports.getVersion = function () {
                 throw new Error("Invalid format for parameter 'last'. Format should be <number><period>, e.g. '7days'. See http://momentjs.com/docs/#/manipulating for more info");
             }
         }
-
+        start = Date.now();
         Event.find(whereFilter).sort([['timestamp', 'descending']]).exec(resultHandler);
     }
 }

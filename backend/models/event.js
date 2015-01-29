@@ -16,12 +16,22 @@ function isDeployedIsLast24Hrs(event) {
     return moment(event.timestamp).isAfter(moment().subtract(24, 'hours'));
 }
 
+
+function getEnvClassFromEnv(env) {
+    firstChar = env.charAt(0);
+    if(firstChar === 't' || firstChar === 'q' || firstChar === 'p') {
+        return firstChar;
+    }
+    return 'u';
+}
+
 eventSchema.set('toJSON', {getters: true, transform: function(doc, ret, options) {
     delete ret.__v;
     delete ret._id;
     //ret.deployTime = ret.timestamp;
-    ret.newDeployment = isDeployedIsLast24Hrs(ret); // TODO, ta tiden med og uten denne...
+    ret.newDeployment = isDeployedIsLast24Hrs(ret); // TODO, ta tiden med og uten denne... Done, sparer ca 1 sekund....
     ret.timestamp = moment(ret.timestamp).format('DD-MM-YY HH:mm:ss');
+    ret.envClass = getEnvClassFromEnv(ret.environment);
 }});
 
 eventSchema.statics.createFromObject = function(obj) {

@@ -7,91 +7,140 @@ var MatrixRow = require('./matrixrow.jsx');
 module.exports = VersionMatrix = React.createClass({
     getInitialState: function () {
         return {
-            jsonData: [],
-            headers: [],
-            body: []
+            jsonData: []
         }
     },
 
-    updateMatrixData: function (headers, body) {
-        this.setState({headers: headers, body: body})
-    },
-
-
     componentDidMount: function () {
         $.getJSON('http://localhost:9080/cv').done(function (data) {
-            this.state.jsonData = data;
-            util.buildVersionMatrix(data, this.updateMatrixData);
+            this.setState({jsonData: data});
         }.bind(this));
     },
 
-    handleChange: function (e) {
-        var applicationFilter = this.refs.applicationFilter.getDOMNode().value.toLowerCase();
-        var environmentFilter = this.refs.environmentFilter.getDOMNode().value.toLowerCase();
 
-        var isElementIn = function (filter, element, property) {
-            var filters = filter.split(",");
-            for (var i = 0; i < filters.length; i++) {
-                if (element[property].toLowerCase().indexOf(filters[i].trim()) > -1) {
+    handleChange: function (e) {
+        this.setState({
+            filters: {
+                application: this.refs.applicationFilter.getDOMNode().value.toLowerCase(),
+                environment: this.refs.environmentFilter.getDOMNode().value.toLowerCase()
+            }
+        });
+        console.log(this.state.filters)
+        e.preventDefault();
+    },
+
+    applyFilters: function () {
+        var filters = this.state.filters;
+
+        var isElementIn = function (filterString, element, property) {
+            var filterTokens = filterString.split(",");
+            for (var i = 0; i < filterTokens.length; i++) {
+                if (element[property].toLowerCase().indexOf(filterTokens[i].trim()) > -1) {
                     return true;
                 }
             }
             return false;
         }
 
-        var filteredJsonData = this.state.jsonData.filter(function (elem) {
-            return isElementIn(applicationFilter, elem, "application");
-        }).filter(function (elem) {
-            return isElementIn(environmentFilter, elem, "environment");
-        });
+        var applyFilter = function(inputData, filterString, filterProperty) {
+            return filteredJsonData.filter(function(elem) {
+                return isElementIn(filters[filterProperty], elem,  filterProperty);
+            });
+        }
 
-        util.buildVersionMatrix(filteredJsonData, this.updateMatrixData);
-        e.preventDefault();
+        var filteredJsonData = this.state.jsonData;
+
+        if (filters) {
+            var keys = Object.keys(filters);
+            keys.forEach(function (filterProperty) {
+                filteredJsonData = applyFilter(filteredJsonData, filters[filterProperty], filterProperty);
+            });
+        }
+
+        return util.buildVersionMatrix(filteredJsonData);
     },
 
     clear: function (e) {
         this.refs.applicationFilter.getDOMNode().value = '';
-        this.refs.environmentFilter.getDOMNode().value = '';
-
-        util.buildVersionMatrix(this.state.jsonData, this.updateMatrixData);
-
+        this.refs.applicationFilter.getDOMNode().value = '';
+        currentFilters = this.state.filters;
+        delete currentFilters.application;
+        delete currentFilters.environment;
+        this.setState({filters: currentFilters});
     },
 
-    newDeployments: function(e) {
-        var filteredData = this.state.jsonData.filter(function(elem) {
-            return elem.newDeployment;
-        });
+    newDeployments: function (e) {
 
-        util.buildVersionMatrix(filteredData, this.updateMatrixData)
+        console.log(this.refs.bauer.getDOMNode().checked);
+        console.log(this.refs.bauer);
+
+        this.setState({newDeploymentsFilter: this.refs.bauer.getDOMNode().checked});
+        //this.refs.bauer.getDomNode().className= (this.refs.bauer.getDOMNode().checked) ? "btn btn-default active" : "btn btn-default";
+        //var filteredData = this.state.jsonData.filter(function (elem) {
+        //    return elem.newDeployment;
+        //});
+
+        //util.buildVersionMatrix(filteredData, this.updateMatrixData)
     },
 
     render: function () {
-        var headers = this.state.headers;
-        var body = this.state.body;
+        filteredData = this.applyFilters();
+        var headers = filteredData.header;
+        var body = filteredData.body;
+
+        var cx = React.addons.classSet;
+        var toggle = cx({
+            "btn": true,
+            "btn-default": true,
+            "active": this.state.bauer
+
+        });
 
         return (
             <div className="container-fluid">
-
-                <div className="panel panel-default ">
-                    <div className="panel-body">
-                        <form id="myform" className="form-inline">
-                            <div className="form-group">
-                                <input ref="applicationFilter" type="text" className="form-control" placeholder="applications"></input>
-                                <input ref="environmentFilter" type="text" className="form-control" placeholder="environments"></input>
-                                <input type="submit" className="btn btn-default" onClick={this.handleChange} value="Apply" />
-                                <input type="button" className="btn btn-danger" onClick={this.clear} value="Clear" />
-                            </div>
-                        </form>
-                        <form id="quickfilterForm" className="form-inline">
-                            <div className="form-group">
-                                <label htmlFor="quickFilters">quick filters</label><input type="button" id="quickFilters" className="btn btn-info" onClick={this.newDeployments} value="new stuff" />
-                            </div>
-                        </form>
+                <div className="row">
+                    <div className="panel panel-default">
+                        <div className="panel-body">
+                            <form className="form-inline">
+                                <div>
+                                    <div className="form-group">
+                                        <div className="form-group">
+                                            <input ref="applicationFilter" type="text" className="form-control" active placeholder="applications"></input>
+                                        </div>
+                                        <div className="form-group">
+                                            <input ref="environmentFilter" type="text" className="form-control" placeholder="environments"></input>
+                                        </div>
+                                        <input type="submit" className="btn btn-default" onClick={this.handleChange} value="Apply" />
+                                        <input type="button" className="btn btn-danger" onClick={this.clear} value="Clear" />
+                                    </div>
+                                    <div className="btn-group pull-right" data-toggle="buttons" role="group">
+                                        <label className={toggle} >
+                                            <input ref="bauer" type="checkbox" autoComplete="off" onClick={this.newDeployments} />
+                                        last 24 hrs
+                                        </label>
+                                        <label className="btn btn-default">
+                                            <input type="checkbox" autoComplete="off" />
+                                        u</label>
+                                        <label className="btn btn-default">
+                                            <input type="checkbox" autoComplete="off" />
+                                        t
+                                        </label>
+                                        <label className="btn btn-default">
+                                            <input type="checkbox" autoComplete="off" />
+                                        q
+                                        </label>
+                                        <label className="btn btn-default">
+                                            <input type="checkbox" autoComplete="off" />
+                                        p
+                                        </label>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
                     </div>
-
                 </div>
 
-                <table ref="thematrix" className="table table-bordered table-striped">
+                <table ref = "thematrix" className = "table table-bordered table-striped">
                     <thead>
                         <tr>
                         {headers.map(function (header) {
@@ -99,13 +148,14 @@ module.exports = VersionMatrix = React.createClass({
                         })}
                         </tr>
                     </thead>
-                    <tbody>
+                    < tbody >
                         {body.map(function (row) {
                             return <MatrixRow key={row[0]} rowObject={row}/>
-                        })}
+                        })
+                            }
                     </tbody>
                 </table>
-            </div>
+            </div >
         )
     }
 });
