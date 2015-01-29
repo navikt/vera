@@ -17,6 +17,10 @@ db.events.find({environment: ''}).forEach(function(e){db.events.remove(e);})
 
 print("fjern alle ubrukelige versjoner");
 db.events.find({$or:[{version: '-' },{version: 'n.p'},{version: 'No MF-vn.'}]}).forEach(function(e){db.events.remove(e)} )
+
+print("prøver å utlede miljøklasse")
+db.events.find().forEach(function(e){
+    e.application = e.application.toLowerCase(); e.environment = e.environment.toLowerCase(); db.events.save(e);})
 print("done");
 
 
