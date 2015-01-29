@@ -37,8 +37,16 @@ exports.getVersion = function () {
 
 exports.getCurrentVersions = function () {
     return function (req, res, next) {
+        function isDeployedIsLast24Hrs(event) {
+            return moment(event.deployed_timestamp).isAfter(moment().subtract(24, 'hours'));
+        }
         var resultHandler = function (err, events) {
-            res.write(JSON.stringify(events));
+            var transformedEvents = _.map(events, function(event){
+                var mongoEvent = event.toJSON();
+                mongoEvent.newDeployment = isDeployedIsLast24Hrs(event);
+                return mongoEvent;
+            });
+            res.write(JSON.stringify(transformedEvents));
             res.send();
         }
 
