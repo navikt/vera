@@ -107,15 +107,25 @@ module.exports = DeployLog = React.createClass({
         });
 
         return (
+
+
+
             <div className="container">
-                <h2>events
-                    <small>  {filteredEvents.length + "/" + this.state.items.length}
-                        <i className={spinnerClasses}></i>
-                    </small>
-                </h2>
-
-                <button type="button" className={currentVersionToggleClasses} onClick={this.toggleCurrentVersionFilter}>Only active</button>
-
+                    <div className="panel panel-default">
+                        <div className="panel-body">
+                            <h2>events
+                                <small>  {filteredEvents.length + "/" + this.state.items.length}
+                                      <i className={spinnerClasses}></i>
+                                </small>
+                            </h2>
+                                <div className="pull-right" data-toggle="buttons" role="group">
+                                    <label className={currentVersionToggleClasses} >
+                                        <input ref="bauer" type="checkbox" autoComplete="off" onClick={this.toggleCurrentVersionFilter} />
+                                    show current application
+                                    </label>
+                                </div>
+                    </div>
+                </div>
                 <table className='table table-bordered table-striped'>
                     <tr>
                         <th>
