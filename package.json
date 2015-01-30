@@ -39,6 +39,9 @@
     "node-uuid": "~1.4.2",
     "gulp-rename": "~1.2.0",
     "font-awesome": "~4.2.0",
-    "run-sequence": "~1.0.2"
+    "run-sequence": "~1.0.2",
+    "gulp-if": "~1.2.5",
+    "gulp-minify-css": "~0.4.3",
+    "gulp-concat": "~2.4.3"
   }
 }

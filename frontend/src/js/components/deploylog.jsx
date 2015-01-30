@@ -59,36 +59,23 @@ module.exports = DeployLog = React.createClass({
     },
 
     render: function () {
-        var applicationFilter = this.state.applicationFilter.toLowerCase();
-        var environmentFilter = this.state.environmentFilter.toLowerCase();
-        var deployerFilter = this.state.deployerFilter.toLowerCase();
-        var versionFilter = this.state.versionFilter.toLowerCase();
-        var deployedTimestampFilter = this.state.deployedTimestampFilter.toLowerCase();
-        var onlyCurrentVersions = this.state.onlyCurrentVersions;
-
         var tableHeaderFilter = function (elem) {
-            var application = elem.application.toLowerCase();
-            var environment = elem.environment.toLowerCase();
-            var deployer = elem.deployer.toLowerCase();
-            var version = elem.version.toLowerCase();
-            var deployedTimestamp = elem.deployed_timestamp.toString().toLowerCase();
+            return elem.application.toLowerCase().indexOf(this.state.applicationFilter.toLowerCase()) > -1
+                && elem.environment.toLowerCase().indexOf(this.state.environmentFilter.toLowerCase()) > -1
+                && elem.deployer.toLowerCase().indexOf(this.state.deployerFilter.toLowerCase()) > -1
+                && elem.version.toLowerCase().indexOf(this.state.versionFilter.toLowerCase()) > -1
+                && elem.deployed_timestamp.toString().toLowerCase().indexOf(this.state.deployedTimestampFilter.toLowerCase()) > -1;
+        }.bind(this)
 
-            return application.indexOf(applicationFilter) > -1
-                && environment.indexOf(environmentFilter) > -1
-                && deployer.indexOf(deployerFilter) > -1
-                && version.indexOf(versionFilter) > -1
-                && deployedTimestamp.indexOf(deployedTimestampFilter) > -1;
-        }
-
-        var onlyCurrentVersionsIfEnabled = function (elem) {
-            if (!onlyCurrentVersions) {
+        var inactiveVersionsIfEnabled = function (elem) {
+            if (!this.state.onlyCurrentVersions) {
                 return true;
             } else {
                 return elem.replaced_timestamp === "";
             }
-        };
+        }.bind(this);
 
-        var filteredEvents = this.state.items.filter(tableHeaderFilter).filter(onlyCurrentVersionsIfEnabled);
+        var filteredEvents = this.state.items.filter(tableHeaderFilter).filter(inactiveVersionsIfEnabled);
         var eventsToRender = filteredEvents.slice(0, this.state.itemRenderCount);
         var cx = React.addons.classSet;
 
@@ -103,20 +90,17 @@ module.exports = DeployLog = React.createClass({
             "btn": true,
             "btn-default": true,
             "btn-sm": true,
-            /*"vera-filter": true,*/
             "active": this.state.onlyCurrentVersions
         });
 
         return (
             <div className="container">
                         <h2>events
-                            <small>  {filteredEvents.length + "/" + this.state.items.length}
-                                <i className={spinnerClasses}></i>
-                            </small>
+                            <small> {filteredEvents.length + "/" + this.state.items.length} <i className={spinnerClasses}></i></small>
                             <div className="pull-right" data-toggle="buttons" role="group">
                                 <label className={currentVersionToggleClasses} >
-                                    <input ref="bauer" type="checkbox" autoComplete="off" onClick={this.toggleCurrentVersionFilter} />
-                                current apps
+                                    <input type="checkbox" autoComplete="off" onClick={this.toggleCurrentVersionFilter} />
+                                Show only latest
                                 </label>
                             </div>
                         </h2>
