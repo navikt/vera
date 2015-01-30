@@ -18,7 +18,7 @@ var Vera = React.createClass({
                         </div>
                         <ul className="nav navbar-nav">
                             <li>
-                                <Link to="firehose">log</Link>
+                                <Link to="log">log</Link>
                             </li>
                             <li>
                                 <Link to="matrix">matrix</Link>
@@ -38,7 +38,7 @@ var routes = (
     <Route handler={Vera}>
         <DefaultRoute handler={DeployLog} />
         <Route name="matrix" handler={VersionMatrix} />
-        <Route name="firehose" handler={DeployLog}/>
+        <Route name="log" handler={DeployLog}/>
     </Route>
 )
 

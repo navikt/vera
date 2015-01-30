@@ -3,17 +3,11 @@ var Event = require('../models/event');
 var _ = require('lodash');
 var moment = require('moment');
 
-
-var start;
-var stop;
-
 exports.getVersion = function () {
     return function (req, res, next) {
         var resultHandler = function (err, events) {
             res.write(JSON.stringify(events));
             res.send();
-            stop = Date.now();
-            console.log(stop-start)
         }
 
         var whereFilter = {};
@@ -30,25 +24,33 @@ exports.getVersion = function () {
                 var matches = timespan.match(timespanPattern);
                 var quantity = matches[1];
                 var timeUnit = matches[2];
-                whereFilter.timestamp = { "$gte": moment().subtract(quantity, timeUnit).format() }
+                whereFilter.deployed_timestamp = { "$gte": moment().subtract(quantity, timeUnit).format() }
             } else {
                 res.statusCode = 400;
                 throw new Error("Invalid format for parameter 'last'. Format should be <number><period>, e.g. '7days'. See http://momentjs.com/docs/#/manipulating for more info");
             }
         }
-        start = Date.now();
-        Event.find(whereFilter).sort([['timestamp', 'descending']]).exec(resultHandler);
+
+        Event.find(whereFilter).sort([['deployed_timestamp', 'descending']]).exec(resultHandler);
     }
 }
 
 exports.getCurrentVersions = function () {
     return function (req, res, next) {
+        function isDeployedIsLast24Hrs(event) {
+            return moment(event.deployed_timestamp).isAfter(moment().subtract(24, 'hours'));
+        }
         var resultHandler = function (err, events) {
-            res.write(JSON.stringify(events));
+            var transformedEvents = _.map(events, function(event){
+                var mongoEvent = event.toJSON();
+                mongoEvent.newDeployment = isDeployedIsLast24Hrs(event);
+                return mongoEvent;
+            });
+            res.write(JSON.stringify(transformedEvents));
             res.send();
         }
 
-        Event.find({latest: true}).exec(resultHandler);
+        Event.find({replaced_timestamp: null}).exec(resultHandler);
     }
 }
 
@@ -80,7 +82,7 @@ exports.registerDeployment = function () {
         Event.find({
             environment: new RegExp(event.environment, "i"),
             application: new RegExp(event.application, "i"),
-            latest: true
+            replaced_timestamp: ""
         }).exec( function(err, events){
             event.save(function (err, savedEvent) {
                 if(err) {
@@ -88,7 +90,7 @@ exports.registerDeployment = function () {
                 }
                 else {
                     events.forEach(function(e) {
-                        e.latest = false;
+                        e.replaced_timestamp = new Date();
                         e.save(logErrorHandler);
                     })
                     res.send(200, JSON.stringify(savedEvent.toJSON()));

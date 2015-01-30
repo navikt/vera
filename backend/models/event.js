@@ -6,33 +6,34 @@ mongoose.Error.messages.general.required = "Property {PATH} is required in JSON 
 var eventSchema = mongoose.Schema({
     application: {type: String, lowercase: true, trim: true, required: true},
     environment: {type: String, lowercase: true, trim: true, required: true},
+    environmentClass: String,
     version: {type: String, trim: true, required: true},
-    latest: Boolean,
     deployer: {type: String, trim: true, required: true},
-    timestamp: Date
+    deployed_timestamp: Date,
+    replaced_timestamp: Date
 });
 
-function isDeployedIsLast24Hrs(event) {
-    return moment(event.timestamp).isAfter(moment().subtract(24, 'hours'));
-}
 
-
-function getEnvClassFromEnv(env) {
-    firstChar = env.charAt(0);
-    if(firstChar === 't' || firstChar === 'q' || firstChar === 'p') {
-        return firstChar;
-    }
-    return 'u';
-}
 
 eventSchema.set('toJSON', {getters: true, transform: function(doc, ret, options) {
     delete ret.__v;
     delete ret._id;
-    //ret.deployTime = ret.timestamp;
-    ret.newDeployment = isDeployedIsLast24Hrs(ret); // TODO, ta tiden med og uten denne... Done, sparer ca 1 sekund....
-    ret.timestamp = moment(ret.timestamp).format('DD-MM-YY HH:mm:ss');
-    ret.envClass = getEnvClassFromEnv(ret.environment);
+    ret.deployed_timestamp = moment(ret.deployed_timestamp).format('DD-MM-YY HH:mm:ss');
+    if (ret.replaced_timestamp){
+        ret.replaced_timestamp = moment(ret.replaced_timestamp).format('DD-MM-YY HH:mm:ss');
+    } else {
+        ret.replaced_timestamp = ""
+    }
+
 }});
+
+function getEnvClassFromEnv(environment) {
+    var potentialEnvClass =  environment.charAt(0);
+    if(potentialEnvClass === "t" || potentialEnvClass === "q" || potentialEnvClass === "p") {
+        return potentialEnvClass;
+    }
+    return "u";
+}
 
 eventSchema.statics.createFromObject = function(obj) {
     return new Event({
@@ -40,8 +41,9 @@ eventSchema.statics.createFromObject = function(obj) {
         environment: obj.environment,
         version: obj.version,
         deployer: obj.deployedBy,
-        timestamp: new Date(),
-        latest: true
+        deployed_timestamp: new Date(),
+        replaced_timestamp: null,
+        environmentClass: (obj.environmentClass) ? obj.environmentClass : getEnvClassFromEnv(obj.environment)
     });
 }
 

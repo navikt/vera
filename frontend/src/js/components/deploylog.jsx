@@ -16,7 +16,8 @@ module.exports = DeployLog = React.createClass({
             environmentFilter: '',
             deployerFilter: '',
             versionFilter: '',
-            timestampFilter: ''
+            deployedTimestampFilter: '',
+            onlyCurrentVersions: false
         };
     },
 
@@ -27,19 +28,22 @@ module.exports = DeployLog = React.createClass({
 
     componentDidMount: function () {
         var queryParams = [];
-        if (this.getQuery().app) {
-            queryParams.push("app=" + this.getQuery().app);
-            this.state.applicationFilter = this.getQuery().app;
+
+        var appQueryParam = this.getQuery().app;
+        if (appQueryParam) {
+            queryParams.push("app=" + appQueryParam);
+            this.setState({applicationFilter: appQueryParam});
         }
 
-        if (this.getQuery().env) {
-            queryParams.push("env=" + this.getQuery().env);
-            this.state.environmentFilter = this.getQuery().env;
+        var envQueryParam = this.getQuery().env;
+        if (envQueryParam) {
+            queryParams.push("env=" + envQueryParam);
+            this.setState({environmentFilter: envQueryParam});
         }
 
-        $.getJSON('http://localhost:9080/version?last=6month').done(function (data) {
+        $.getJSON('/version?last=1month').done(function (data) {
             this.setState({items: data})
-            $.getJSON('http://localhost:9080/version?' + queryParams.join("&")).done(function (data) {
+            $.getJSON('/version?' + queryParams.join("&")).done(function (data) {
                 this.setState({items: data, loaded: true})
             }.bind(this));
         }.bind(this));
@@ -50,30 +54,31 @@ module.exports = DeployLog = React.createClass({
         this.setState({itemRenderCount: this.state.itemRenderCount + 50})
     },
 
+    toggleCurrentVersionFilter: function () {
+        this.setState({onlyCurrentVersions: !this.state.onlyCurrentVersions});
+    },
+
     render: function () {
-        var applicationFilter = this.state.applicationFilter.toLowerCase();
-        var environmentFilter = this.state.environmentFilter.toLowerCase();
-        var deployerFilter = this.state.deployerFilter.toLowerCase();
-        var versionFilter = this.state.versionFilter.toLowerCase();
-        var timestampFilter = this.state.timestampFilter.toLowerCase();
+        var tableHeaderFilter = function (elem) {
+            return elem.application.toLowerCase().indexOf(this.state.applicationFilter.toLowerCase()) > -1
+                && elem.environment.toLowerCase().indexOf(this.state.environmentFilter.toLowerCase()) > -1
+                && elem.deployer.toLowerCase().indexOf(this.state.deployerFilter.toLowerCase()) > -1
+                && elem.version.toLowerCase().indexOf(this.state.versionFilter.toLowerCase()) > -1
+                && elem.deployed_timestamp.toString().toLowerCase().indexOf(this.state.deployedTimestampFilter.toLowerCase()) > -1;
+        }.bind(this)
 
-        var nonMatchingEvents = function (elem) {
-            var application = elem.application;
-            var environment = elem.environment;
-            var deployer = elem.deployer;
-            var version = elem.version;
-            var timestamp = elem.timestamp;
+        var inactiveVersionsIfEnabled = function (elem) {
+            if (!this.state.onlyCurrentVersions) {
+                return true;
+            } else {
+                return elem.replaced_timestamp === "";
+            }
+        }.bind(this);
 
-            return application.toLowerCase().indexOf(applicationFilter) > -1
-                && environment.toLowerCase().indexOf(environmentFilter) > -1
-                && deployer.toLowerCase().indexOf(deployerFilter) > -1
-                && version.toLowerCase().indexOf(versionFilter) > -1
-                && timestamp.toString().toLowerCase().indexOf(timestampFilter) > -1;
-        }
-
-        var filteredEvents = this.state.items.filter(nonMatchingEvents);
+        var filteredEvents = this.state.items.filter(tableHeaderFilter).filter(inactiveVersionsIfEnabled);
         var eventsToRender = filteredEvents.slice(0, this.state.itemRenderCount);
         var cx = React.addons.classSet;
+
         var spinnerClasses = cx({
             'fa': true,
             'fa-spinner': true,
@@ -81,36 +86,55 @@ module.exports = DeployLog = React.createClass({
             'hidden': this.state.loaded
         });
 
+        var currentVersionToggleClasses = cx({
+            "btn": true,
+            "btn-default": true,
+            "btn-sm": true,
+            "active": this.state.onlyCurrentVersions
+        });
+
         return (
             <div className="container">
-                <h2>events <small>{filteredEvents.length + "/" + this.state.items.length} <i className={spinnerClasses}></i></small></h2>
-                    <table className='table table-bordered table-striped'>
-                        <tr>
-                            <th>
-                                <input id="applicationFilter" className="form-control" placeholder="application" value={this.state.applicationFilter} type="text" onChange={this.handleChange} />
-                            </th>
-                            <th>
-                                <input id="environmentFilter" className="form-control" placeholder="environment" value={this.state.environmentFilter} type="text" onChange={this.handleChange} />
-                            </th>
-                            <th>
-                                <input id="deployerFilter" className="form-control" placeholder="deployer" type="text" onChange={this.handleChange} />
-                            </th>
-                            <th>
-                                <input id="versionFilter" className="form-control" placeholder="version" type="text" onChange={this.handleChange} />
-                            </th>
-                            <th>
-                                <input id="timestampFilter" className="form-control" placeholder="timestamp" type="text" onChange={this.handleChange} />
-                            </th>
-                        </tr>
-                        <tbody>
-                        {eventsToRender.map(function (elem) {
-                                return <LogRow key={elem.id} event={elem} />
-                            })}
-                        </tbody>
-                    </table>
-                    <button type="button" className="btn btn-link" onClick={this.viewMoreResults}>View more results...</button>
+                        <h2>events
+                            <small> {filteredEvents.length + "/" + this.state.items.length} <i className={spinnerClasses}></i></small>
+                            <div className="pull-right" data-toggle="buttons" role="group">
+                                <label className={currentVersionToggleClasses} >
+                                    <input type="checkbox" autoComplete="off" onClick={this.toggleCurrentVersionFilter} />
+                                Show only latest
+                                </label>
+                            </div>
+                        </h2>
 
+                <table className='table table-bordered table-striped'>
+                    <tr>
+                        <th>
+                            <input id="applicationFilter" className="form-control" placeholder="application" value={this.state.applicationFilter} type="text" onChange={this.handleChange} />
+                        </th>
+                        <th>
+                            <input id="environmentFilter" className="form-control" placeholder="environment" value={this.state.environmentFilter} type="text" onChange={this.handleChange} />
+                        </th>
+                        <th>
+                            <input id="deployerFilter" className="form-control" placeholder="deployer" type="text" onChange={this.handleChange} />
+                        </th>
+                        <th>
+                            <input id="versionFilter" className="form-control" placeholder="version" type="text" onChange={this.handleChange} />
+                        </th>
+                        <th>
+                            <input id="deployedTimestampFilter" className="form-control" placeholder="deployed" type="text" onChange={this.handleChange} />
+                        </th>
+                    </tr>
+                    <tbody>
+                        {eventsToRender.map(function (elem) {
+                            return <LogRow key={elem.id} event={elem} />
+                        })}
+                    </tbody>
+                </table>
+                <button type="button" className="btn btn-link" onClick={this.viewMoreResults}>View more results...</button>
             </div>
         )
     }
 });
+
+
+
+
