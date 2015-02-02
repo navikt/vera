@@ -1,13 +1,15 @@
 var React = require('react');
 var util = require('../../vera-parser');
 var $ = jQuery = require('jquery');
+var _ = require('lodash');
 var MatrixRow = require('./matrixrow.jsx');
 
 
 module.exports = VersionMatrix = React.createClass({
     getInitialState: function () {
         return {
-            jsonData: []
+            jsonData: [],
+            filters: {}
         }
     },
 
@@ -18,16 +20,33 @@ module.exports = VersionMatrix = React.createClass({
     },
 
 
-    handleChange: function (e) {
-        this.setState({
-            filters: {
-                application: this.refs.applicationFilter.getDOMNode().value.toLowerCase(),
-                environment: this.refs.environmentFilter.getDOMNode().value.toLowerCase()
-            }
-        });
-        console.log(this.state.filters)
-        e.preventDefault();
+    updateFilters: function (e) {
+        console.log("text");
+        var currentState  = _.assign({}, this.state.filters);
+        console.log("Current state before ", currentState);
+        currentState.application = this.refs.applicationFilter.getDOMNode().value.toLowerCase();
+        currentState.environment = this.refs.environmentFilter.getDOMNode().value.toLowerCase();
+        currentState.newDeployments = this.refs.newDeployments.getDOMNode().checked;
+
+        this.setState({filters: currentState});
+        if(e.target.type === 'submit') {
+            console.log('Preventing default')
+            e.preventDefault();
+        }
+
     },
+
+    //updateToggleFilters: function(e) {
+    //    console.log("toggle ")
+    //    console.log("kukk2", e.target.type)
+    //    console.log(this.refs.newDeployments.getDOMNode().checked);
+    //
+    //    this.setState({
+    //        filters: {
+    //            newDeployments: this.refs.newDeployments.getDOMNode().checked
+    //        }
+    //    });
+    //},
 
     applyFilters: function () {
         var filters = this.state.filters;
@@ -69,22 +88,24 @@ module.exports = VersionMatrix = React.createClass({
         this.setState({filters: currentFilters});
     },
 
-    newDeployments: function (e) {
-
-        console.log(this.refs.bauer.getDOMNode().checked);
-        console.log(this.refs.bauer);
-
-        this.setState({newDeploymentsFilter: this.refs.bauer.getDOMNode().checked});
-        //this.refs.bauer.getDomNode().className= (this.refs.bauer.getDOMNode().checked) ? "btn btn-default active" : "btn btn-default";
-        //var filteredData = this.state.jsonData.filter(function (elem) {
-        //    return elem.newDeployment;
-        //});
-
-        //util.buildVersionMatrix(filteredData, this.updateMatrixData)
-    },
+    //newDeployments: function (e) {
+    //
+    //    console.log(this.refs.bauer.getDOMNode().checked);
+    //    console.log(this.refs.bauer);
+    //
+    //    this.setState({newDeploymentsFilter: this.refs.bauer.getDOMNode().checked});
+    //    //this.refs.bauer.getDomNode().className= (this.refs.bauer.getDOMNode().checked) ? "btn btn-default active" : "btn btn-default";
+    //    //var filteredData = this.state.jsonData.filter(function (elem) {
+    //    //    return elem.newDeployment;
+    //    //});
+    //
+    //    //util.buildVersionMatrix(filteredData, this.updateMatrixData)
+    //},
 
     render: function () {
-        filteredData = this.applyFilters();
+        console.log("This is filters in Render ", this.state.filters)
+        var filteredData = this.applyFilters();
+
         var headers = filteredData.header;
         var body = filteredData.body;
 
@@ -92,7 +113,7 @@ module.exports = VersionMatrix = React.createClass({
         var toggle = cx({
             "btn": true,
             "btn-default": true,
-            "active": this.state.bauer
+            "active": this.state.filters.newDeployments
 
         });
 
@@ -110,12 +131,12 @@ module.exports = VersionMatrix = React.createClass({
                                         <div className="form-group">
                                             <input ref="environmentFilter" type="text" className="form-control" placeholder="environments"></input>
                                         </div>
-                                        <input type="submit" className="btn btn-default" onClick={this.handleChange} value="Apply" />
+                                        <input type="submit" className="btn btn-default" onClick={this.updateFilters} value="Apply" />
                                         <input type="button" className="btn btn-danger" onClick={this.clear} value="Clear" />
                                     </div>
                                     <div className="btn-group pull-right" data-toggle="buttons" role="group">
                                         <label className={toggle} >
-                                            <input ref="bauer" type="checkbox" autoComplete="off" onClick={this.newDeployments} />
+                                            <input ref="newDeployments" type="checkbox" autoComplete="off" onClick={this.updateFilters} />
                                         last 24 hrs
                                         </label>
                                         <label className="btn btn-default">

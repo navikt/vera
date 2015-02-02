@@ -34,4 +34,17 @@ print("fjern alle ubrukelige versjoner");
 db.events.find({$or: [{version: '-'}, {version: 'n.p'}, {version: 'No MF-vn.'}]}).forEach(function (e) {
     db.events.remove(e)
 })
+
+print("fjerner miljøer events for tomme miljøer")
+db.events.find({environment: ''}).forEach(function (e) {
+    db.events.remove(e);
+})
+
+print("prøver å utlede miljøklasse")
+db.events.find().forEach(function (e) {
+    e.environmentClass = e.environment.charAt(0);
+    db.events.save(e);
+})
+
+
 print("done");

@@ -46,6 +46,7 @@ exports.getCurrentVersions = function () {
                 mongoEvent.newDeployment = isDeployedIsLast24Hrs(event);
                 return mongoEvent;
             });
+            console.log("TrE", transformedEvents)
             res.write(JSON.stringify(transformedEvents));
             res.send();
         }
