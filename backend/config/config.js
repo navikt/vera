@@ -4,9 +4,9 @@ var path = require('path'),
 var config = {
     root: rootPath,
     port: process.env.PORT || 9080,
-    dbUrl: process.env['db_url'] || "mongodb://localhost/deploy_log",
-    dbUser: process.env['db_username'] || "hvemsomhelst",
-    dbPassword: process.env['db_password'] || "<hemmelig>"
+    dbUrl: process.env['veraDb_url'] || "mongodb://localhost/deploy_log",
+    dbUser: process.env['veraDb_username'] || "hvemsomhelst",
+    dbPassword: process.env['veraDb_password'] || "<hemmelig>"
 }
 
 module.exports = config
