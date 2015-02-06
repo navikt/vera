@@ -5,7 +5,7 @@ var config = {
     root: rootPath,
     port: process.env.PORT || 9080,
     dbUrl: process.env['veraDb_url'] || "mongodb://localhost/deploy_log",
-    dbUser: process.env['veraDb_username'] || "hvemsomhelst",
+    dbUser: process.env['veraDb_username'] || "vera",
     dbPassword: process.env['veraDb_password'] || "<hemmelig>"
 }
 
