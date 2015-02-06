@@ -6,4 +6,4 @@ RUN yum install -y /tmp/nodejs/*.rpm
 
 COPY dist /opt/vera
 
-CMD ["node", "/opt/vera/server.js"]
+CMD ["node /opt/vera/server.js"]
