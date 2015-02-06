@@ -5,6 +5,10 @@
 	<name>vera</name>
 	<artifacts />
 
+	<exposed-services>
+		<exposedRest name="versionService" description="Veras REST-tjeneste for å registrere versjoner" path="/version"/>
+	</exposed-services>
+
 	<resources>
 		<baseUrl alias="plasterUrl" mapToProperty="plasterUrl" />
 		<unmanagedDatasource alias="veraDb" mapToProperty="veraDb" />
