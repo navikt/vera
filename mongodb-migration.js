@@ -1,6 +1,6 @@
 print("bytter ut nullverdier")
 db.events.find({replaced_timestamp: "NULL"}).forEach(function (e) {
-    e.replaced_timestamp = "";
+    e.replaced_timestamp = null;
     db.events.save(e);
 })
 db.events.find({deployer: "NULL"}).forEach(function (e) {
@@ -13,7 +13,8 @@ db.events.find().forEach(function (a) {
     a.deployed_timestamp = ISODate(a.deployed_timestamp);
     db.events.save(a)
 });
-db.events.find({replaced_timestamp: {$ne: ""}}).forEach(function (a) {
+
+db.events.find({replaced_timestamp: {$ne: null}}).forEach(function (a) {
     a.replaced_timestamp = ISODate(a.replaced_timestamp);
     db.events.save(a)
 });
@@ -35,12 +36,12 @@ db.events.find({$or: [{version: '-'}, {version: 'n.p'}, {version: 'No MF-vn.'}]}
     db.events.remove(e)
 })
 
-print("fjerner miljøer events for tomme miljøer")
+print("fjerner miljï¿½er events for tomme miljï¿½er")
 db.events.find({environment: ''}).forEach(function (e) {
     db.events.remove(e);
 })
 
-print("prøver å utlede miljøklasse")
+print("prï¿½ver ï¿½ utlede miljï¿½klasse")
 db.events.find().forEach(function (e) {
     e.environmentClass = e.environment.charAt(0);
     db.events.save(e);
