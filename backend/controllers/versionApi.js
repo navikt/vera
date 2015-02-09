@@ -46,7 +46,6 @@ exports.getCurrentVersions = function () {
                 mongoEvent.newDeployment = isDeployedIsLast24Hrs(event);
                 return mongoEvent;
             });
-            console.log("TrE", transformedEvents)
             res.write(JSON.stringify(transformedEvents));
             res.send();
         }
@@ -54,6 +53,8 @@ exports.getCurrentVersions = function () {
         Event.find({replaced_timestamp: null}).exec(resultHandler);
     }
 }
+
+
 
 exports.registerDeployment = function () {
     function logErrorHandler(err) {
@@ -71,6 +72,7 @@ exports.registerDeployment = function () {
         });
         res.send({status: 400, message: mappedErrors.join(", ")});
     }
+
 
     /**
      * Creates a new event object, and stores it in mongo if there are no validation errors

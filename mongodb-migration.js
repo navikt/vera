@@ -1,6 +1,6 @@
 print("bytter ut nullverdier")
 db.events.find({replaced_timestamp: "NULL"}).forEach(function (e) {
-    e.replaced_timestamp = "";
+    e.replaced_timestamp = null;
     db.events.save(e);
 })
 db.events.find({deployer: "NULL"}).forEach(function (e) {
