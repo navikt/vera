@@ -21,14 +21,16 @@ module.exports = VersionMatrix = React.createClass({
 
 
     updateFilters: function (e) {
-        console.log("text");
-        var currentState  = _.assign({}, this.state.filters);
-        console.log("Current state before ", currentState);
-        currentState.application = this.refs.applicationFilter.getDOMNode().value.toLowerCase();
-        currentState.environment = this.refs.environmentFilter.getDOMNode().value.toLowerCase();
-        currentState.newDeployments = this.refs.newDeployments.getDOMNode().checked;
+        var newState  = {};
+        newState.application = this.refs.applicationFilter.getDOMNode().value.toLowerCase();
+        newState.environment = this.refs.environmentFilter.getDOMNode().value.toLowerCase();
 
-        this.setState({filters: currentState});
+        if(this.refs.newDeployments.getDOMNode().checked) {
+            newState.newDeployment = true;
+        }
+
+        this.setState({filters: newState});
+        console.dir('Filers are: ', this.state.filters);
         if(e.target.type === 'submit') {
             console.log('Preventing default')
             e.preventDefault();
@@ -62,9 +64,17 @@ module.exports = VersionMatrix = React.createClass({
         }
 
         var applyFilter = function(inputData, filterString, filterProperty) {
-            return filteredJsonData.filter(function(elem) {
-                return isElementIn(filters[filterProperty], elem,  filterProperty);
+            if (typeof filterString === 'boolean' ) {
+                return filteredJsonData.filter(function(elem){
+                   return elem[filterProperty] === true;
+                });
+
+            }
+            else {
+            return filteredJsonData.filter(function (elem) {
+                return isElementIn(filters[filterProperty], elem, filterProperty);
             });
+        }
         }
 
         var filteredJsonData = this.state.jsonData;
@@ -113,7 +123,7 @@ module.exports = VersionMatrix = React.createClass({
         var toggle = cx({
             "btn": true,
             "btn-default": true,
-            "active": this.state.filters.newDeployments
+            "active": this.state.filters.newDeployment
 
         });
 
