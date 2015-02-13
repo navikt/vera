@@ -37,3 +37,10 @@ node_modules
 
 .idea
 *.iml
+
+app-config/target
+
+*.pem
+*.key
+dist
+
