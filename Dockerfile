@@ -6,5 +6,5 @@ RUN yum install -y /tmp/nodejs/*.rpm
 
 COPY dist /opt/vera
 
-EXPOSE 9080
+EXPOSE 8443
 CMD ["node", "/opt/vera/server.js"]
