@@ -1,11 +1,14 @@
-var express = require('express'),
-    bodyParser = require('body-parser'),
-    dexter = require('morgan'),
-    config = require('./backend/config/config'),
-    mongoose = require('mongoose'),
-    app = express();
+var express = require('express');
+var bodyParser = require('body-parser');
+var dexter = require('morgan');
+var config = require('./backend/config/config');
+var mongoose = require('mongoose');
+var https = require('https');
+var fs = require('fs');
+var app = express();
 
-var cors = function(req, res, next){
+
+var cors = function (req, res, next) {
     res.setHeader("Access-Control-Allow-Origin", "*");
     return next();
 }
@@ -17,12 +20,12 @@ app.use(dexter());
 app.set('port', config.port);
 require('./backend/config/routes')(app);
 
-var logError = function(err, req, res, next){
+var logError = function (err, req, res, next) {
     console.log("Error: %s", err.message);
     return next(err);
 }
 
-var errorHandler = function(err, req, res, next) {
+var errorHandler = function (err, req, res, next) {
     res.send({
         status: res.statusCode,
         message: "internal error",
@@ -40,6 +43,8 @@ app.use(errorHandler);
 
 app.use(express.static(__dirname + "/frontend/build"));
 
-app.listen(config.port, function () {
-    console.log("Ready for e-business on port " + config.port );
+var httpsServer = https.createServer({key: fs.readFileSync(config.tlsPrivateKey), cert: fs.readFileSync(config.tlsCert)}, app);
+
+httpsServer.listen(config.port, function () {
+    console.log("Ready for e-business on port " + config.port)
 });
