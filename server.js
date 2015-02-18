@@ -3,10 +3,10 @@ var bodyParser = require('body-parser');
 var dexter = require('morgan');
 var config = require('./backend/config/config');
 var mongoose = require('mongoose');
-var https = require('https');
+//var https = require('https');
+var http = require('http');
 var fs = require('fs');
 var app = express();
-
 
 var cors = function (req, res, next) {
     res.setHeader("Access-Control-Allow-Origin", "*");
@@ -43,8 +43,9 @@ app.use(errorHandler);
 
 app.use(express.static(__dirname + "/frontend/build"));
 
-var httpsServer = https.createServer({key: fs.readFileSync(config.tlsPrivateKey), cert: fs.readFileSync(config.tlsCert)}, app);
+//var httpsServer = https.createServer({key: fs.readFileSync(config.tlsPrivateKey), cert: fs.readFileSync(config.tlsCert)}, app);
+var httpServer = http.createServer(app);
 
-httpsServer.listen(config.port, function () {
+httpServer.listen(config.port, function () {
     console.log("Ready for e-business on port " + config.port)
 });
