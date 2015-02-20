@@ -68,8 +68,8 @@ module.exports = VersionMatrix = React.createClass({
                     <div className="panel-body">
                         <form id="myform" className="form-inline">
                             <div className="form-group">
-                                <input ref="applicationFilter" type="text" className="form-control" placeholder="applications"></input>
                                 <input ref="environmentFilter" type="text" className="form-control" placeholder="environments"></input>
+                                <input ref="applicationFilter" type="text" className="form-control" placeholder="applications"></input>
                                 <input type="submit" className="btn btn-default" onClick={this.handleChange} value="Apply" />
                                 <input type="button" className="btn btn-danger" onClick={this.clear} value="Clear" />
                             </div>
