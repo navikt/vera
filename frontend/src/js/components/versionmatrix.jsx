@@ -2,14 +2,20 @@ var React = require('react');
 var util = require('../../vera-parser');
 var $ = jQuery = require('jquery');
 var MatrixRow = require('./matrixrow.jsx');
+var Router = require('react-router');
 
 
 module.exports = VersionMatrix = React.createClass({
+
+    mixins: [Router.State],
+
     getInitialState: function () {
         return {
             jsonData: [],
             headers: [],
-            body: []
+            body: [],
+            appsFilter: "",
+            envsFilter: ""
         }
     },
 
@@ -17,19 +23,31 @@ module.exports = VersionMatrix = React.createClass({
         this.setState({headers: headers, body: body})
     },
 
-
     componentDidMount: function () {
+        var appsQueryParam = this.getQuery().apps;
+        if (appsQueryParam) {
+            this.setState({appsFilter: appsQueryParam});
+        }
+
+        var envsQueryParam = this.getQuery().envs;
+        if (envsQueryParam) {
+            this.setState({envsFilter: envsQueryParam});
+        }
+
         $.getJSON('/cv').done(function (data) {
-            this.state.jsonData = data;
-            util.buildVersionMatrix(data, this.updateMatrixData);
+            this.setState({jsonData: data});
+
+            var filteredJsonData = this.state.jsonData.filter(function (elem) {
+                return this.isElementIn(this.state.appsFilter, elem, "application");
+            }.bind(this)).filter(function (elem) {
+                return this.isElementIn(this.state.envsFilter, elem, "environment");
+            }.bind(this));
+
+            util.buildVersionMatrix(filteredJsonData, this.updateMatrixData);
         }.bind(this));
     },
 
-    handleChange: function (e) {
-        var applicationFilter = this.refs.applicationFilter.getDOMNode().value.toLowerCase();
-        var environmentFilter = this.refs.environmentFilter.getDOMNode().value.toLowerCase();
-
-        var isElementIn = function (filter, element, property) {
+    isElementIn: function(filter, element, property){
             var filters = filter.split(",");
             for (var i = 0; i < filters.length; i++) {
                 if (element[property].toLowerCase().indexOf(filters[i].trim()) > -1) {
@@ -37,13 +55,17 @@ module.exports = VersionMatrix = React.createClass({
                 }
             }
             return false;
-        }
+    },
+
+    handleChange: function (e) {
+        var applicationFilter = this.refs.applicationFilter.getDOMNode().value.toLowerCase();
+        var environmentFilter = this.refs.environmentFilter.getDOMNode().value.toLowerCase();
 
         var filteredJsonData = this.state.jsonData.filter(function (elem) {
-            return isElementIn(applicationFilter, elem, "application");
-        }).filter(function (elem) {
-            return isElementIn(environmentFilter, elem, "environment");
-        });
+            return this.isElementIn(applicationFilter, elem, "application");
+        }.bind(this)).filter(function (elem) {
+            return this.isElementIn(environmentFilter, elem, "environment");
+        }.bind(this));
 
         util.buildVersionMatrix(filteredJsonData, this.updateMatrixData);
         e.preventDefault();
@@ -54,7 +76,6 @@ module.exports = VersionMatrix = React.createClass({
         this.refs.environmentFilter.getDOMNode().value = '';
 
         util.buildVersionMatrix(this.state.jsonData, this.updateMatrixData);
-
     },
 
     render: function () {
