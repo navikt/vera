@@ -13,18 +13,9 @@ var eventSchema = mongoose.Schema({
     replaced_timestamp: Date
 });
 
-
-
 eventSchema.set('toJSON', {getters: true, transform: function(doc, ret, options) {
     delete ret.__v;
     delete ret._id;
-    ret.deployed_timestamp = moment(ret.deployed_timestamp).format('DD-MM-YY HH:mm:ss');
-    if (ret.replaced_timestamp){
-        ret.replaced_timestamp = moment(ret.replaced_timestamp).format('DD-MM-YY HH:mm:ss');
-    } else {
-        ret.replaced_timestamp = ""
-    }
-
 }});
 
 function getEnvClassFromEnv(environment) {

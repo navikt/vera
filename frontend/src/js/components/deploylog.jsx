@@ -1,5 +1,6 @@
 var React = require('react/addons');
 var $ = require('jquery');
+var moment = require('moment');
 var Router = require('react-router');
 var LogRow = require('./logrow.jsx');
 
@@ -75,7 +76,12 @@ module.exports = DeployLog = React.createClass({
             }
         }.bind(this);
 
-        var filteredEvents = this.state.items.filter(tableHeaderFilter).filter(inactiveVersionsIfEnabled);
+        var toReadableDateFormat = function (event) {
+            event.deployed_timestamp = moment(event.deployed_timestamp).format('DD-MM-YY HH:mm:ss');
+            return event;
+        };
+
+        var filteredEvents = this.state.items.filter(tableHeaderFilter).filter(inactiveVersionsIfEnabled).map(toReadableDateFormat);
         var eventsToRender = filteredEvents.slice(0, this.state.itemRenderCount);
         var cx = React.addons.classSet;
 
