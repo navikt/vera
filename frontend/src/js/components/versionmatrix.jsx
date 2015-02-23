@@ -1,54 +1,48 @@
 var React = require('react');
 var util = require('../../vera-parser');
 var $ = jQuery = require('jquery');
-var _ = require('lodash');
 var MatrixRow = require('./matrixrow.jsx');
 
 
 module.exports = VersionMatrix = React.createClass({
     getInitialState: function () {
         return {
+            loaded: false,
+            rowsToRender: 20,
             jsonData: [],
             filters: {}
         }
     },
 
     componentDidMount: function () {
-        $.getJSON('http://localhost:9080/cv').done(function (data) {
+        $.getJSON('/cv').done(function (data) {
             this.setState({jsonData: data});
         }.bind(this));
     },
 
-
-    updateFilters: function (e) {
-        var newState  = {};
-        newState.application = this.refs.applicationFilter.getDOMNode().value.toLowerCase();
-        newState.environment = this.refs.environmentFilter.getDOMNode().value.toLowerCase();
-
-        if(this.refs.newDeployments.getDOMNode().checked) {
-            newState.newDeployment = true;
+    componentDidUpdate: function () {
+        //console.log('Hitting')
+        if (!this.state.loaded) {
+            console.log('Stop spinning');
+            this.setState({loaded: true});
         }
-
-        this.setState({filters: newState});
-        console.dir('Filers are: ', this.state.filters);
-        if(e.target.type === 'submit') {
-            console.log('Preventing default')
-            e.preventDefault();
-        }
-
     },
 
-    //updateToggleFilters: function(e) {
-    //    console.log("toggle ")
-    //    console.log("kukk2", e.target.type)
-    //    console.log(this.refs.newDeployments.getDOMNode().checked);
-    //
-    //    this.setState({
-    //        filters: {
-    //            newDeployments: this.refs.newDeployments.getDOMNode().checked
-    //        }
-    //    });
-    //},
+    updateFilters: function (e) {
+        var filters = {
+            application: this.refs.applicationFilter.getDOMNode().value.toLowerCase(),
+            environment: this.refs.environmentFilter.getDOMNode().value.toLowerCase()
+        };
+
+        if (this.refs.newDeployments.getDOMNode().checked) {
+            filters.newDeployment = true;
+        }
+
+        this.setState({filters: filters});
+        if (e.target.type === 'submit') { // prevent form submission, no need to call the server as everything happens client side
+            e.preventDefault();
+        }
+    },
 
     applyFilters: function () {
         var filters = this.state.filters;
@@ -63,18 +57,18 @@ module.exports = VersionMatrix = React.createClass({
             return false;
         }
 
-        var applyFilter = function(inputData, filterString, filterProperty) {
-            if (typeof filterString === 'boolean' ) {
-                return filteredJsonData.filter(function(elem){
-                   return elem[filterProperty] === true;
+        var applyFilter = function (inputData, filterString, filterProperty) {
+            if (typeof filterString === 'boolean') {
+                return filteredJsonData.filter(function (elem) {
+                    return elem[filterProperty] === true;
                 });
 
             }
             else {
-            return filteredJsonData.filter(function (elem) {
-                return isElementIn(filters[filterProperty], elem, filterProperty);
-            });
-        }
+                return filteredJsonData.filter(function (elem) {
+                    return isElementIn(filters[filterProperty], elem, filterProperty);
+                });
+            }
         }
 
         var filteredJsonData = this.state.jsonData;
@@ -92,32 +86,26 @@ module.exports = VersionMatrix = React.createClass({
     clear: function (e) {
         this.refs.applicationFilter.getDOMNode().value = '';
         this.refs.applicationFilter.getDOMNode().value = '';
-        currentFilters = this.state.filters;
+        var currentFilters = this.state.filters;
         delete currentFilters.application;
         delete currentFilters.environment;
         this.setState({filters: currentFilters});
     },
 
-    //newDeployments: function (e) {
-    //
-    //    console.log(this.refs.bauer.getDOMNode().checked);
-    //    console.log(this.refs.bauer);
-    //
-    //    this.setState({newDeploymentsFilter: this.refs.bauer.getDOMNode().checked});
-    //    //this.refs.bauer.getDomNode().className= (this.refs.bauer.getDOMNode().checked) ? "btn btn-default active" : "btn btn-default";
-    //    //var filteredData = this.state.jsonData.filter(function (elem) {
-    //    //    return elem.newDeployment;
-    //    //});
-    //
-    //    //util.buildVersionMatrix(filteredData, this.updateMatrixData)
-    //},
+    viewAllRows: function () {
+        this.setState({loaded: false})
+
+        console.log('Should trigger a rerender... '  + util.countRows(this.state.jsonData))
+        this.setState({rowsToRender: rowCount})
+        console.log('Reloading...')
+    },
 
     render: function () {
         console.log("This is filters in Render ", this.state.filters)
-        var filteredData = this.applyFilters();
 
+        var filteredData = this.applyFilters();
         var headers = filteredData.header;
-        var body = filteredData.body;
+        var body = filteredData.body.slice(0, this.state.rowsToRender);
 
         var cx = React.addons.classSet;
         var toggle = cx({
@@ -126,6 +114,25 @@ module.exports = VersionMatrix = React.createClass({
             "active": this.state.filters.newDeployment
 
         });
+
+        var spinnerClasses = cx({
+            'fa': true,
+            'fa-spinner': true,
+            'fa-spin': true,
+            'hidden': this.state.loaded
+        });
+
+        var showMoreLink;
+
+        if (this.state.rowsToRender < filteredData.body.length) {
+            showMoreLink = (
+                <div>
+                    <button type="button" className="btn btn-link" onClick={this.viewAllRows()}>View all...</button>
+                </div>
+            )
+        }
+        console.dir(spinnerClasses);
+        console.dir(this.state)
 
         return (
             <div className="container-fluid">
@@ -165,7 +172,7 @@ module.exports = VersionMatrix = React.createClass({
                                         p
                                         </label>
                                     </div>
-                                </div>
+                                 </div>
                             </form>
                         </div>
                     </div>
@@ -186,6 +193,10 @@ module.exports = VersionMatrix = React.createClass({
                             }
                     </tbody>
                 </table>
+                <div>
+                    {showMoreLink}
+                    <i className={spinnerClasses}></i>
+                </div>
             </div >
         )
     }

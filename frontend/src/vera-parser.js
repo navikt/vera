@@ -4,9 +4,8 @@ module.exports = {
     buildVersionMatrix: function (versionData) {
         var tableHeader = getDistinctEnvironments(versionData);
 
-        var applicationInstancesGroupedByApplication = _.chain(versionData).groupBy(function (element) {
-            return element['application']
-        }).value();
+        var applicationInstancesGroupedByApplication = groupByApplication(versionData);
+        console.log("adfas ", applicationInstancesGroupedByApplication)
 
         var applications = _.sortBy(Object.keys(applicationInstancesGroupedByApplication), function (app) {
             return app.toLowerCase();
@@ -18,7 +17,18 @@ module.exports = {
         });
 
         return {header: tableHeader, body: tableContents};
+    },
+
+    countRows: function(versionData) {
+        return Object.keys(groupByApplication(versionData)).length;
     }
+}
+
+function groupByApplication(versionData) {
+    console.log("asdfasf")
+    return _.groupBy(versionData, function (element) {
+        return element['application']
+    });
 }
 
 
