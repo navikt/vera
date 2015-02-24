@@ -1,7 +1,7 @@
 {
   "name": "vera",
   "description": "Vera REST service for registering versions in Vera",
-  "version": "2.1.9",
+  "version": "2.1.10",
   "url": "",
   "author": {
     "name": "Mats Byfuglien",
