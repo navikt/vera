@@ -118,19 +118,19 @@ module.exports = DeployLog = React.createClass({
                 <table className='table table-bordered table-striped'>
                     <tr>
                         <th>
-                            <input id="applicationFilter" className="form-control" placeholder="application" value={this.state.applicationFilter} type="text" onChange={this.handleChange} />
+                            <input id="applicationFilter" className="form-control input-sm" placeholder="application" value={this.state.applicationFilter} type="text" onChange={this.handleChange} />
                         </th>
                         <th>
-                            <input id="environmentFilter" className="form-control" placeholder="environment" value={this.state.environmentFilter} type="text" onChange={this.handleChange} />
+                            <input id="environmentFilter" className="form-control input-sm" placeholder="environment" value={this.state.environmentFilter} type="text" onChange={this.handleChange} />
                         </th>
                         <th>
-                            <input id="deployerFilter" className="form-control" placeholder="deployer" type="text" onChange={this.handleChange} />
+                            <input id="deployerFilter" className="form-control input-sm" placeholder="deployer" type="text" onChange={this.handleChange} />
                         </th>
                         <th>
-                            <input id="versionFilter" className="form-control" placeholder="version" type="text" onChange={this.handleChange} />
+                            <input id="versionFilter" className="form-control input-sm" placeholder="version" type="text" onChange={this.handleChange} />
                         </th>
                         <th>
-                            <input id="deployedTimestampFilter" className="form-control" placeholder="deployed" type="text" onChange={this.handleChange} />
+                            <input id="deployedTimestampFilter" className="form-control input-sm" placeholder="deployed" type="text" onChange={this.handleChange} />
                         </th>
                     </tr>
                     <tbody>

@@ -7,9 +7,17 @@ nav.vera-header {
     color: #ffffff;
 }
 
+.vera-inverse {
+    color: #FD8238;
+}
+
 .navbar-nav > li > a:hover, .navbar-nav > li > a:focus, .navbar-nav > li > a.active, .vera-filter {
     background-color: #6e8398;
     color: #fff;
+}
+
+.app-column {
+    background-color: #CCCCCC;
 }
 
 /*.vera-filter:hover {*/
@@ -26,15 +34,15 @@ nav.vera-header {
     font-weight: bold;
 }
 
-a {
-    color: #6e8398
-}
+/*a {*/
+    /*color: #6e8398*/
+/*}*/
 
-a:hover {
-    color: #ff8522;
-}
+/*a:hover {*/
+    /*color: #ff8522;*/
+/*}*/
 
-i.fa-asterisk, i.fa-flag, i.fa-arrow-up {
+i.fa-asterisk{
     color: #ff8522;
 }
 

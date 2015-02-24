@@ -189,15 +189,15 @@ module.exports = VersionMatrix = React.createClass({
                                     <div className="form-group">
                                         <div className="form-group">
                                             <label for="envFilter">environments </label>&nbsp;
-                                            <input id="envFilter" ref="environmentFilter" type="text" className="form-control" active defaultValue={envFilter}></input>
+                                            <input id="envFilter" ref="environmentFilter" type="text" className="form-control input-sm" active defaultValue={envFilter}></input>
                                         </div>
                                     &nbsp;
                                         <div className="form-group">
                                             <label for="appFilter">applications </label>&nbsp;
-                                            <input id="appFilter" ref="applicationFilter" type="text" className="form-control"  defaultValue={appFilter}></input>
+                                            <input id="appFilter" ref="applicationFilter" type="text" className="form-control input-sm"  defaultValue={appFilter}></input>
                                         </div>
-                                        <input type="submit" className="btn btn-default" onClick={this.updateFilters} value="apply" />
-                                        <input type="button" className="btn btn-danger" onClick={this.clear} value="clear" />
+                                        <input type="submit" className="btn btn-default btn-sm" onClick={this.updateFilters} value="apply" ></input>
+                                        <input type="button" className="btn btn-danger btn-sm" onClick={this.clear} value="clear" />
                                     &nbsp;
                                     </div>
                                     {/*<div className="btn-group pull-right" data-toggle="buttons" role="group">

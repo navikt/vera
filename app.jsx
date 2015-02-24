@@ -14,7 +14,8 @@ var Vera = React.createClass({
                 <nav className="navbar navbar-static-top vera-header">
                     <div className="container-fluid">
                         <div className="navbar-header">
-                            <a className="navbar-brand" href="#"><i className="fa fa-book"></i> vera</a>
+                            <a className="navbar-brand" href="#">
+                                <i className="fa fa-book"></i> vera</a>
                         </div>
                         <ul className="nav navbar-nav">
                             <li>
