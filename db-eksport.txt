@@ -1,9 +1,14 @@
 select version, fom_date, tom_date, deployer, env_name, app_name from version, t_environment, t_application where (env_type = env_id and app_type = app_id) into outfile '/tmp/vera-eksport.csv' fields terminated by ',' enclosed by '"' escaped by '';
 vim /tmp/vera-eksport.csv -> set fileencoding=utf-8 -> :wq
 
-legg til headerlinje (kan dette gjøres i eksporten?) (version,deployed_timestamp,replaced_timestamp,deployer,environment,application)
+legg til headerlinje (version,deployed_timestamp,replaced_timestamp,deployer,environment,application)
 
-mongoimport --db deploy_log --collection events --type csv --file /root/vera-export.csv --headerline
+mongoimport --db deploy_log --collection events --type csv --file /home/H129009/vera-eksport.csv --headerline
+
+mongo deploy_log mongodb-migration.js
+
+
+...........
 
 db.events.find({replaced_timestamp: "NULL"}).forEach(function(e){e.replaced_timestamp = ""; db.events.save(e);})
 db.events.find({deployer: "NULL"}).forEach(function(e){e.deployer = "n/a"; db.events.save(e);})
