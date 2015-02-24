@@ -80,8 +80,8 @@ exports.registerDeployment = function () {
         var event = Event.createFromObject(req.body);
 
         Event.find({
-            environment: new RegExp(event.environment, "i"),
-            application: new RegExp(event.application, "i"),
+            environment: new RegExp("^" + event.environment + "$", "i"),
+            application: new RegExp("^" + event.application + "$", "i"),
             replaced_timestamp: ""
         }).exec( function(err, events){
             event.save(function (err, savedEvent) {

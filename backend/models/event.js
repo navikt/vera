@@ -13,20 +13,22 @@ var eventSchema = mongoose.Schema({
     replaced_timestamp: Date
 });
 
-eventSchema.set('toJSON', {getters: true, transform: function(doc, ret, options) {
-    delete ret.__v;
-    delete ret._id;
-}});
+eventSchema.set('toJSON', {
+    getters: true, transform: function (doc, ret, options) {
+        delete ret.__v;
+        delete ret._id;
+    }
+});
 
 function getEnvClassFromEnv(environment) {
-    var potentialEnvClass =  environment.charAt(0);
-    if(potentialEnvClass === "t" || potentialEnvClass === "q" || potentialEnvClass === "p") {
+    var potentialEnvClass = environment.charAt(0);
+    if (potentialEnvClass === "t" || potentialEnvClass === "q" || potentialEnvClass === "p") {
         return potentialEnvClass;
     }
     return "u";
 }
 
-eventSchema.statics.createFromObject = function(obj) {
+eventSchema.statics.createFromObject = function (obj) {
     return new Event({
         application: obj.application,
         environment: obj.environment,
