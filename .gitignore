@@ -2,8 +2,6 @@
 logs
 *.log
 
-frontend/build
-
 docker
 
 # Runtime data
@@ -43,4 +41,6 @@ app-config/target
 *.pem
 *.key
 dist
+
+frontend/build
 
