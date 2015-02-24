@@ -11,7 +11,6 @@ module.exports = VersionMatrix = React.createClass({
         var filters = {}
         var appsQueryParam = this.getQuery().apps;
 
-
         if (appsQueryParam) {
             filters.application = appsQueryParam;
         }
