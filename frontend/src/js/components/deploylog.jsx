@@ -42,10 +42,17 @@ module.exports = DeployLog = React.createClass({
             this.setState({environmentFilter: envQueryParam});
         }
 
+        var toReadableDateFormat = function (item) {
+            item.deployed_timestamp = moment(item.deployed_timestamp).format("DD-MM-YY HH:mm:ss");
+            return item;
+        }
+
         $.getJSON('/version?last=1month').done(function (data) {
-            this.setState({items: data})
+            this.setState({items: data.map(toReadableDateFormat)})
             $.getJSON('/version?' + queryParams.join("&")).done(function (data) {
-                this.setState({items: data, loaded: true})
+                this.setState({
+                    items: data.map(toReadableDateFormat), loaded: true
+                })
             }.bind(this));
         }.bind(this));
 
@@ -76,12 +83,7 @@ module.exports = DeployLog = React.createClass({
             }
         }.bind(this);
 
-        var toReadableDateFormat = function (event) {
-            event.deployed_timestamp = moment(event.deployed_timestamp).format('DD-MM-YY HH:mm:ss');
-            return event;
-        };
-
-        var filteredEvents = this.state.items.filter(tableHeaderFilter).filter(inactiveVersionsIfEnabled).map(toReadableDateFormat);
+        var filteredEvents = this.state.items.filter(tableHeaderFilter).filter(inactiveVersionsIfEnabled);
         var eventsToRender = filteredEvents.slice(0, this.state.itemRenderCount);
         var cx = React.addons.classSet;
 
@@ -101,15 +103,17 @@ module.exports = DeployLog = React.createClass({
 
         return (
             <div className="container">
-                        <h2>events
-                            <small> {filteredEvents.length + "/" + this.state.items.length} <i className={spinnerClasses}></i></small>
-                            <div className="pull-right" data-toggle="buttons" role="group">
-                                <label className={currentVersionToggleClasses} >
-                                    <input type="checkbox" autoComplete="off" onClick={this.toggleCurrentVersionFilter} />
-                                Show only latest
-                                </label>
-                            </div>
-                        </h2>
+                <h2>events
+                    <small> {filteredEvents.length + "/" + this.state.items.length}
+                        <i className={spinnerClasses}></i>
+                    </small>
+                    <div className="pull-right" data-toggle="buttons" role="group">
+                        <label className={currentVersionToggleClasses} >
+                            <input type="checkbox" autoComplete="off" onClick={this.toggleCurrentVersionFilter} />
+                        Show only latest
+                        </label>
+                    </div>
+                </h2>
 
                 <table className='table table-bordered table-striped'>
                     <tr>
