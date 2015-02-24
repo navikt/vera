@@ -92,24 +92,25 @@ module.exports = VersionMatrix = React.createClass({
 
         var isElementIn = function (filterString, element, property) {
             var filterTokens = filterString.split(",");
+            var match = false;
             for (var i = 0; i < filterTokens.length; i++) {
                 var filterPattern = new RegExp('\\b' + filterTokens[i].trim().replace(new RegExp('\\*', 'g'), '.*') + '\\b');
                 if (element[property].toLocaleLowerCase().search(filterPattern) > -1) {
-                    return true;
+                    match = true;
                 }
-                return false;
             }
+            return match;
         }
 
         var applyFilter = function (inputData, filterString, filterProperty) {
             if (typeof filterString === 'boolean') {
-                return filteredJsonData.filter(function (elem) {
+                return inputData.filter(function (elem) {
                     return elem[filterProperty] === true;
                 });
 
             }
             else {
-                return filteredJsonData.filter(function (elem) {
+                return inputData.filter(function (elem) {
                     return isElementIn(filters[filterProperty], elem, filterProperty);
                 });
             }
