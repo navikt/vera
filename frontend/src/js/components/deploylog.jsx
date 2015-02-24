@@ -79,7 +79,7 @@ module.exports = DeployLog = React.createClass({
             if (!this.state.onlyCurrentVersions) {
                 return true;
             } else {
-                return elem.replaced_timestamp === "";
+                return elem.replaced_timestamp === null;
             }
         }.bind(this);
 
