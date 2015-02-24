@@ -73,9 +73,9 @@ module.exports = VersionMatrix = React.createClass({
         }
 
 
-        if (this.refs.newDeployments.getDOMNode().checked) {
-            filters.newDeployment = true;
-        }
+        //if (this.refs.newDeployments.getDOMNode().checked) {
+        //    filters.newDeployment = true;
+        //}
 
         this.setState({filters: filters});
 
@@ -129,12 +129,13 @@ module.exports = VersionMatrix = React.createClass({
     },
 
     clear: function (e) {
-        this.refs.applicationFilter.getDOMNode().value = '';
+        this.refs.environmentFilter.getDOMNode().value = '';
         this.refs.applicationFilter.getDOMNode().value = '';
         var currentFilters = this.state.filters;
         delete currentFilters.application;
         delete currentFilters.environment;
-        this.setState({filters: currentFilters});
+        //this.setState({filters: currentFilters});
+        window.location.href = "#/matrix";
     },
 
 
@@ -188,23 +189,24 @@ module.exports = VersionMatrix = React.createClass({
                                 <div>
                                     <div className="form-group">
                                         <div className="form-group">
-
-                                            <input ref="environmentFilter" type="text" className="form-control" active defaultValue={envFilter}></input>
+                                            <label for="envFilter">environments </label>&nbsp;
+                                            <input id="envFilter" ref="environmentFilter" type="text" className="form-control" active defaultValue={envFilter}></input>
                                         </div>
-                                        &nbsp;
+                                    &nbsp;
                                         <div className="form-group">
-                                            <input ref="applicationFilter" type="text" className="form-control"  defaultValue={appFilter}></input>
+                                            <label for="appFilter">applications </label>&nbsp;
+                                            <input id="appFilter" ref="applicationFilter" type="text" className="form-control"  defaultValue={appFilter}></input>
                                         </div>
-                                    <input type="submit" className="btn btn-default" onClick={this.updateFilters} value="apply" />
+                                        <input type="submit" className="btn btn-default" onClick={this.updateFilters} value="apply" />
                                         <input type="button" className="btn btn-danger" onClick={this.clear} value="clear" />
-                                        &nbsp;
+                                    &nbsp;
                                     </div>
-                                    <div className="btn-group pull-right" data-toggle="buttons" role="group">
+                                    {/*<div className="btn-group pull-right" data-toggle="buttons" role="group">
                                         <label className={toggle} >
                                             <input ref="newDeployments" type="checkbox" autoComplete="off" onClick={this.updateFilters} />
                                         last 24 hrs
                                         </label>
-                                    {/*<label className="btn btn-default">
+                                    <label className="btn btn-default">
                                      <input type="checkbox" autoComplete="off" />
                                      u</label>
                                      <label className="btn btn-default">
@@ -218,8 +220,8 @@ module.exports = VersionMatrix = React.createClass({
                                      <label className="btn btn-default">
                                      <input type="checkbox" autoComplete="off" />
                                      p
-                                     </label>*/}
-                                    </div>
+                                     </label>
+                                    </div>*/}
                                 </div>
                             </form>
                         </div>
