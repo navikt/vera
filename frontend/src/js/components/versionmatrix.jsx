@@ -2,17 +2,33 @@ var React = require('react');
 var util = require('../../vera-parser');
 var $ = jQuery = require('jquery');
 var MatrixRow = require('./matrixrow.jsx');
+var Router = require('react-router');
+var Link = Router.Link;
 
 
 module.exports = VersionMatrix = React.createClass({
     getInitialState: function () {
+        var filters = {}
+        var appsQueryParam = this.getQuery().apps;
+
+
+        if (appsQueryParam) {
+            filters.application = appsQueryParam;
+        }
+        var envsQueryParam = this.getQuery().envs;
+        if (envsQueryParam) {
+            filters.environment = envsQueryParam;
+        }
+
         return {
             loaded: false,
             rowsToRender: 20,
             jsonData: [],
-            filters: {}
+            filters: filters
         }
     },
+
+    mixins: [Router.State],
 
     componentDidMount: function () {
         $.getJSON('/cv').done(function (data) {
@@ -20,28 +36,56 @@ module.exports = VersionMatrix = React.createClass({
         }.bind(this));
     },
 
-    componentDidUpdate: function () {
-        //console.log('Hitting')
-        if (!this.state.loaded) {
-            console.log('Stop spinning');
-            this.setState({loaded: true});
+    componentWillUpdate: function () {
+        var filters = this.state.filters;
+        var appsQueryParam = this.getQuery().apps;
+        delete filters.application;
+        delete filters.environment;
+
+        if (appsQueryParam) {
+            filters.application = appsQueryParam;
+        }
+        var envsQueryParam = this.getQuery().envs;
+        if (envsQueryParam) {
+            filters.environment = envsQueryParam;
         }
     },
 
+    //componentDidUpdate: function () {
+    //    //console.log('Hitting')
+    //    if (!this.state.loaded) {
+    //        console.log('Stop spinning');
+    //        this.setState({loaded: true});
+    //    }
+    //},
+
     updateFilters: function (e) {
-        var filters = {
-            application: this.refs.applicationFilter.getDOMNode().value.toLowerCase(),
-            environment: this.refs.environmentFilter.getDOMNode().value.toLowerCase()
-        };
+        var filters = {};
+
+        var appFilter = this.refs.applicationFilter.getDOMNode().value.toLowerCase();
+        var envFilter = this.refs.environmentFilter.getDOMNode().value.toLowerCase();
+        if (appFilter) {
+            filters.application = appFilter;
+        }
+
+        if (envFilter) {
+            filters.environment = envFilter;
+        }
+
 
         if (this.refs.newDeployments.getDOMNode().checked) {
             filters.newDeployment = true;
         }
 
         this.setState({filters: filters});
+
+        e.preventDefault();
+
         if (e.target.type === 'submit') { // prevent form submission, no need to call the server as everything happens client side
             e.preventDefault();
         }
+
+        window.location.href = "#/matrix?envs=" + envFilter + "&apps=" + appFilter;
     },
 
     applyFilters: function () {
@@ -50,11 +94,12 @@ module.exports = VersionMatrix = React.createClass({
         var isElementIn = function (filterString, element, property) {
             var filterTokens = filterString.split(",");
             for (var i = 0; i < filterTokens.length; i++) {
-                if (element[property].toLowerCase().indexOf(filterTokens[i].trim()) > -1) {
+                var filterPattern = new RegExp('\\b' + filterTokens[i].trim().replace(new RegExp('\\*', 'g'), '.*') + '\\b');
+                if (element[property].toLocaleLowerCase().search(filterPattern) > -1) {
                     return true;
                 }
+                return false;
             }
-            return false;
         }
 
         var applyFilter = function (inputData, filterString, filterProperty) {
@@ -92,20 +137,23 @@ module.exports = VersionMatrix = React.createClass({
         this.setState({filters: currentFilters});
     },
 
-    viewAllRows: function () {
-        this.setState({loaded: false})
 
-        console.log('Should trigger a rerender... '  + util.countRows(this.state.jsonData))
-        this.setState({rowsToRender: rowCount})
-        console.log('Reloading...')
-    },
+    //viewAllRows: function () {
+    //    this.setState({loaded: false})
+    //
+    //    //console.log('Should trigger a rerender... '  + util.countRows(this.state.jsonData))
+    //    //this.setState({rowsToRender: rowCount})
+    //    //console.log('Reloading...')
+    //},
 
     render: function () {
-        console.log("This is filters in Render ", this.state.filters)
+        var appFilter = this.state.filters.application;
+        var envFilter = this.state.filters.environment;
 
         var filteredData = this.applyFilters();
         var headers = filteredData.header;
-        var body = filteredData.body.slice(0, this.state.rowsToRender);
+        //var body = filteredData.body.slice(0, this.state.rowsToRender);
+        var body = filteredData.body;
 
         var cx = React.addons.classSet;
         var toggle = cx({
@@ -115,25 +163,22 @@ module.exports = VersionMatrix = React.createClass({
 
         });
 
-        var spinnerClasses = cx({
-            'fa': true,
-            'fa-spinner': true,
-            'fa-spin': true,
-            'hidden': this.state.loaded
-        });
+        //var spinnerClasses = cx({
+        //    'fa': true,
+        //    'fa-spinner': true,
+        //    'fa-spin': true,
+        //    'hidden': this.state.loaded
+        //});
 
-        var showMoreLink;
+        //var showMoreLink;
 
-        if (this.state.rowsToRender < filteredData.body.length) {
-            showMoreLink = (
-                <div>
-                    <button type="button" className="btn btn-link" onClick={this.viewAllRows()}>View all...</button>
-                </div>
-            )
-        }
-        console.dir(spinnerClasses);
-        console.dir(this.state)
-
+        //if (this.state.rowsToRender < filteredData.body.length) {
+        //    showMoreLink = (
+        //        <div>
+        //            <button type="button" className="btn btn-link" onClick={this.viewAllRows()}>View all...</button>
+        //        </div>
+        //    )
+        //}
         return (
             <div className="container-fluid">
                 <div className="row">
@@ -143,36 +188,39 @@ module.exports = VersionMatrix = React.createClass({
                                 <div>
                                     <div className="form-group">
                                         <div className="form-group">
-                                            <input ref="applicationFilter" type="text" className="form-control" active placeholder="applications"></input>
+
+                                            <input ref="environmentFilter" type="text" className="form-control" active defaultValue={envFilter}></input>
                                         </div>
+                                        &nbsp;
                                         <div className="form-group">
-                                            <input ref="environmentFilter" type="text" className="form-control" placeholder="environments"></input>
+                                            <input ref="applicationFilter" type="text" className="form-control"  defaultValue={appFilter}></input>
                                         </div>
-                                        <input type="submit" className="btn btn-default" onClick={this.updateFilters} value="Apply" />
-                                        <input type="button" className="btn btn-danger" onClick={this.clear} value="Clear" />
+                                    <input type="submit" className="btn btn-default" onClick={this.updateFilters} value="apply" />
+                                        <input type="button" className="btn btn-danger" onClick={this.clear} value="clear" />
+                                        &nbsp;
                                     </div>
                                     <div className="btn-group pull-right" data-toggle="buttons" role="group">
                                         <label className={toggle} >
                                             <input ref="newDeployments" type="checkbox" autoComplete="off" onClick={this.updateFilters} />
                                         last 24 hrs
                                         </label>
-                                        <label className="btn btn-default">
-                                            <input type="checkbox" autoComplete="off" />
-                                        u</label>
-                                        <label className="btn btn-default">
-                                            <input type="checkbox" autoComplete="off" />
-                                        t
-                                        </label>
-                                        <label className="btn btn-default">
-                                            <input type="checkbox" autoComplete="off" />
-                                        q
-                                        </label>
-                                        <label className="btn btn-default">
-                                            <input type="checkbox" autoComplete="off" />
-                                        p
-                                        </label>
+                                    {/*<label className="btn btn-default">
+                                     <input type="checkbox" autoComplete="off" />
+                                     u</label>
+                                     <label className="btn btn-default">
+                                     <input type="checkbox" autoComplete="off" />
+                                     t
+                                     </label>
+                                     <label className="btn btn-default">
+                                     <input type="checkbox" autoComplete="off" />
+                                     q
+                                     </label>
+                                     <label className="btn btn-default">
+                                     <input type="checkbox" autoComplete="off" />
+                                     p
+                                     </label>*/}
                                     </div>
-                                 </div>
+                                </div>
                             </form>
                         </div>
                     </div>
@@ -193,10 +241,10 @@ module.exports = VersionMatrix = React.createClass({
                             }
                     </tbody>
                 </table>
-                <div>
-                    {showMoreLink}
-                    <i className={spinnerClasses}></i>
-                </div>
+                {/*<div>
+                 {showMoreLink}
+                 <i className={spinnerClasses}></i>
+                 </div>*/}
             </div >
         )
     }

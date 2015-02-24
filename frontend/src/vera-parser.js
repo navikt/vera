@@ -5,7 +5,6 @@ module.exports = {
         var tableHeader = getDistinctEnvironments(versionData);
 
         var applicationInstancesGroupedByApplication = groupByApplication(versionData);
-        console.log("adfas ", applicationInstancesGroupedByApplication)
 
         var applications = _.sortBy(Object.keys(applicationInstancesGroupedByApplication), function (app) {
             return app.toLowerCase();
@@ -25,7 +24,6 @@ module.exports = {
 }
 
 function groupByApplication(versionData) {
-    console.log("asdfasf")
     return _.groupBy(versionData, function (element) {
         return element['application']
     });

@@ -28,7 +28,7 @@ eventSchema.set('toJSON', {getters: true, transform: function(doc, ret, options)
 }});
 
 function getEnvClassFromEnv(environment) {
-    var potentialEnvClass =  environment.charAt(0);
+    var potentialEnvClass =  environment.charAt(0).toLowerCase();
     if(potentialEnvClass === "t" || potentialEnvClass === "q" || potentialEnvClass === "p") {
         return potentialEnvClass;
     }
