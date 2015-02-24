@@ -21,14 +21,14 @@ eventSchema.set('toJSON', {
 });
 
 function getEnvClassFromEnv(environment) {
-    var potentialEnvClass = environment.charAt(0);
-    if (potentialEnvClass === "t" || potentialEnvClass === "q" || potentialEnvClass === "p") {
+    var potentialEnvClass =  environment.charAt(0).toLowerCase();
+    if(potentialEnvClass === "t" || potentialEnvClass === "q" || potentialEnvClass === "p") {
         return potentialEnvClass;
     }
     return "u";
 }
 
-eventSchema.statics.createFromObject = function (obj) {
+eventSchema.statics.createFromObject = function(obj) {
     return new Event({
         application: obj.application,
         environment: obj.environment,

@@ -34,6 +34,8 @@ var errorHandler = function (err, req, res, next) {
 };
 
 mongoose.connect(config.dbUrl);
+console.log("MongoDB URL is ", config.dbUrl);
+
 var db = mongoose.connection;
 
 db.on('error', console.error.bind(console, 'connection error:'));

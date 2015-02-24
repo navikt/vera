@@ -54,6 +54,8 @@ exports.getCurrentVersions = function () {
     }
 }
 
+
+
 exports.registerDeployment = function () {
     function logErrorHandler(err) {
         if (err) { console.error(err); }
@@ -70,6 +72,7 @@ exports.registerDeployment = function () {
         });
         res.send({status: 400, message: mappedErrors.join(", ")});
     }
+
 
     /**
      * Creates a new event object, and stores it in mongo if there are no validation errors
