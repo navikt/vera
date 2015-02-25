@@ -16,6 +16,7 @@ var paths = {
     js: ['./frontend/src/js/**/*.jsx', './app.jsx'],
     jsLibs: './frontend/src/lib/**/*.js',
     css: './frontend/src/css/**/*.css',
+    extCss: './frontend/src/ext/css/**/*.css',
     buildDir: './frontend/build',
     jsBuild: './frontend/build/js',
     libsBuild: './frontend/build/lib',
@@ -39,9 +40,9 @@ gulp.task('compile-js', function () {
 });
 
 gulp.task('copy-css', function () {
-    return gulp.src([paths.css, './node_modules/font-awesome/css/font-awesome.css'])
+    return gulp.src(['./node_modules/font-awesome/css/font-awesome.css',paths.extCss, paths.css ])
         .pipe(concat('bundle.css'))
-        //.pipe(minifyCSS())
+        .pipe(minifyCSS())
         .pipe(size())
         .pipe(gulp.dest(paths.cssBuild));
 });
