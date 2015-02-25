@@ -16,10 +16,6 @@ module.exports = {
         });
 
         return {header: tableHeader, body: tableContents};
-    },
-
-    countRows: function(versionData) {
-        return Object.keys(groupByApplication(versionData)).length;
     }
 }
 
