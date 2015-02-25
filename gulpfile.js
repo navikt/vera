@@ -51,14 +51,6 @@ gulp.task('copy-fonts', function () {
         .pipe(gulp.dest(paths.fontsBuild));
 });
 
-gulp.task('copy-libs', function () {
-    console.log("conpying libz mæn");
-    console.log("paths", paths.jsLibs);
-
-    return gulp.src(paths.jsLibs)
-        .pipe(gulp.dest(paths.libsBuild));
-});
-
 gulp.task('copy-indexhtml', function () {
     return gulp.src(paths.indexHtml)
         .pipe(gulp.dest(paths.buildDir));
@@ -91,7 +83,7 @@ gulp.task('clean-build', function () {
     runSequence('clean', 'build');
 });
 
-gulp.task('build', ['compile-js', 'copy-libs', 'copy-css', 'copy-fonts', 'copy-indexhtml']);
+gulp.task('build', ['compile-js', 'copy-css', 'copy-fonts', 'copy-indexhtml']);
 
 gulp.task('dist', function () {
     env = 'production';
