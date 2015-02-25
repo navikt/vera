@@ -7,7 +7,7 @@ module.exports = MatrixTableData = React.createClass({
         var rowElem = this.props.rowElem;
 
         var newDeploymentIcon = (
-            <i className="fa fa-star text-danger "></i>
+            <a title="Hehehe"><span><i className="fa fa-star text-danger"></i></span></a>
         )
 
         var newDeploymentIndicator = newDeployment() ? newDeploymentIcon : null;

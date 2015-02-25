@@ -41,7 +41,7 @@ gulp.task('compile-js', function () {
 gulp.task('copy-css', function () {
     return gulp.src([paths.css, './node_modules/font-awesome/css/font-awesome.css'])
         .pipe(concat('bundle.css'))
-        .pipe(minifyCSS())
+        //.pipe(minifyCSS())
         .pipe(size())
         .pipe(gulp.dest(paths.cssBuild));
 });
