@@ -197,7 +197,7 @@ module.exports = VersionMatrix = React.createClass({
                                             <label for="appFilter">applications </label>&nbsp;
                                             <input id="appFilter" ref="applicationFilter" type="text" className="form-control input-sm"  defaultValue={appFilter}></input>
                                         </div>
-                                        <input type="submit" className="btn btn-default btn-sm" onClick={this.updateFilters} value="apply" ></input>
+                                        <input type="submit" className="btn btn-default btn-sm" onClick={this.updateFilters} value="apply" />
                                         <input type="button" className="btn btn-danger btn-sm" onClick={this.clear} value="clear" />
                                     &nbsp;
                                     </div>
