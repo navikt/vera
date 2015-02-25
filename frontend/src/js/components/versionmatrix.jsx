@@ -189,12 +189,12 @@ module.exports = VersionMatrix = React.createClass({
                                 <div>
                                     <div className="form-group">
                                         <div className="form-group">
-                                            <label for="envFilter">environments </label>&nbsp;
+                                            <label htmlFor="envFilter">environments </label>&nbsp;
                                             <input id="envFilter" ref="environmentFilter" type="text" className="form-control input-sm" active defaultValue={envFilter}></input>
                                         </div>
                                     &nbsp;
                                         <div className="form-group">
-                                            <label for="appFilter">applications </label>&nbsp;
+                                            <label htmlFor="appFilter">applications </label>&nbsp;
                                             <input id="appFilter" ref="applicationFilter" type="text" className="form-control input-sm"  defaultValue={appFilter}></input>
                                         </div>
                                         <input type="submit" className="btn btn-default btn-sm" onClick={this.updateFilters} value="apply" />
