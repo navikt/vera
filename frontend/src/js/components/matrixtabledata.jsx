@@ -24,9 +24,9 @@ module.exports = MatrixTableData = React.createClass({
             return <td>-</td>
         }
         if (typeof rowElem == 'string'){
-            return <td><strong><Link to="log" query={{app: rowElem}}>{rowElem.toLowerCase()}</Link></strong></td>
+            return <td><strong><Link to="log" query={{application: rowElem}}>{rowElem.toLowerCase()}</Link></strong></td>
         } else {
-            return <td><Link to="log" query={{env: rowElem.environment, app: rowElem.application}}>{rowElem.version}</Link> {newDeploymentIndicator}</td>
+            return <td><Link to="log" query={{environment: rowElem.environment, application: rowElem.application}}>{rowElem.version}</Link> {newDeploymentIndicator}</td>
         }
     }
 });

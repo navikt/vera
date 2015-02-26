@@ -2,7 +2,11 @@
   "name": "vera",
   "description": "Vera REST service for registering versions in Vera",
   "version": "2.1.16",
-  "url": "",
+  "url": "http://vera.adeo.no",
+  "repository": {
+    "type": "git",
+    "url": "http://stash.devillo.no/scm/aura/vera.git"
+  },
   "author": {
     "name": "Mats Byfuglien",
     "email": "mats.byfuglien@nav.no"
@@ -39,6 +43,7 @@
     "node-uuid": "~1.4.2",
     "nodemon": "~1.2.1",
     "react": "~0.12.2",
+    "react-classset": "0.0.2",
     "react-router": "~0.11.6",
     "reactify": "~0.17.1",
     "run-sequence": "~1.0.2",

@@ -4,6 +4,7 @@ var $ = jQuery = require('jquery');
 var MatrixRow = require('./matrixrow.jsx');
 var Router = require('react-router');
 var Link = Router.Link;
+var classString = require('react-classset');
 
 
 module.exports = VersionMatrix = React.createClass({
@@ -147,6 +148,14 @@ module.exports = VersionMatrix = React.createClass({
     //    //console.log('Reloading...')
     //},
 
+    toggle: function(){
+        return classSet({
+            "btn": true,
+            "btn-default": true,
+            "active": this.state.filters.newDeployment
+        });
+    },
+
     render: function () {
         var appFilter = this.state.filters.application;
         var envFilter = this.state.filters.environment;
@@ -155,14 +164,6 @@ module.exports = VersionMatrix = React.createClass({
         var headers = filteredData.header;
         //var body = filteredData.body.slice(0, this.state.rowsToRender);
         var body = filteredData.body;
-
-        var cx = React.addons.classSet;
-        var toggle = cx({
-            "btn": true,
-            "btn-default": true,
-            "active": this.state.filters.newDeployment
-
-        });
 
         //var spinnerClasses = cx({
         //    'fa': true,
@@ -202,7 +203,7 @@ module.exports = VersionMatrix = React.createClass({
                                     &nbsp;
                                     </div>
                                     {/*<div className="btn-group pull-right" data-toggle="buttons" role="group">
-                                        <label className={toggle} >
+                                        <label className={this.toggle()} >
                                             <input ref="newDeployments" type="checkbox" autoComplete="off" onClick={this.updateFilters} />
                                         last 24 hrs
                                         </label>
@@ -228,7 +229,7 @@ module.exports = VersionMatrix = React.createClass({
                     </div>
                 </div>
 
-                <table ref = "thematrix" className = "table table-bordered table-striped">
+                <table ref="thematrix" className="table table-bordered table-striped">
                     <thead>
                         <tr>
                         {headers.map(function (header) {

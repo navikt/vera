@@ -16,9 +16,9 @@ var paths = {
     js: ['./frontend/src/js/**/*.jsx', './app.jsx'],
     jsLibs: './frontend/src/lib/**/*.js',
     css: './frontend/src/css/**/*.css',
+    fonts: ['./frontend/src/fonts/**/*', './node_modules/font-awesome/fonts/**/*'],
     buildDir: './frontend/build',
     jsBuild: './frontend/build/js',
-    libsBuild: './frontend/build/lib',
     cssBuild: './frontend/build/css',
     fontsBuild: './frontend/build/fonts',
     distDir: './dist',
@@ -47,7 +47,7 @@ gulp.task('copy-css', function () {
 });
 
 gulp.task('copy-fonts', function () {
-    return gulp.src('./node_modules/font-awesome/fonts/**/*')
+    return gulp.src(paths.fonts)
         .pipe(gulp.dest(paths.fontsBuild));
 });
 
