@@ -39,7 +39,7 @@ gulp.task('compile-js', function () {
         .pipe(gulp.dest(paths.jsBuild));
 });
 
-gulp.task('copy-css', function () {
+gulp.task('bundle-css', function () {
     return gulp.src(['./node_modules/font-awesome/css/font-awesome.css',paths.extCss, paths.css ])
         .pipe(concat('bundle.css'))
         .pipe(minifyCSS())
@@ -59,7 +59,7 @@ gulp.task('copy-indexhtml', function () {
 
 gulp.task('watch', function () {
     gulp.watch(paths.js, ['compile-js']);
-    gulp.watch(paths.css, ['copy-css']);
+    gulp.watch(paths.css, ['bundle-css']);
     gulp.watch(paths.indexHtml, ['copy-indexhtml']);
 });
 
@@ -84,7 +84,7 @@ gulp.task('clean-build', function () {
     runSequence('clean', 'build');
 });
 
-gulp.task('build', ['compile-js', 'copy-css', 'copy-fonts', 'copy-indexhtml']);
+gulp.task('build', ['compile-js', 'bundle-css', 'copy-fonts', 'copy-indexhtml']);
 
 gulp.task('dist', function () {
     env = 'production';

@@ -25,10 +25,10 @@ module.exports = MatrixTableData = React.createClass({
             return <td>-</td>
         }
         if (typeof rowElem == 'string'){
-            return <td><strong><Link to="log" query={{app: rowElem}}>{rowElem.toLowerCase()}</Link></strong></td>
+            return <td className="text-nowrap"><strong><Link to="log" query={{app: rowElem}}>{rowElem.toLowerCase()}</Link></strong></td>
         } else {
             return (
-                <td>
+                <td className="text-nowrap">
                     <Link title={newDeploymentTooltip} to="log" query={{env: rowElem.environment, app: rowElem.application}}>
                     {rowElem.version} {newDeploymentIndicator}
                     </Link>

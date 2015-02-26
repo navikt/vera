@@ -8,13 +8,39 @@ nav.vera-header {
 }
 
 .navbar-nav > li > a:hover, .navbar-nav > li > a:focus, .navbar-nav > li > a.active, .vera-filter, .nav>li>a:focus {
-    background-color: #6e8398;
+    background-color: #39444e;
     color: #fff;
 }
 
-.nav > li > a:hover
- {
+.nav > li > a:hover {
     background-color: hotpink;
+}
+
+.btn-default {
+    color: #ffffff;
+    background-color: #4E5D6C;
+    border-color: #4E5D6C;
+}
+
+.btn-toggle {
+    color: #fff;
+    background-color: #4E5D6C;
+}
+
+.btn-toggle:hover,
+.btn-default:hover,
+.btn-default:focus,
+.btn-default.focus,
+.btn-default:active,
+.btn-default.active,
+.open > .dropdown-toggle.btn-default {
+    color: #dddddd;
+    background-color: #39444e;
+}
+
+.toggle-on, .toggle-on:active, .toggle-on.active {
+    color: #dddddd;
+    background-color: #39444e;
 }
 
 .form-control {

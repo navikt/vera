@@ -8,7 +8,7 @@ var Link = Router.Link;
 
 module.exports = VersionMatrix = React.createClass({
     getInitialState: function () {
-        var filters = {}
+        var filters = {environmentClass: 't,q,p'}
         var appsQueryParam = this.getQuery().apps;
 
         if (appsQueryParam) {
@@ -58,7 +58,6 @@ module.exports = VersionMatrix = React.createClass({
 
     updateFilters: function (e) {
         var filters = {};
-
         var appFilter = this.refs.applicationFilter.getDOMNode().value.toLowerCase();
         var envFilter = this.refs.environmentFilter.getDOMNode().value.toLowerCase();
         if (appFilter) {
@@ -73,6 +72,23 @@ module.exports = VersionMatrix = React.createClass({
             filters.newDeployment = true;
         }
 
+        var environmentClasses = [];
+        if(this.refs.showU.getDOMNode().checked) {
+            environmentClasses.push('u')
+        }
+
+        if(this.refs.showT.getDOMNode().checked) {
+            environmentClasses.push('t')
+        }
+
+        if(this.refs.showQ.getDOMNode().checked) {
+            environmentClasses.push('q')
+        }
+
+        if(this.refs.showP.getDOMNode().checked) {
+            environmentClasses.push('p')
+        }
+        filters.environmentClass = environmentClasses.join(',');
         this.setState({filters: filters});
 
         if (e.target.type === 'submit') { // prevent form submission, no need to call the server as everything happens client side
@@ -137,6 +153,10 @@ module.exports = VersionMatrix = React.createClass({
         this.setState({rowsToRender: null});
     },
 
+    hasEnvClass: function (envClass) {
+        return this.state.filters.environmentClass.indexOf(envClass) > -1
+    },
+
     render: function () {
         var appFilter = this.state.filters.application;
         var envFilter = this.state.filters.environment;
@@ -144,6 +164,8 @@ module.exports = VersionMatrix = React.createClass({
         var headers = filteredData.header;
         var body = filteredData.body;
         var showMoreLink;
+
+        console.log('filters', this.state.filters);
 
         if(this.state.rowsToRender) {
             body = filteredData.body.slice(0, this.state.rowsToRender);
@@ -158,11 +180,39 @@ module.exports = VersionMatrix = React.createClass({
         }
 
         var cx = React.addons.classSet;
-        var toggle = cx({
+        var toggle24hrs = cx({
             "btn": true,
-            "btn-default": true,
-            "active": this.state.filters.newDeployment
+            "btn-toggle": true,
+            "active": this.state.filters.newDeployment,
+            "toggle-on": this.state.filters.newDeployment
+        });
 
+        var toggleU = cx({
+            "btn": true,
+            "btn-toggle": true,
+            "active": this.hasEnvClass('u'),
+            "toggle-on": this.hasEnvClass('u')
+        });
+
+        var toggleT = cx({
+            "btn": true,
+            "btn-toggle": true,
+            "active": this.hasEnvClass('t'),
+            "toggle-on": this.hasEnvClass('t')
+        });
+
+        var toggleQ = cx({
+            "btn": true,
+            "btn-toggle": true,
+            "active": this.hasEnvClass('q'),
+            "toggle-on": this.hasEnvClass('q')
+        });
+
+        var toggleP = cx({
+            "btn": true,
+            "btn-toggle": true,
+            "active": this.hasEnvClass('p'),
+            "toggle-on": this.hasEnvClass('p')
         });
 
         var spinnerClasses = cx({
@@ -181,38 +231,38 @@ module.exports = VersionMatrix = React.createClass({
                                 <div>
                                     <div className="form-group">
                                         <div className="form-group">
-                                            <label htmlFor="envFilter">environments </label>&nbsp;
-                                            <input id="envFilter" ref="environmentFilter" type="text" className="form-control input-sm" active defaultValue={envFilter}></input>
+                                            <label htmlFor="appFilter">applications </label>&nbsp;
+                                            <input id="appFilter" ref="applicationFilter" type="text" className="form-control input-sm"  defaultValue={appFilter}></input>
                                         </div>
                                     &nbsp;
                                         <div className="form-group">
-                                            <label htmlFor="appFilter">applications </label>&nbsp;
-                                            <input id="appFilter" ref="applicationFilter" type="text" className="form-control input-sm"  defaultValue={appFilter}></input>
+                                            <label htmlFor="envFilter">environments </label>&nbsp;
+                                            <input id="envFilter" ref="environmentFilter" type="text" className="form-control input-sm" active defaultValue={envFilter}></input>
                                         </div>
                                         <input type="submit" className="btn btn-default btn-sm" onClick={this.updateFilters} value="apply" />
                                         <input type="button" className="btn btn-danger btn-sm" onClick={this.clear} value="reset" />
                                     &nbsp;
                                     </div>
                                     <div className="btn-group pull-right" data-toggle="buttons" role="group">
-                                        <label className={toggle} >
-                                            <input ref="newDeployments" type="checkbox" autoComplete="off" onClick={this.updateFilters} />
+                                        <label className={toggle24hrs} title="Show only applications deployed in the last 24 hrs">
+                                            <input ref="newDeployments"  type="checkbox" autoComplete="off" onChange={this.updateFilters} checked={this.state.filters.newDeployment}/>
                                         last 24 hrs
                                         </label>
-                                    {/*<label className="btn btn-default">
-                                     <input type="checkbox" autoComplete="off" />
+                                    <label className={toggleU} title="Show only developement environments">
+                                     <input ref="showU" type="checkbox" autoComplete="off" onChange={this.updateFilters} checked={this.hasEnvClass('u')}/>
                                      u</label>
-                                     <label className="btn btn-default">
-                                     <input type="checkbox" autoComplete="off" />
+                                        <label className={toggleT} title="Show only test environments">
+                                     <input ref="showT" type="checkbox" autoComplete="off" onChange={this.updateFilters} checked={this.hasEnvClass('t')}/>
                                      t
                                      </label>
-                                     <label className="btn btn-default">
-                                     <input type="checkbox" autoComplete="off" />
+                                        <label className={toggleQ} title="Show only Q environments">
+                                     <input ref="showQ" type="checkbox" autoComplete="off" onChange={this.updateFilters} checked={this.hasEnvClass('q')}/>
                                      q
                                      </label>
-                                     <label className="btn btn-default">
-                                     <input type="checkbox" autoComplete="off" />
+                                        <label className={toggleP} title="Show only production">
+                                     <input ref="showP" type="checkbox" autoComplete="off" onChange={this.updateFilters} checked={this.hasEnvClass('p')}/>
                                      p
-                                     </label>*/}
+                                     </label>
                                     </div>
                                 </div>
                             </form>

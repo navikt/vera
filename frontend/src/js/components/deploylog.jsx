@@ -98,7 +98,7 @@ module.exports = DeployLog = React.createClass({
             "btn": true,
             "btn-default": true,
             "btn-sm": true,
-            "active": this.state.onlyCurrentVersions
+            "toggle-on": this.state.onlyCurrentVersions
         });
 
         return (
@@ -110,7 +110,7 @@ module.exports = DeployLog = React.createClass({
                     <div className="pull-right" data-toggle="buttons" role="group">
                         <label className={currentVersionToggleClasses} >
                             <input type="checkbox" autoComplete="off" onClick={this.toggleCurrentVersionFilter} />
-                        Show only latest
+                        show only latest
                         </label>
                     </div>
                 </h2>
