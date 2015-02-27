@@ -15,7 +15,7 @@ tar xzfv nodejs-0.10.33-with-deps.el7.x86_64.tar.gz -C $DOCKERDIR/nodejs
 cd $DISTDIR && cp ../../package.json . && npm install --production && rm -f package.json && cd -
 
 npm install
-gulp dist
+gulp dist || exit 1
 
 cp -r dist $DOCKERDIR
 cp Dockerfile $DOCKERDIR
