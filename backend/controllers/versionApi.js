@@ -5,10 +5,6 @@ var moment = require('moment');
 
 exports.getVersion = function () {
     return function (req, res, next) {
-        var resultHandler = function (err, events) {
-            res.write(JSON.stringify(events));
-            res.send();
-        }
 
         var whereFilter = {};
         if (req.query.app) {
@@ -31,7 +27,45 @@ exports.getVersion = function () {
             }
         }
 
-        Event.find(whereFilter).sort([['deployed_timestamp', 'descending']]).exec(resultHandler);
+        Event.find(whereFilter).sort([['deployed_timestamp', 'descending']]).exec(function (err, events) {
+            res.write(JSON.stringify(events));
+            res.send();
+        });
+    }
+}
+
+exports.getVersion2 = function () {
+    return function (req, res, next) {
+        console.log("velkommen til toern", req.query);
+
+        res.send(200);
+        return;
+
+        var whereFilter = {};
+        if (req.query.app) {
+            whereFilter.application = new RegExp(req.query.app, "i");
+        }
+        if (req.query.env) {
+            whereFilter.environment = new RegExp(req.query.env, "i");
+        }
+        if (req.query.last){
+            var timespan = req.query.last;
+            var timespanPattern = /(^[0-9]+)([a-zA-Z]+$)/;
+            if (timespanPattern.test(timespan)){
+                var matches = timespan.match(timespanPattern);
+                var quantity = matches[1];
+                var timeUnit = matches[2];
+                whereFilter.deployed_timestamp = { "$gte": moment().subtract(quantity, timeUnit).format() }
+            } else {
+                res.statusCode = 400;
+                throw new Error("Invalid format for parameter 'last'. Format should be <number><period>, e.g. '7days'. See http://momentjs.com/docs/#/manipulating for more info");
+            }
+        }
+
+        Event.find(whereFilter).sort([['deployed_timestamp', 'descending']]).exec(function (err, events) {
+            res.write(JSON.stringify(events));
+            res.send();
+        });
     }
 }
 
