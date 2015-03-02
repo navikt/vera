@@ -114,7 +114,7 @@ module.exports = DeployLog = React.createClass({
 
     enrichFromObject: function (base, object) {
         var enrichedObject = {};
-        _.keys(base).forEach(function (key) {
+        Object.keys(base).forEach(function (key) {
             enrichedObject[key] = object[key] ? object[key] : '';
         });
         return enrichedObject;
