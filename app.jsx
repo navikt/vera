@@ -16,21 +16,24 @@ var Vera = React.createClass({
                     <div className="container-fluid">
                         <div className="navbar-header">
                             <a className="navbar-brand" href="#">
-                                <i className="fa fa-book"></i> vera</a>
+                                <span className="fa-stack fa-lg">
+                                    <i className="fa fa-circle fa-stack-2x logo"></i>
+                                    <strong className="fa-stack-1x fa-stack-text fa-comment-text ">V</strong>
+                                </span>
+                            vera</a>
                         </div>
                         <ul className="nav navbar-nav">
                             <li>
-                                <Link to="matrix">matrix</Link>
+                                <Link to="matrix"><i className="fa fa-table fa-sm"></i>&nbsp;matrix</Link>
                             </li>
                             <li>
-                                <Link to="log">log</Link>
+                                <Link to="log"><i className="fa fa-bars"></i>&nbsp;log</Link>
                             </li>
                         </ul>
                     </div>
                 </nav>
 
                 <RouteHandler />
-
             </div>
         )
     }

@@ -24,7 +24,8 @@ var paths = {
     cssBuild: './frontend/build/css',
     fontsBuild: './frontend/build/fonts',
     distDir: './dist',
-    indexHtml: './frontend/src/index.html'
+    indexHtml: './frontend/src/index.html',
+    favicon: './frontend/src/favicon.png'
 }
 
 var env = process.env.NODE_ENV || 'development'
@@ -58,6 +59,10 @@ gulp.task('copy-indexhtml', function () {
         .pipe(gulp.dest(paths.buildDir));
 });
 
+gulp.task('copy-favicon', function() {
+    return gulp.src(paths.favicon).pipe(gulp.dest(paths.buildDir));
+})
+
 gulp.task('watch', function () {
     gulp.watch(paths.js, ['compile-js']);
     gulp.watch(paths.css, ['bundle-css']);
@@ -85,7 +90,7 @@ gulp.task('clean-build', function () {
     runSequence('clean', 'build');
 });
 
-gulp.task('build', ['compile-js', 'bundle-css', 'copy-fonts', 'copy-indexhtml']);
+gulp.task('build', ['compile-js', 'bundle-css', 'copy-fonts', 'copy-indexhtml', 'copy-favicon']);
 
 gulp.task('dist', function () {
     env = 'production';

@@ -19,19 +19,27 @@ nav.vera-header {
     color: #fff;
 }
 
-.nav > li > a:hover {
-    background-color: hotpink;
+/*.nav > li > a:hover, {*/
+    /*background-color: hotpink;*/
+/*}*/
+
+@media (min-width: 768px) {
+    .navbar-nav>li>a {
+        padding-top: 25px;
+        padding-bottom: 3px;
+        line-height: 21px;
+        font-size: 15px;
+    }
+}
+
+.logo {
+    color: #df691a;
 }
 
 .btn-default {
     color: #ffffff;
     background-color: #4E5D6C;
     border-color: #4E5D6C;
-}
-
-.btn-toggle {
-    color: #fff;
-    background-color: #4E5D6C;
 }
 
 .btn-toggle:hover,
@@ -45,10 +53,17 @@ nav.vera-header {
     background-color: #39444e;
 }
 
+.btn-toggle, .toggle-on:hover {
+    color: #fff;
+    background-color: #4E5D6C;
+}
+
 .toggle-on, .toggle-on:active, .toggle-on.active {
     color: #dddddd;
     background-color: #39444e;
 }
+
+
 
 .form-control {
     font-weight: bold;
