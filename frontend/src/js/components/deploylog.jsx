@@ -172,6 +172,7 @@ module.exports = DeployLog = React.createClass({
         return classString({
             'fa': true,
             'fa-spinner': true,
+            'fa-fw': true,
             'fa-spin': true,
             'hidden': this.state.loaded
         })

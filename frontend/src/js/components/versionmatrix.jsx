@@ -1,4 +1,4 @@
-var React = require('react');
+var React = require('react/addons');
 var util = require('../../vera-parser');
 var $ = jQuery = require('jquery');
 var MatrixRow = require('./matrixrow.jsx');
