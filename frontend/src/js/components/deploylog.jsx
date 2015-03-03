@@ -15,15 +15,25 @@ module.exports = DeployLog = React.createClass({
             items: [],
             loaded: false,
             itemRenderCount: 50,
-            onlyCurrentVersions: false,
             filters: this.enrichFromObject(this.emptyFilters, this.getQuery())
         };
     },
 
     componentDidMount: function () {
-        $.getJSON('/version?last=1month').done(function (data) {
+        var urlContainsValidBackendParams = this.extractFromObject(this.validBackendParams, this.getQuery()).length > 0;
+
+        var initialBackendParams = '';
+
+        if (urlContainsValidBackendParams){
+            var extractedValidParams = _.pick(this.getQuery(), this.validBackendParams);
+            initialBackendParams = this.serialize(extractedValidParams);
+        } else {
+            initialBackendParams = '?last=1month';
+        }
+
+        $.getJSON(this.DEPLOYLOG_SERVICE + initialBackendParams).done(function (data) {
             this.setState({items: data.map(this.toReadableDateFormat)})
-            $.getJSON('/version').done(function (data) {
+            $.getJSON(this.DEPLOYLOG_SERVICE).done(function (data) {
                 this.setState({
                     items: data.map(this.toReadableDateFormat), loaded: true
                 })
@@ -47,7 +57,7 @@ module.exports = DeployLog = React.createClass({
                         clear filters
                         </label>
                         <label className={this.currentToggleButtonClasses()} >
-                            <input type="checkbox" autoComplete="off" onClick={this.toggleCurrentVersionFilter} />
+                            <input type="checkbox" autoComplete="off" onClick={this.toggleOnlyLatest} />
                         show only latest
                         </label>
                     </div>
@@ -87,8 +97,13 @@ module.exports = DeployLog = React.createClass({
         environment: '',
         deployer: '',
         version: '',
-        timestamp: ''
+        timestamp: '',
+        onlyLatest: false
     },
+
+    validBackendParams: ["application", "environment", "deployer", "version", "onlyLatest"],
+
+    DEPLOYLOG_SERVICE: '/api/v1/deploylog',
 
     tableHeaderFilter: function (elem) {
         return elem.application.toLowerCase().indexOf(this.state.filters.application.toLowerCase()) > -1
@@ -98,8 +113,16 @@ module.exports = DeployLog = React.createClass({
             && elem.deployed_timestamp.toString().toLowerCase().indexOf(this.state.filters.timestamp.toLowerCase()) > -1;
     },
 
+    serialize: function (obj) {
+        return '?' + Object.keys(obj).reduce(function (a, k) {
+                a.push(k + '=' + encodeURIComponent(obj[k]));
+                return a;
+            }, []).join('&')
+    },
+
+
     inactiveVersionsIfEnabled: function (elem) {
-        if (!this.state.onlyCurrentVersions) {
+        if (!this.state.filters.onlyLatest) {
             return true;
         } else {
             return elem.replaced_timestamp === null;
@@ -120,6 +143,12 @@ module.exports = DeployLog = React.createClass({
         return enrichedObject;
     },
 
+    extractFromObject: function (values, object) {
+        return Object.keys(object).filter(function (val) {
+            return values.indexOf(val) > -1;
+        });
+    },
+
     toReadableDateFormat: function (eventItem) {
         eventItem.deployed_timestamp = moment(eventItem.deployed_timestamp).format("DD-MM-YY HH:mm:ss");
         return eventItem;
@@ -130,11 +159,13 @@ module.exports = DeployLog = React.createClass({
     },
 
     clearFilters: function () {
-        this.setState({filters: _.clone(this.emptyFilters), onlyCurrentVersions: false});
+        this.setState({filters: _.clone(this.emptyFilters)});
     },
 
-    toggleCurrentVersionFilter: function () {
-        this.setState({onlyCurrentVersions: !this.state.onlyCurrentVersions});
+    toggleOnlyLatest: function () {
+        var filter = _.clone(this.state.filters, true);
+        filter['onlyLatest'] = !this.state.filters.onlyLatest;
+        this.setState({filters: filter});
     },
 
     spinnerClasses: function () {
@@ -151,7 +182,7 @@ module.exports = DeployLog = React.createClass({
             "btn": true,
             "btn-default": true,
             "btn-sm": true,
-            "active": this.state.onlyCurrentVersions
+            "active": this.state.filters.onlyLatest
         })
     }
 });
