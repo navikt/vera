@@ -7,6 +7,7 @@
 
 	<exposed-services>
 		<exposedRest name="versionService" description="Veras REST-tjeneste for å registrere versjoner" path="/version"/>
+		<exposedRest name="deployLog_v1" description="Tjeneste for å se tidligere og registrere nye deploy events" path="/api/v1/deploylog"/>
 	</exposed-services>
 
 	<resources>

@@ -20,7 +20,6 @@ var paths = {
     extCss: './frontend/src/ext/css/**/*.css',
     buildDir: './frontend/build',
     jsBuild: './frontend/build/js',
-    libsBuild: './frontend/build/lib',
     cssBuild: './frontend/build/css',
     fontsBuild: './frontend/build/fonts',
     distDir: './dist',

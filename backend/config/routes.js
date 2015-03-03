@@ -1,7 +1,9 @@
 module.exports = function(app) {
     var versionApi = require('../controllers/versionApi');
 
-    app.post('/version', versionApi.registerDeployment());
-    app.get('/version', versionApi.getVersion());
-    app.get('/cv', versionApi.getCurrentVersions());
+    app.post('/version', versionApi.registerDeployment()); //deprecated
+    app.get('/version', versionApi.getVersion()); //deprecated
+    app.post('/api/v1/deploylog', versionApi.registerDeployment());
+    app.get('/api/v1/deploylog', versionApi.deployLog());
+    app.get('/cv', versionApi.getCurrentVersions()); //deprecated
 }

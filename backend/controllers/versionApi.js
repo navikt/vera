@@ -3,12 +3,65 @@ var Event = require('../models/event');
 var _ = require('lodash');
 var moment = require('moment');
 
-exports.getVersion = function () {
+exports.deployLog = function () {
     return function (req, res, next) {
-        var resultHandler = function (err, events) {
+        var predicate = {}
+
+        _.forOwn(req.query, function (value, key) {
+            if (_.has(parameterDefinition, key)) {
+                var keyToUse = parameterDefinition[key].mapToKey ? parameterDefinition[key].mapToKey : key;
+                var transformFunction = parameterDefinition[key].transform;
+                predicate[keyToUse] = transformFunction(value);
+            } else {
+                res.statusCode = 400;
+                throw new Error("Unknown parameter provided: " + key + ". Valid parameters are: " + _.keys(parameterDefinition).join(", "));
+            }
+        });
+
+        Event.find(predicate).sort([['deployed_timestamp', 'descending']]).exec(function (err, events) {
             res.write(JSON.stringify(events));
             res.send();
-        }
+        });
+    }
+}
+
+var caseInsensitiveRegexMatch = function (val) {
+    return new RegExp("^" + val + "$", "i");
+}
+
+var fromMomentFormatToActualDate = function (momentValue) {
+    var timespanPattern = /(^[0-9]+)([a-zA-Z]+$)/;
+    if (timespanPattern.test(momentValue)) {
+        var matches = momentValue.match(timespanPattern);
+        var quantity = matches[1];
+        var timeUnit = matches[2];
+        return {"$gte": moment().subtract(quantity, timeUnit).format()}
+    } else {
+        res.statusCode = 400;
+        throw new Error("Invalid format for parameter 'last'. Format should be <number><period>, e.g. '7days'. See http://momentjs.com/docs/#/manipulating for more info");
+    }
+};
+
+var emptyOrAll = function (boolean) {
+    if (boolean === 'false') {
+        return {$exists: true}; // matches all values as long as the key is present (null-value as well)
+    } else {
+        return null;
+    }
+}
+
+var parameterDefinition = {
+    application: {transform: caseInsensitiveRegexMatch},
+    environment: {transform: caseInsensitiveRegexMatch},
+    deployer: {transform: caseInsensitiveRegexMatch},
+    environmentClass: {transform: caseInsensitiveRegexMatch},
+    version: {transform: caseInsensitiveRegexMatch},
+    last: {transform: fromMomentFormatToActualDate, mapToKey: "deployed_timestamp"},
+    onlyLatest: {transform: emptyOrAll, mapToKey: "replaced_timestamp"}
+}
+
+exports.getVersion = function () {
+    return function (req, res, next) {
 
         var whereFilter = {};
         if (req.query.app) {
@@ -17,21 +70,24 @@ exports.getVersion = function () {
         if (req.query.env) {
             whereFilter.environment = new RegExp(req.query.env, "i");
         }
-        if (req.query.last){
+        if (req.query.last) {
             var timespan = req.query.last;
             var timespanPattern = /(^[0-9]+)([a-zA-Z]+$)/;
-            if (timespanPattern.test(timespan)){
+            if (timespanPattern.test(timespan)) {
                 var matches = timespan.match(timespanPattern);
                 var quantity = matches[1];
                 var timeUnit = matches[2];
-                whereFilter.deployed_timestamp = { "$gte": moment().subtract(quantity, timeUnit).format() }
+                whereFilter.deployed_timestamp = {"$gte": moment().subtract(quantity, timeUnit).format()}
             } else {
                 res.statusCode = 400;
                 throw new Error("Invalid format for parameter 'last'. Format should be <number><period>, e.g. '7days'. See http://momentjs.com/docs/#/manipulating for more info");
             }
         }
 
-        Event.find(whereFilter).sort([['deployed_timestamp', 'descending']]).exec(resultHandler);
+        Event.find(whereFilter).sort([['deployed_timestamp', 'descending']]).exec(function (err, events) {
+            res.write(JSON.stringify(events));
+            res.send();
+        });
     }
 }
 
@@ -40,8 +96,9 @@ exports.getCurrentVersions = function () {
         function isDeployedIsLast24Hrs(event) {
             return moment(event.deployed_timestamp).isAfter(moment().subtract(24, 'hours'));
         }
+
         var resultHandler = function (err, events) {
-            var transformedEvents = _.map(events, function(event){
+            var transformedEvents = _.map(events, function (event) {
                 var mongoEvent = event.toJSON();
                 mongoEvent.newDeployment = isDeployedIsLast24Hrs(event);
                 return mongoEvent;
@@ -55,10 +112,11 @@ exports.getCurrentVersions = function () {
 }
 
 
-
 exports.registerDeployment = function () {
     function logErrorHandler(err) {
-        if (err) { console.error(err); }
+        if (err) {
+            console.error(err);
+        }
     }
 
     function handleErrors(err, res) {
@@ -67,7 +125,7 @@ exports.registerDeployment = function () {
             throw new Error("Unable to save event", err);
         }
         var mappedErrors = [];
-        Object.keys(err.errors).forEach(function(elem) {
+        Object.keys(err.errors).forEach(function (elem) {
             mappedErrors.push(err.errors[elem].message);
         });
         res.send({status: 400, message: mappedErrors.join(", ")});
@@ -86,13 +144,13 @@ exports.registerDeployment = function () {
             environment: new RegExp("^" + event.environment + "$", "i"),
             application: new RegExp("^" + event.application + "$", "i"),
             replaced_timestamp: ""
-        }).exec( function(err, events){
+        }).exec(function (err, events) {
             event.save(function (err, savedEvent) {
-                if(err) {
+                if (err) {
                     handleErrors(err, res);
                 }
                 else {
-                    events.forEach(function(e) {
+                    events.forEach(function (e) {
                         e.replaced_timestamp = new Date();
                         e.save(logErrorHandler);
                     })
