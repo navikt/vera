@@ -4,12 +4,11 @@ var $ = jQuery = require('jquery');
 var MatrixRow = require('./matrixrow.jsx');
 var Router = require('react-router');
 var Link = Router.Link;
-var classString = require('react-classset');
 
 
 module.exports = VersionMatrix = React.createClass({
     getInitialState: function () {
-        var filters = {}
+        var filters = {environmentClass: 't,q,p'}
         var appsQueryParam = this.getQuery().apps;
 
         if (appsQueryParam) {
@@ -22,7 +21,7 @@ module.exports = VersionMatrix = React.createClass({
 
         return {
             loaded: false,
-            rowsToRender: 20,
+            rowsToRender: 50,
             jsonData: [],
             filters: filters
         }
@@ -51,17 +50,14 @@ module.exports = VersionMatrix = React.createClass({
         }
     },
 
-    //componentDidUpdate: function () {
-    //    //console.log('Hitting')
-    //    if (!this.state.loaded) {
-    //        console.log('Stop spinning');
-    //        this.setState({loaded: true});
-    //    }
-    //},
+    componentDidUpdate: function () {
+        if (!this.state.loaded) {
+            this.setState({loaded: true});
+        }
+    },
 
     updateFilters: function (e) {
         var filters = {};
-
         var appFilter = this.refs.applicationFilter.getDOMNode().value.toLowerCase();
         var envFilter = this.refs.environmentFilter.getDOMNode().value.toLowerCase();
         if (appFilter) {
@@ -72,14 +68,28 @@ module.exports = VersionMatrix = React.createClass({
             filters.environment = envFilter;
         }
 
+        if (this.refs.newDeployments.getDOMNode().checked) {
+            filters.newDeployment = true;
+        }
 
-        //if (this.refs.newDeployments.getDOMNode().checked) {
-        //    filters.newDeployment = true;
-        //}
+        var environmentClasses = [];
+        if(this.refs.showU.getDOMNode().checked) {
+            environmentClasses.push('u')
+        }
 
+        if(this.refs.showT.getDOMNode().checked) {
+            environmentClasses.push('t')
+        }
+
+        if(this.refs.showQ.getDOMNode().checked) {
+            environmentClasses.push('q')
+        }
+
+        if(this.refs.showP.getDOMNode().checked) {
+            environmentClasses.push('p')
+        }
+        filters.environmentClass = environmentClasses.join(',');
         this.setState({filters: filters});
-
-        e.preventDefault();
 
         if (e.target.type === 'submit') { // prevent form submission, no need to call the server as everything happens client side
             e.preventDefault();
@@ -125,7 +135,6 @@ module.exports = VersionMatrix = React.createClass({
                 filteredJsonData = applyFilter(filteredJsonData, filters[filterProperty], filterProperty);
             });
         }
-
         return util.buildVersionMatrix(filteredJsonData);
     },
 
@@ -140,47 +149,79 @@ module.exports = VersionMatrix = React.createClass({
     },
 
 
-    //viewAllRows: function () {
-    //    this.setState({loaded: false})
-    //
-    //    //console.log('Should trigger a rerender... '  + util.countRows(this.state.jsonData))
-    //    //this.setState({rowsToRender: rowCount})
-    //    //console.log('Reloading...')
-    //},
+    viewAllRows: function () {
+        this.setState({rowsToRender: null});
+    },
 
-    toggle: function(){
-        return classSet({
-            "btn": true,
-            "btn-default": true,
-            "active": this.state.filters.newDeployment
-        });
+    hasEnvClass: function (envClass) {
+        return this.state.filters.environmentClass.indexOf(envClass) > -1
     },
 
     render: function () {
         var appFilter = this.state.filters.application;
         var envFilter = this.state.filters.environment;
-
         var filteredData = this.applyFilters();
         var headers = filteredData.header;
-        //var body = filteredData.body.slice(0, this.state.rowsToRender);
         var body = filteredData.body;
+        var showMoreLink;
 
-        //var spinnerClasses = cx({
-        //    'fa': true,
-        //    'fa-spinner': true,
-        //    'fa-spin': true,
-        //    'hidden': this.state.loaded
-        //});
+        console.log('filters', this.state.filters);
 
-        //var showMoreLink;
+        if(this.state.rowsToRender) {
+            body = filteredData.body.slice(0, this.state.rowsToRender);
 
-        //if (this.state.rowsToRender < filteredData.body.length) {
-        //    showMoreLink = (
-        //        <div>
-        //            <button type="button" className="btn btn-link" onClick={this.viewAllRows()}>View all...</button>
-        //        </div>
-        //    )
-        //}
+            if (this.state.rowsToRender && filteredData.body.length > this.state.rowsToRender) {
+                showMoreLink = (
+                    <div>
+                        <button type="button" className="btn btn-link" onClick={this.viewAllRows}>View all...</button>
+                    </div>
+                )
+            }
+        }
+
+        var cx = React.addons.classSet;
+        var toggle24hrs = cx({
+            "btn": true,
+            "btn-toggle": true,
+            "active": this.state.filters.newDeployment,
+            "toggle-on": this.state.filters.newDeployment
+        });
+
+        var toggleU = cx({
+            "btn": true,
+            "btn-toggle": true,
+            "active": this.hasEnvClass('u'),
+            "toggle-on": this.hasEnvClass('u')
+        });
+
+        var toggleT = cx({
+            "btn": true,
+            "btn-toggle": true,
+            "active": this.hasEnvClass('t'),
+            "toggle-on": this.hasEnvClass('t')
+        });
+
+        var toggleQ = cx({
+            "btn": true,
+            "btn-toggle": true,
+            "active": this.hasEnvClass('q'),
+            "toggle-on": this.hasEnvClass('q')
+        });
+
+        var toggleP = cx({
+            "btn": true,
+            "btn-toggle": true,
+            "active": this.hasEnvClass('p'),
+            "toggle-on": this.hasEnvClass('p')
+        });
+
+        var spinnerClasses = cx({
+            'fa': true,
+            'fa-spinner': true,
+            'fa-spin': true,
+            'hidden': this.state.loaded
+        });
+
         return (
             <div className="container-fluid">
                 <div className="row">
@@ -190,46 +231,46 @@ module.exports = VersionMatrix = React.createClass({
                                 <div>
                                     <div className="form-group">
                                         <div className="form-group">
-                                            <label htmlFor="envFilter">environments </label>&nbsp;
-                                            <input id="envFilter" ref="environmentFilter" type="text" className="form-control input-sm" active defaultValue={envFilter}></input>
-                                        </div>
-                                    &nbsp;
-                                        <div className="form-group">
                                             <label htmlFor="appFilter">applications </label>&nbsp;
                                             <input id="appFilter" ref="applicationFilter" type="text" className="form-control input-sm"  defaultValue={appFilter}></input>
                                         </div>
+                                    &nbsp;
+                                        <div className="form-group">
+                                            <label htmlFor="envFilter">environments </label>&nbsp;
+                                            <input id="envFilter" ref="environmentFilter" type="text" className="form-control input-sm" active defaultValue={envFilter}></input>
+                                        </div>
                                         <input type="submit" className="btn btn-default btn-sm" onClick={this.updateFilters} value="apply" />
-                                        <input type="button" className="btn btn-danger btn-sm" onClick={this.clear} value="clear" />
+                                        <input type="button" className="btn btn-danger btn-sm" onClick={this.clear} value="reset" />
                                     &nbsp;
                                     </div>
-                                    {/*<div className="btn-group pull-right" data-toggle="buttons" role="group">
-                                        <label className={this.toggle()} >
-                                            <input ref="newDeployments" type="checkbox" autoComplete="off" onClick={this.updateFilters} />
+                                    <div className="btn-group pull-right" data-toggle="buttons" role="group">
+                                        <label className={toggle24hrs} title="Show only applications deployed in the last 24 hrs">
+                                            <input ref="newDeployments"  type="checkbox" autoComplete="off" onChange={this.updateFilters} checked={this.state.filters.newDeployment}/>
                                         last 24 hrs
                                         </label>
-                                    <label className="btn btn-default">
-                                     <input type="checkbox" autoComplete="off" />
+                                    <label className={toggleU} title="Show only developement environments">
+                                     <input ref="showU" type="checkbox" autoComplete="off" onChange={this.updateFilters} checked={this.hasEnvClass('u')}/>
                                      u</label>
-                                     <label className="btn btn-default">
-                                     <input type="checkbox" autoComplete="off" />
+                                        <label className={toggleT} title="Show only test environments">
+                                     <input ref="showT" type="checkbox" autoComplete="off" onChange={this.updateFilters} checked={this.hasEnvClass('t')}/>
                                      t
                                      </label>
-                                     <label className="btn btn-default">
-                                     <input type="checkbox" autoComplete="off" />
+                                        <label className={toggleQ} title="Show only Q environments">
+                                     <input ref="showQ" type="checkbox" autoComplete="off" onChange={this.updateFilters} checked={this.hasEnvClass('q')}/>
                                      q
                                      </label>
-                                     <label className="btn btn-default">
-                                     <input type="checkbox" autoComplete="off" />
+                                        <label className={toggleP} title="Show only production">
+                                     <input ref="showP" type="checkbox" autoComplete="off" onChange={this.updateFilters} checked={this.hasEnvClass('p')}/>
                                      p
                                      </label>
-                                    </div>*/}
+                                    </div>
                                 </div>
                             </form>
                         </div>
                     </div>
                 </div>
 
-                <table ref="thematrix" className="table table-bordered table-striped">
+                <table ref = "thematrix" className = "table table-bordered table-striped">
                     <thead>
                         <tr>
                         {headers.map(function (header) {
@@ -244,10 +285,10 @@ module.exports = VersionMatrix = React.createClass({
                             }
                     </tbody>
                 </table>
-                {/*<div>
+                {<div>
                  {showMoreLink}
                  <i className={spinnerClasses}></i>
-                 </div>*/}
+                 </div>}
             </div >
         )
     }

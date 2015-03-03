@@ -1,3 +1,10 @@
+@font-face {
+    font-family: "Open Sans";
+    font-style: normal;
+    font-weight: 400;
+    src: local('Open Sans'), local('OpenSans'), url('/fonts/opensans/opensans.woff');
+}
+
 nav.vera-header {
     background-color: #4E5D6C;
     color: #ffffff;
@@ -7,94 +14,49 @@ nav.vera-header {
     color: #ffffff;
 }
 
-.vera-inverse {
-    background-color: #FD8238;
-}
-
 .navbar-nav > li > a:hover, .navbar-nav > li > a:focus, .navbar-nav > li > a.active, .vera-filter, .nav>li>a:focus {
-    background-color: #6e8398;
+    background-color: #39444e;
     color: #fff;
 }
 
-
-.nav>li>a:hover {
+.nav > li > a:hover {
     background-color: hotpink;
 }
 
-
-.app-column {
-    background-color: #CCCCCC;
+.btn-default {
+    color: #ffffff;
+    background-color: #4E5D6C;
+    border-color: #4E5D6C;
 }
 
-/*.vera-filter:hover {*/
-    /*background-color: #4E5D6C;*/
-    /*color: #fff;*/
-/*}*/
+.btn-toggle {
+    color: #fff;
+    background-color: #4E5D6C;
+}
 
-/*.vera-filter.active {*/
-    /*background-color: hotpink;*/
-    /*color: #fff;*/
-/*}*/
+.btn-toggle:hover,
+.btn-default:hover,
+.btn-default:focus,
+.btn-default.focus,
+.btn-default:active,
+.btn-default.active,
+.open > .dropdown-toggle.btn-default {
+    color: #dddddd;
+    background-color: #39444e;
+}
+
+.toggle-on, .toggle-on:active, .toggle-on.active {
+    color: #dddddd;
+    background-color: #39444e;
+}
 
 .form-control {
     font-weight: bold;
 }
 
-/*a {*/
-    /*color: #6e8398*/
-/*}*/
-
-/*a:hover {*/
-    /*color: #ff8522;*/
-/*}*/
-
 i.fa-asterisk{
     color: #ff8522;
 }
-
-
-
-.tooltip {
-    display: inline;
-    position: relative;
-}
-
-.tooltip:hover {
-    color: #c00;
-    text-decoration: none;
-}
-
-.tooltip:hover:after {
-    background: #111;
-    background: rgba(0,0,0,.8);
-    border-radius: .5em;
-    bottom: 1.35em;
-    color: #fff;
-    content: attr(title);
-    display: block;
-    left: 1em;
-    padding: .3em 1em;
-    position: absolute;
-    text-shadow: 0 1px 0 #000;
-    white-space: nowrap;
-    z-index: 98;
-}
-
-.tooltip:hover:before {
-    border: solid;
-    border-color: #111 transparent;
-    border-color: rgba(0,0,0,.8) transparent;
-    border-width: .4em .4em 0 .4em;
-    bottom: 1em;
-    content: "";
-    display: block;
-    left: 2em;
-    position: absolute;
-    z-index: 99;
-}
-
-
-
 
 /* eksperimentering med fixed table header...*/
 /*html, body{*/

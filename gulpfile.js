@@ -17,6 +17,7 @@ var paths = {
     jsLibs: './frontend/src/lib/**/*.js',
     css: './frontend/src/css/**/*.css',
     fonts: ['./frontend/src/fonts/**/*', './node_modules/font-awesome/fonts/**/*'],
+    extCss: './frontend/src/ext/css/**/*.css',
     buildDir: './frontend/build',
     jsBuild: './frontend/build/js',
     cssBuild: './frontend/build/css',
@@ -38,10 +39,10 @@ gulp.task('compile-js', function () {
         .pipe(gulp.dest(paths.jsBuild));
 });
 
-gulp.task('copy-css', function () {
-    return gulp.src([paths.css, './node_modules/font-awesome/css/font-awesome.css'])
+gulp.task('bundle-css', function () {
+    return gulp.src(['./node_modules/font-awesome/css/font-awesome.css',paths.extCss, paths.css ])
         .pipe(concat('bundle.css'))
-        //.pipe(minifyCSS())
+        .pipe(minifyCSS())
         .pipe(size())
         .pipe(gulp.dest(paths.cssBuild));
 });
@@ -58,7 +59,7 @@ gulp.task('copy-indexhtml', function () {
 
 gulp.task('watch', function () {
     gulp.watch(paths.js, ['compile-js']);
-    gulp.watch(paths.css, ['copy-css']);
+    gulp.watch(paths.css, ['bundle-css']);
     gulp.watch(paths.indexHtml, ['copy-indexhtml']);
 });
 
@@ -83,7 +84,7 @@ gulp.task('clean-build', function () {
     runSequence('clean', 'build');
 });
 
-gulp.task('build', ['compile-js', 'copy-css', 'copy-fonts', 'copy-indexhtml']);
+gulp.task('build', ['compile-js', 'bundle-css', 'copy-fonts', 'copy-indexhtml']);
 
 gulp.task('dist', function () {
     env = 'production';

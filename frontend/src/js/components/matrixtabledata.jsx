@@ -7,10 +7,11 @@ module.exports = MatrixTableData = React.createClass({
         var rowElem = this.props.rowElem;
 
         var newDeploymentIcon = (
-            <a title="Hehehe"><span><i className="fa fa-star text-danger"></i></span></a>
+            <span><i className="fa fa-star text-danger"></i></span>
         )
 
         var newDeploymentIndicator = newDeployment() ? newDeploymentIcon : null;
+        var newDeploymentTooltip = newDeployment() ? rowElem.application + " has been deployed to " + rowElem.environment +  " in the last 24 hrs" : "";
 
         function newDeployment() {
             if (!rowElem || typeof rowElem == 'string') {
@@ -24,9 +25,15 @@ module.exports = MatrixTableData = React.createClass({
             return <td>-</td>
         }
         if (typeof rowElem == 'string'){
-            return <td><strong><Link to="log" query={{application: rowElem}}>{rowElem.toLowerCase()}</Link></strong></td>
+            return <td className="text-nowrap"><strong><Link to="log" query={{app: rowElem}}>{rowElem.toLowerCase()}</Link></strong></td>
         } else {
-            return <td><Link to="log" query={{environment: rowElem.environment, application: rowElem.application}}>{rowElem.version}</Link> {newDeploymentIndicator}</td>
+            return (
+                <td className="text-nowrap">
+                    <Link title={newDeploymentTooltip} to="log" query={{env: rowElem.environment, app: rowElem.application}}>
+                    {rowElem.version} {newDeploymentIndicator}
+                    </Link>
+                </td>
+            )
         }
     }
 });
