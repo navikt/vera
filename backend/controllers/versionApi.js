@@ -1,4 +1,5 @@
 var config = require("../config/config");
+var logger = require("../config/syslog");
 var Event = require('../models/event');
 var _ = require('lodash');
 var moment = require('moment');
@@ -115,7 +116,7 @@ exports.getCurrentVersions = function () {
 exports.registerDeployment = function () {
     function logErrorHandler(err) {
         if (err) {
-            console.error(err);
+            logger.error(err);
         }
     }
 
@@ -154,6 +155,7 @@ exports.registerDeployment = function () {
                         e.replaced_timestamp = new Date();
                         e.save(logErrorHandler);
                     })
+                    logger.log("Saved event", savedEvent.toJSON());
                     res.send(200, JSON.stringify(savedEvent.toJSON()));
                 }
             }.bind(events));

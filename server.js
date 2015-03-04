@@ -7,6 +7,7 @@ var mongoose = require('mongoose');
 var http = require('http');
 var fs = require('fs');
 var app = express();
+var logger = require('./backend/config/syslog');
 
 var cors = function (req, res, next) {
     res.setHeader("Access-Control-Allow-Origin", "*");
@@ -21,7 +22,7 @@ app.set('port', config.port);
 require('./backend/config/routes')(app);
 
 var logError = function (err, req, res, next) {
-    console.log("Error: %s", err.message);
+    logger.log("Error: %s", err.message);
     return next(err);
 }
 
@@ -34,7 +35,7 @@ var errorHandler = function (err, req, res, next) {
 };
 
 mongoose.connect(config.dbUrl);
-console.log("MongoDB URL is ", config.dbUrl);
+logger.log("Using MongoDB URL", config.dbUrl);
 
 var db = mongoose.connection;
 
@@ -49,5 +50,5 @@ app.use(express.static(__dirname + "/frontend/build"));
 var httpServer = http.createServer(app);
 
 httpServer.listen(config.port, function () {
-    console.log("Ready for e-business on port " + config.port)
+    logger.log("Ready for e-business on port " + config.port)
 });
