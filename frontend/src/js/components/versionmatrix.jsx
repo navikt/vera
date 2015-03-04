@@ -1,6 +1,8 @@
 var React = require('react/addons');
 var util = require('../../vera-parser');
 var $ = jQuery = require('jquery');
+var moment = require('moment');
+var _ = require('lodash');
 var MatrixRow = require('./matrixrow.jsx');
 var Router = require('react-router');
 var Link = Router.Link;
@@ -30,9 +32,31 @@ module.exports = VersionMatrix = React.createClass({
     mixins: [Router.State],
 
     componentDidMount: function () {
-        $.getJSON('/cv').done(function (data) {
-            this.setState({jsonData: data});
+
+
+        $.getJSON('/api/v1/deploylog?onlyLatest=true').done(function (data) {
+            var enrichedLogEvents = _.map(data, function (logEvent) {
+                if(isDeployedLast24Hrs(logEvent)) {
+                    var enrichedObject = _.clone(logEvent)
+                    enrichedObject.newDeployment = true;
+                    return enrichedObject;
+                }
+                return logEvent;
+            });
+            this.setState({jsonData: enrichedLogEvents});
+
+            //console.log((stop-start)/1000.0);
+            //React.addons.Perf.stop();
+            //React.addons.Perf.printInclusive()
+            //React.addons.Perf.printExclusive()
+            //React.addons.Perf.printWasted()
+            //React.addons.Perf.printDOM()
         }.bind(this));
+
+        var isDeployedLast24Hrs = function (logEvent) {
+
+            return moment(logEvent.deployed_timestamp).isAfter(moment().subtract(24, 'hours'));
+        };
     },
 
     componentWillUpdate: function () {
@@ -73,19 +97,19 @@ module.exports = VersionMatrix = React.createClass({
         }
 
         var environmentClasses = [];
-        if(this.refs.showU.getDOMNode().checked) {
+        if (this.refs.showU.getDOMNode().checked) {
             environmentClasses.push('u')
         }
 
-        if(this.refs.showT.getDOMNode().checked) {
+        if (this.refs.showT.getDOMNode().checked) {
             environmentClasses.push('t')
         }
 
-        if(this.refs.showQ.getDOMNode().checked) {
+        if (this.refs.showQ.getDOMNode().checked) {
             environmentClasses.push('q')
         }
 
-        if(this.refs.showP.getDOMNode().checked) {
+        if (this.refs.showP.getDOMNode().checked) {
             environmentClasses.push('p')
         }
         filters.environmentClass = environmentClasses.join(',');
@@ -165,9 +189,7 @@ module.exports = VersionMatrix = React.createClass({
         var body = filteredData.body;
         var showMoreLink;
 
-        console.log('filters', this.state.filters);
-
-        if(this.state.rowsToRender) {
+        if (this.state.rowsToRender) {
             body = filteredData.body.slice(0, this.state.rowsToRender);
 
             if (this.state.rowsToRender && filteredData.body.length > this.state.rowsToRender) {
@@ -183,35 +205,35 @@ module.exports = VersionMatrix = React.createClass({
         var toggle24hrs = cx({
             "btn": true,
             "btn-toggle": true,
-            "active": this.state.filters.newDeployment,
+            "btn-sm": true,
             "toggle-on": this.state.filters.newDeployment
         });
 
         var toggleU = cx({
             "btn": true,
             "btn-toggle": true,
-            "active": this.hasEnvClass('u'),
+            "btn-sm": true,
             "toggle-on": this.hasEnvClass('u')
         });
 
         var toggleT = cx({
             "btn": true,
             "btn-toggle": true,
-            "active": this.hasEnvClass('t'),
+            "btn-sm": true,
             "toggle-on": this.hasEnvClass('t')
         });
 
         var toggleQ = cx({
             "btn": true,
             "btn-toggle": true,
-            "active": this.hasEnvClass('q'),
+            "btn-sm": true,
             "toggle-on": this.hasEnvClass('q')
         });
 
         var toggleP = cx({
             "btn": true,
             "btn-toggle": true,
-            "active": this.hasEnvClass('p'),
+            "btn-sm": true,
             "toggle-on": this.hasEnvClass('p')
         });
 
@@ -231,38 +253,48 @@ module.exports = VersionMatrix = React.createClass({
                                 <div>
                                     <div className="form-group">
                                         <div className="form-group">
-                                            <label htmlFor="appFilter">applications </label>&nbsp;
-                                            <input id="appFilter" ref="applicationFilter" type="text" className="form-control input-sm"  defaultValue={appFilter}></input>
+                                            <div className="input-group">
+                                                <div className="input-group-addon">applications</div>
+                                                <input ref="applicationFilter" type="text" className="form-control input-sm"  defaultValue={appFilter}></input>
+                                            </div>
                                         </div>
-                                    &nbsp;
+                                        &nbsp;
                                         <div className="form-group">
-                                            <label htmlFor="envFilter">environments </label>&nbsp;
-                                            <input id="envFilter" ref="environmentFilter" type="text" className="form-control input-sm" active defaultValue={envFilter}></input>
+                                            <div className="input-group">
+                                                <div className="input-group-addon">environments</div>
+                                                <input id="envFilter" ref="environmentFilter" type="text" className="form-control input-sm" active defaultValue={envFilter}></input>
+                                            </div>
                                         </div>
-                                        <input type="submit" className="btn btn-default btn-sm" onClick={this.updateFilters} value="apply" />
-                                        <input type="button" className="btn btn-danger btn-sm" onClick={this.clear} value="reset" />
-                                    &nbsp;
+                                        <button type="submit" className="btn btn-default btn-sm" onClick={this.updateFilters}>
+                                            <i className="fa fa-filter"></i>
+                                        &nbsp;
+                                        apply
+                                        </button>
+                                        <button type="button" className="btn btn-danger btn-sm" onClick={this.clear}>
+                                            <i className="fa fa-trash"></i>
+                                        &nbsp;reset
+                                        </button>
                                     </div>
                                     <div className="btn-group pull-right" data-toggle="buttons" role="group">
                                         <label className={toggle24hrs} title="Show only applications deployed in the last 24 hrs">
-                                            <input ref="newDeployments"  type="checkbox" autoComplete="off" onChange={this.updateFilters} checked={this.state.filters.newDeployment}/>
+                                            <input ref="newDeployments"  type="checkbox" autoComplete="off"onChange={this.updateFilters} checked={this.state.filters.newDeployment}/>
                                         last 24 hrs
                                         </label>
-                                    <label className={toggleU} title="Show only developement environments">
-                                     <input ref="showU" type="checkbox" autoComplete="off" onChange={this.updateFilters} checked={this.hasEnvClass('u')}/>
-                                     u</label>
+                                        <label className={toggleU} title="Show only developement environments">
+                                            <input ref="showU" type="checkbox" autoComplete="off" onChange={this.updateFilters} checked={this.hasEnvClass('u')}/>
+                                        u</label>
                                         <label className={toggleT} title="Show only test environments">
-                                     <input ref="showT" type="checkbox" autoComplete="off" onChange={this.updateFilters} checked={this.hasEnvClass('t')}/>
-                                     t
-                                     </label>
+                                            <input ref="showT" type="checkbox" autoComplete="off" onChange={this.updateFilters} checked={this.hasEnvClass('t')}/>
+                                        t
+                                        </label>
                                         <label className={toggleQ} title="Show only Q environments">
-                                     <input ref="showQ" type="checkbox" autoComplete="off" onChange={this.updateFilters} checked={this.hasEnvClass('q')}/>
-                                     q
-                                     </label>
+                                            <input ref="showQ" type="checkbox" autoComplete="off" onChange={this.updateFilters} checked={this.hasEnvClass('q')}/>
+                                        q
+                                        </label>
                                         <label className={toggleP} title="Show only production">
-                                     <input ref="showP" type="checkbox" autoComplete="off" onChange={this.updateFilters} checked={this.hasEnvClass('p')}/>
-                                     p
-                                     </label>
+                                            <input ref="showP" type="checkbox" autoComplete="off" onChange={this.updateFilters} checked={this.hasEnvClass('p')}/>
+                                        p
+                                        </label>
                                     </div>
                                 </div>
                             </form>
@@ -287,8 +319,8 @@ module.exports = VersionMatrix = React.createClass({
                 </table>
                 {<div>
                  {showMoreLink}
-                 <i className={spinnerClasses}></i>
-                 </div>}
+                    <i className={spinnerClasses}></i>
+                </div>}
             </div >
         )
     }

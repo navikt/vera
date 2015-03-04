@@ -5,5 +5,4 @@ module.exports = function(app) {
     app.get('/version', versionApi.getVersion()); //deprecated
     app.post('/api/v1/deploylog', versionApi.registerDeployment());
     app.get('/api/v1/deploylog', versionApi.deployLog());
-    app.get('/cv', versionApi.getCurrentVersions()); //deprecated
 }
