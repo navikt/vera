@@ -50,14 +50,21 @@ nav.vera-header {
     border-color: #4E5D6C;
 }
 
-.btn-toggle:hover,
 .btn-default:hover,
+.btn-toggle:hover,
 .btn-default:focus,
 .btn-default.focus,
 .btn-default:active,
 .btn-default.active,
 .open > .dropdown-toggle.btn-default {
     color: #dddddd;
+}
+
+.btn-default:hover,
+.btn-default:active,
+.btn-default:focus,
+.btn-default.active {
+    background-color: #39444e;
 }
 
 .btn-toggle {
