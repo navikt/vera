@@ -20,7 +20,7 @@ var Vera = React.createClass({
                                     <i className="fa fa-circle fa-stack-2x logo"></i>
                                     <strong className="fa-stack-1x fa-stack-text fa-comment-text ">V</strong>
                                 </span>
-                            vera</a>
+                            &nbsp;vera</a>
                         </div>
                         <ul className="nav navbar-nav">
                             <li>

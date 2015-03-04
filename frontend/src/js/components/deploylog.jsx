@@ -51,14 +51,11 @@ module.exports = DeployLog = React.createClass({
                     <small> {filteredEvents.length + "/" + this.state.items.length}
                         <i className={this.spinnerClasses()}></i>
                     </small>
-                    <div className="pull-right" data-toggle="buttons" role="group">
-                        <label className="btn btn-default btn-sm" >
-                            <input type="checkbox" autoComplete="off" onClick={this.clearFilters} />
-                        clear filters
-                        </label>
-                        <label className={this.currentToggleButtonClasses()} >
+                    <div className="pull-right btn-toolbar" data-toggle="buttons" role="group">
+                            <button type="button"  className="btn btn-default btn-sm" onClick={this.clearFilters} ><i className="fa fa-trash"></i> clear</button>
+                        <label className={this.currentToggleButtonClasses()}>
                             <input type="checkbox" autoComplete="off" onClick={this.toggleOnlyLatest} />
-                        show only latest
+                            <i className="fa fa-asterisk"></i> show only latest
                         </label>
                     </div>
                 </h2>
@@ -163,6 +160,7 @@ module.exports = DeployLog = React.createClass({
     },
 
     toggleOnlyLatest: function () {
+        console.log("asd");
         var filter = _.clone(this.state.filters, true);
         filter['onlyLatest'] = !this.state.filters.onlyLatest;
         this.setState({filters: filter});

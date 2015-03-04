@@ -91,27 +91,6 @@ exports.getVersion = function () {
     }
 }
 
-exports.getCurrentVersions = function () {
-    return function (req, res, next) {
-        function isDeployedIsLast24Hrs(event) {
-            return moment(event.deployed_timestamp).isAfter(moment().subtract(24, 'hours'));
-        }
-
-        var resultHandler = function (err, events) {
-            var transformedEvents = _.map(events, function (event) {
-                var mongoEvent = event.toJSON();
-                mongoEvent.newDeployment = isDeployedIsLast24Hrs(event);
-                return mongoEvent;
-            });
-            res.write(JSON.stringify(transformedEvents));
-            res.send();
-        }
-
-        Event.find({replaced_timestamp: null}).exec(resultHandler);
-    }
-}
-
-
 exports.registerDeployment = function () {
     function logErrorHandler(err) {
         if (err) {

@@ -21,8 +21,14 @@ nav.vera-header {
     border-bottom-color: #39444e;
 }
 
+
 .navbar-nav > li > a:hover {
+    background-color: #4E5D6C;
     border-bottom-color: #df691a;
+}
+
+.navbar-nav > li > a.active:hover {
+    background-color: #39444e;
 }
 
 @media (min-width: 768px) {
@@ -52,20 +58,24 @@ nav.vera-header {
 .btn-default.active,
 .open > .dropdown-toggle.btn-default {
     color: #dddddd;
-    background-color: #39444e;
 }
 
-.btn-toggle, .toggle-on:hover {
+.btn-toggle {
     color: #fff;
     background-color: #4E5D6C;
+    border-bottom: 4px solid;
+    border-bottom-color: #4E5D6C;
+}
+
+.btn-toggle:hover, .toggle-on:hover, .btn-toogle:hover {
+    border-bottom-color: #df691a;
 }
 
 .toggle-on, .toggle-on:active, .toggle-on.active {
     color: #dddddd;
     background-color: #39444e;
+    border-bottom-color: #39444e;
 }
-
-
 
 .form-control {
     font-weight: bold;
