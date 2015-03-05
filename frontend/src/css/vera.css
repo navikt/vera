@@ -14,10 +14,14 @@ nav.vera-header {
     color: #ffffff;
 }
 
+.navbar-nav > li > a {
+    border-bottom: 3px solid;
+    border-bottom-color: #4E5D6C
+}
+
 .navbar-nav > li > a:hover, .navbar-nav > li > a:focus, .navbar-nav > li > a.active, .vera-filter, .nav>li>a:focus {
     background-color: #39444e;
     color: #fff;
-    border-bottom: 4px solid;
     border-bottom-color: #39444e;
 }
 
@@ -34,7 +38,7 @@ nav.vera-header {
 @media (min-width: 768px) {
     .navbar-nav>li>a {
         padding-top: 25px;
-        padding-bottom: 1px;
+        padding-bottom: 0px;
         line-height: 21px;
         font-size: 15px;
     }
@@ -70,7 +74,7 @@ nav.vera-header {
 .btn-toggle {
     color: #fff;
     background-color: #4E5D6C;
-    border-bottom: 4px solid;
+    border-bottom: 3px solid;
     border-bottom-color: #4E5D6C;
 }
 
