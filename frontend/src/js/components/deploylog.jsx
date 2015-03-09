@@ -28,7 +28,7 @@ module.exports = DeployLog = React.createClass({
             var extractedValidParams = _.pick(this.getQuery(), this.validBackendParams);
             initialBackendParams = this.serialize(extractedValidParams);
         } else {
-            initialBackendParams = '?last=1month';
+            initialBackendParams = '?last=1week';
         }
 
         $.getJSON(this.DEPLOYLOG_SERVICE + initialBackendParams).done(function (data) {
