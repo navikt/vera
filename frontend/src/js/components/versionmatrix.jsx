@@ -3,12 +3,16 @@ var util = require('../../vera-parser');
 var $ = jQuery = require('jquery');
 var moment = require('moment');
 var _ = require('lodash');
-var MatrixRow = require('./matrixrow.jsx');
+var TheTable = require('./thetable.jsx');
 var Router = require('react-router');
 var Link = Router.Link;
 
-
+var prerest;
+var start;
+var stop;
 module.exports = VersionMatrix = React.createClass({
+
+
     getInitialState: function () {
         var filters = {environmentClass: 't,q,p'}
         var appsQueryParam = this.getQuery().apps;
@@ -23,7 +27,6 @@ module.exports = VersionMatrix = React.createClass({
 
         return {
             loaded: false,
-            rowsToRender: 50,
             jsonData: [],
             filters: filters
         }
@@ -31,18 +34,33 @@ module.exports = VersionMatrix = React.createClass({
 
     mixins: [Router.State],
 
-    componentDidMount: function () {
+    shouldComponentUpdate: function (nextProps, nextState) {
+        if (nextState.jsonData.length > 0) {
+            console.log('will fucking render ');
+            return true;
+        }
+        else {
+            console.log('no need to fucking render');
+            return false;
+        }
+        ;
+    },
 
+    componentDidMount: function () {
+        prerest = new Date();
 
         $.getJSON('/api/v1/deploylog?onlyLatest=true').done(function (data) {
             var enrichedLogEvents = _.map(data, function (logEvent) {
-                if(isDeployedLast24Hrs(logEvent)) {
+                if (isDeployedLast24Hrs(logEvent)) {
                     var enrichedObject = _.clone(logEvent)
                     enrichedObject.newDeployment = true;
                     return enrichedObject;
                 }
                 return logEvent;
             });
+            console.log('Redy to render')
+            start = new Date();
+            //React.addons.Perf.start();
             this.setState({jsonData: enrichedLogEvents});
 
             //console.log((stop-start)/1000.0);
@@ -54,7 +72,6 @@ module.exports = VersionMatrix = React.createClass({
         }.bind(this));
 
         var isDeployedLast24Hrs = function (logEvent) {
-
             return moment(logEvent.deployed_timestamp).isAfter(moment().subtract(24, 'hours'));
         };
     },
@@ -78,6 +95,10 @@ module.exports = VersionMatrix = React.createClass({
         if (!this.state.loaded) {
             this.setState({loaded: true});
         }
+        console.log('done');
+        stop = new Date();
+        console.log('Took with rest ', (stop - prerest) / 1000.0);
+        console.log('Took ', (stop - start) / 1000.0);
     },
 
     updateFilters: function (e) {
@@ -159,7 +180,11 @@ module.exports = VersionMatrix = React.createClass({
                 filteredJsonData = applyFilter(filteredJsonData, filters[filterProperty], filterProperty);
             });
         }
-        return util.buildVersionMatrix(filteredJsonData);
+        var starPA = new Date();
+        var tempi = util.buildVersionMatrix(filteredJsonData)
+        var stopPA = new Date();
+        console.log('parsertime', (stopPA - starPA) / 1000.0)
+        return tempi;
     },
 
     clear: function (e) {
@@ -173,33 +198,17 @@ module.exports = VersionMatrix = React.createClass({
     },
 
 
-    viewAllRows: function () {
-        this.setState({rowsToRender: null});
-    },
-
     hasEnvClass: function (envClass) {
         return this.state.filters.environmentClass.indexOf(envClass) > -1
     },
 
     render: function () {
+        console.log('Rendering', this.state)
         var appFilter = this.state.filters.application;
         var envFilter = this.state.filters.environment;
         var filteredData = this.applyFilters();
         var headers = filteredData.header;
         var body = filteredData.body;
-        var showMoreLink;
-
-        if (this.state.rowsToRender) {
-            body = filteredData.body.slice(0, this.state.rowsToRender);
-
-            if (this.state.rowsToRender && filteredData.body.length > this.state.rowsToRender) {
-                showMoreLink = (
-                    <div>
-                        <button type="button" className="btn btn-link" onClick={this.viewAllRows}>View all...</button>
-                    </div>
-                )
-            }
-        }
 
         var cx = React.addons.classSet;
         var toggle24hrs = cx({
@@ -252,19 +261,8 @@ module.exports = VersionMatrix = React.createClass({
                             <form className="form-inline">
                                 <div>
                                     <div className="form-group">
-                                        <div className="form-group">
-                                            <div className="input-group">
-                                                <div className="input-group-addon">applications</div>
-                                                <input ref="applicationFilter" type="text" className="form-control input-sm"  defaultValue={appFilter}></input>
-                                            </div>
-                                        </div>
-                                        &nbsp;
-                                        <div className="form-group">
-                                            <div className="input-group">
-                                                <div className="input-group-addon">environments</div>
-                                                <input id="envFilter" ref="environmentFilter" type="text" className="form-control input-sm" active defaultValue={envFilter}></input>
-                                            </div>
-                                        </div>
+                                        {this.createInputFilter('applications', 'applicationFilter', appFilter)}&nbsp;
+                                        {this.createInputFilter('environments', 'environmentFilter', envFilter)}
                                         <button type="submit" className="btn btn-default btn-sm" onClick={this.updateFilters}>
                                             <i className="fa fa-filter"></i>
                                         &nbsp;
@@ -276,52 +274,42 @@ module.exports = VersionMatrix = React.createClass({
                                         </button>
                                     </div>
                                     <div className="btn-group pull-right" data-toggle="buttons" role="group">
-                                        <label className={toggle24hrs} title="Show only applications deployed in the last 24 hrs">
-                                            <input ref="newDeployments"  type="checkbox" autoComplete="off"onChange={this.updateFilters} checked={this.state.filters.newDeployment}/>
-                                        last 24 hrs
-                                        </label>
-                                        <label className={toggleU} title="Show only developement environments">
-                                            <input ref="showU" type="checkbox" autoComplete="off" onChange={this.updateFilters} checked={this.hasEnvClass('u')}/>
-                                        u</label>
-                                        <label className={toggleT} title="Show only test environments">
-                                            <input ref="showT" type="checkbox" autoComplete="off" onChange={this.updateFilters} checked={this.hasEnvClass('t')}/>
-                                        t
-                                        </label>
-                                        <label className={toggleQ} title="Show only Q environments">
-                                            <input ref="showQ" type="checkbox" autoComplete="off" onChange={this.updateFilters} checked={this.hasEnvClass('q')}/>
-                                        q
-                                        </label>
-                                        <label className={toggleP} title="Show only production">
-                                            <input ref="showP" type="checkbox" autoComplete="off" onChange={this.updateFilters} checked={this.hasEnvClass('p')}/>
-                                        p
-                                        </label>
+                                        {this.createToggleButton('Show only applications deployed in the last 24 hrs', toggle24hrs, 'newDeployments', 'last 24 hrs', this.state.filters.newDeployment)}
+                                        {this.createToggleButton('Show only developement environments', toggleU, 'showU', 'u', this.hasEnvClass('u'))}
+                                        {this.createToggleButton('Show only test environments', toggleT, 'showT', 't', this.hasEnvClass('t'))}
+                                        {this.createToggleButton('Show only Q environments', toggleQ, 'showQ', 'q', this.hasEnvClass('q'))}
+                                        {this.createToggleButton('Show only production', toggleP, 'showP', 'p', this.hasEnvClass('p'))}
                                     </div>
                                 </div>
                             </form>
                         </div>
                     </div>
                 </div>
-
-                <table ref = "thematrix" className = "table table-bordered table-striped">
-                    <thead>
-                        <tr>
-                        {headers.map(function (header) {
-                            return <th key={header}>{header.toUpperCase()}</th>
-                        })}
-                        </tr>
-                    </thead>
-                    < tbody >
-                        {body.map(function (row) {
-                            return <MatrixRow key={row[0]} rowObject={row}/>
-                        })
-                            }
-                    </tbody>
-                </table>
-                {<div>
-                 {showMoreLink}
+                <TheTable key="tablekey" tableHeader={headers} tableBody={body} />
+                {<h3>
                     <i className={spinnerClasses}></i>
-                </div>}
+                </h3>}
             </div >
+        )
+    },
+
+    createInputFilter: function (labelText, inputId, defaultValue) {
+        return (
+            <div className="form-group">
+                <div className="input-group">
+                    <div className="input-group-addon">{labelText}</div>
+                    <input ref={inputId} type="text" className="form-control input-sm"  defaultValue={defaultValue}></input>
+                </div>
+            </div>
+        )
+    },
+
+    createToggleButton: function (tooltipText, cssClassNames, inputId, buttonLabel, isChecked) {
+        return (
+            <label className={cssClassNames} title={tooltipText}>
+                <input ref={inputId}  type="checkbox" autoComplete="off"onChange={this.updateFilters} checked={isChecked}/>
+          {buttonLabel}
+            </label>
         )
     }
 });

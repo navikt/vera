@@ -61,6 +61,17 @@ var parameterDefinition = {
     onlyLatest: {transform: emptyOrAll, mapToKey: "replaced_timestamp"}
 }
 
+exports.config = function () {
+    return function(req, res, next){
+        var environmentCfg = {
+            plasterUrl: config.plasterUrl,
+            dbUrl: config.dbUrl,
+            dbUser: config.dbUser
+        }
+        res.send(environmentCfg);
+    }
+}
+
 exports.getVersion = function () {
     return function (req, res, next) {
 

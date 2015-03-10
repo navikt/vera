@@ -40,7 +40,7 @@ function generateApplicationRow(columns, appName, applicationInstances) {
     rowData.unshift(appName)
 
     for (var i = 1; i < columns.length; i++) {
-        var filtered = _.filter(applicationInstances, function (appInstance) {
+         var filtered = _.filter(applicationInstances, function (appInstance) {
             return appInstance.environment === columns[i]
         });
 

@@ -8,7 +8,8 @@ var config = {
     dbUser: process.env['veraDb_username'] || "vera",
     dbPassword: process.env['veraDb_password'] || "<hemmelig>",
     tlsPrivateKey: process.env['TLS_PRIVATE_KEY'] || "private.key",
-    tlsCert: process.env['TLS_CERT'] || "cacert.pem"
+    tlsCert: process.env['TLS_CERT'] || "cacert.pem",
+    plasterUrl: process.env['plaster_url'] || "https://d26jbsl00611.test.local:8443"
 }
 
 module.exports = config
