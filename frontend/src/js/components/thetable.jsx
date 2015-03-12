@@ -9,29 +9,14 @@ module.exports = TheTable = React.createClass({
         return {rowsToRender: 50};
     },
 
-    shouldComponentUpdate: function(nextProps, nextState) {
+    shouldComponentUpdate: function (nextProps, nextState) {
         return nextProps.tableBody.length !== this.props.tableBody.length ||
             this.state.rowsToRender !== nextState.rowsToRender ||
             nextProps.tableHeader.length !== this.props.tableHeader.length
     },
 
     render: function () {
-        console.log('rendering  matrix', this.state);
         var showMoreLink;
-
-        var newDeployment = function (rowElem) {
-            if (!rowElem || typeof rowElem == 'string') {
-                return false;
-            }
-            return rowElem.newDeployment;
-        }
-
-         var newDeploymentIcon = (
-            <span>
-                <i className="fa fa-star text-danger"></i>
-            </span>
-        )
-
         var viewAllRows = function () {
             this.setState({rowsToRender: this.props.tableBody.length});
         }.bind(this)
@@ -42,15 +27,13 @@ module.exports = TheTable = React.createClass({
             bodyToRender = this.props.tableBody.slice(0, this.state.rowsToRender);
 
             if (this.props.tableBody.length > this.state.rowsToRender) {
-            showMoreLink = (
-                <div>
-                    <button type="button" className="btn btn-link" onClick={viewAllRows}>View all...</button>
-                </div>
-            )
+                showMoreLink = (
+                    <div>
+                        <button type="button" className="btn btn-link" onClick={viewAllRows}>View all...</button>
+                    </div>
+                )
             }
         }
-
-
 
         return (
             <div>
@@ -63,38 +46,7 @@ module.exports = TheTable = React.createClass({
                         </tr>
                     </thead>
                     <tbody>
-                        {bodyToRender.map(function (row) {
-                            return (
-                                <tr>{row.map(function (rowElem) {
-                                    var newDeploymentIndicator = newDeployment(rowElem) ? newDeploymentIcon : null;
-                                    var newDeploymentTooltip = newDeployment(rowElem) ? rowElem.application + " has been deployed to " + rowElem.environment + " in the last 24 hrs" : "";
-
-                                    if (!rowElem) {
-                                        return <td>-</td>
-                                    }
-                                    if (typeof rowElem == 'string') {
-                                        return <td className="text-nowrap">
-                                            <strong>
-                                                <Link to="log" query={{application: rowElem}}>{rowElem.toLowerCase()}</Link>
-                                            </strong>
-                                        </td>
-                                    } else {
-                                        return (
-                                            <td className="text-nowrap">
-                                                <Link title={newDeploymentTooltip} to="log" query={{
-                                                    environment: rowElem.environment,
-                                                    application: rowElem.application
-                                                }}>
-                                                    {rowElem.version}  {newDeploymentIndicator}
-
-                                                </Link>
-                                            </td>
-                                        )
-                                    }
-                                })}
-                                </tr>)
-                        })
-                            }
+                        {bodyToRender.map(this.buildTableRow)}
                     </tbody>
                 </table>
                 <div>
@@ -102,5 +54,57 @@ module.exports = TheTable = React.createClass({
                 </div>
             </div>
         )
+    },
+
+    buildTableRow: function (row) {
+        return (<tr>{row.map(function (cell) {
+                return (<td className='text-nowrap'>{this.cellContent(cell)}</td>)
+            }.bind(this)
+        )}</tr>)
+    },
+
+
+    cellContent: function (cell) {
+        if (!cell) {
+            return '-';
+        }
+
+        var newDeployment = this.newDeployment(cell);
+        var tooltip = newDeployment ? cell.application + " has been deployed to " + cell.environment + " in the last 24 hrs" : "";
+        return (
+            <Link to="log" query={this.createLinkQuery(cell)} title={tooltip}>
+            {this.createLinkContent(cell)} {newDeployment ? this.newDeploymentIcon() : null}
+            </Link>
+            );
+    },
+
+    createLinkQuery: function(cellContent) {
+        if(typeof cellContent === 'string') {
+            return {application: cellContent};
+        }
+        return {environment: cellContent.environment, application: cellContent.application}
+    },
+
+    createLinkContent: function(cellContent) {
+        if(typeof cellContent === 'string') {
+            return cellContent;
+        }
+        return cellContent.version  ;
+    },
+
+    newDeployment: function (rowElem) {
+        if (!rowElem || typeof rowElem == 'string') {
+            return false;
+        }
+        return rowElem.newDeployment;
+    },
+
+    newDeploymentIcon: function() {
+        return(
+            <span>
+                <i className="fa fa-star text-danger"></i>
+            </span>
+        );
     }
+
 });
