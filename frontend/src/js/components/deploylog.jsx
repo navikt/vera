@@ -20,25 +20,7 @@ module.exports = DeployLog = React.createClass({
     },
 
     componentDidMount: function () {
-        var urlContainsValidBackendParams = this.extractFromObject(this.validBackendParams, this.getQuery()).length > 0;
-
-        var initialBackendParams = '';
-
-        if (urlContainsValidBackendParams){
-            var extractedValidParams = _.pick(this.getQuery(), this.validBackendParams);
-            initialBackendParams = this.serialize(extractedValidParams);
-        } else {
-            initialBackendParams = '?last=1week';
-        }
-
-        $.getJSON(this.DEPLOYLOG_SERVICE + initialBackendParams).done(function (data) {
-            this.setState({items: data.map(this.toReadableDateFormat)})
-            $.getJSON(this.DEPLOYLOG_SERVICE).done(function (data) {
-                this.setState({
-                    items: data.map(this.toReadableDateFormat), loaded: true
-                })
-            }.bind(this));
-        }.bind(this));
+        this.getInitialDataFromBackend().success(this.getEverything);
     },
 
     render: function () {
@@ -52,10 +34,13 @@ module.exports = DeployLog = React.createClass({
                         <i className={this.spinnerClasses()}></i>
                     </small>
                     <div className="pull-right btn-toolbar" data-toggle="buttons" role="group">
-                            <button type="button"  className="btn btn-default btn-sm" onClick={this.clearFilters} ><i className="fa fa-trash"></i> clear</button>
+                        <button type="button"  className="btn btn-default btn-sm" onClick={this.clearFilters} >
+                            <i className="fa fa-trash"></i>
+                        clear</button>
                         <label className={this.currentToggleButtonClasses()}>
                             <input type="checkbox" autoComplete="off" onClick={this.toggleOnlyLatest} />
-                            <i className="fa fa-asterisk"></i> show only latest
+                            <i className="fa fa-asterisk"></i>
+                        show only latest
                         </label>
                     </div>
                 </h2>
@@ -110,14 +95,6 @@ module.exports = DeployLog = React.createClass({
             && elem.deployed_timestamp.toString().toLowerCase().indexOf(this.state.filters.timestamp.toLowerCase()) > -1;
     },
 
-    serialize: function (obj) {
-        return '?' + Object.keys(obj).reduce(function (a, k) {
-                a.push(k + '=' + encodeURIComponent(obj[k]));
-                return a;
-            }, []).join('&')
-    },
-
-
     inactiveVersionsIfEnabled: function (elem) {
         if (!this.state.filters.onlyLatest) {
             return true;
@@ -132,23 +109,66 @@ module.exports = DeployLog = React.createClass({
         this.setState({filters: filter});
     },
 
+    getInitialBackendParams: function () {
+        var serialize = function (obj) {
+            return '?' + Object.keys(obj).reduce(function (a, k) {
+                    a.push(k + '=' + encodeURIComponent(obj[k]));
+                    return a;
+                }, []).join('&')
+        };
+
+        var extractFromObject = function (values, object) {
+            return Object.keys(object).filter(function (val) {
+                return values.indexOf(val) > -1;
+            });
+        };
+
+        var urlContainsValidBackendParams = extractFromObject(this.validBackendParams, this.getQuery()).length > 0;
+        if (urlContainsValidBackendParams) {
+            var extractedValidParams = _.pick(this.getQuery(), this.validBackendParams);
+            return serialize(extractedValidParams);
+        } else {
+            return '?last=1week';
+        }
+    },
+
+    mapToViewFormat: function (data) {
+        var toReadableDateFormat = function (eventItem) {
+            eventItem.deployed_timestamp = moment(eventItem.deployed_timestamp).format("DD-MM-YY HH:mm:ss");
+            return eventItem;
+        }
+
+        var nullVersionsToUndeployed = function (eventItem) {
+            if (!eventItem.version) {
+                eventItem.version = '<undeployed>';
+            }
+            return eventItem;
+        }
+
+        return data.map(toReadableDateFormat).map(nullVersionsToUndeployed);
+    },
+
+    getInitialDataFromBackend: function () {
+        return $.getJSON(this.DEPLOYLOG_SERVICE + this.getInitialBackendParams()).success(function (data) {
+            this.setState({items: this.mapToViewFormat(data)})
+        }.bind(this));
+    },
+
+    getEverything: function () {
+        $.getJSON(this.DEPLOYLOG_SERVICE).done(function (data) {
+            this.setState({
+                items: this.mapToViewFormat(data),
+                loaded: true
+            })
+        }.bind(this));
+    },
+
     enrichFromObject: function (base, object) {
         var enrichedObject = {};
         Object.keys(base).forEach(function (key) {
             enrichedObject[key] = object[key] ? object[key] : '';
         });
         return enrichedObject;
-    },
-
-    extractFromObject: function (values, object) {
-        return Object.keys(object).filter(function (val) {
-            return values.indexOf(val) > -1;
-        });
-    },
-
-    toReadableDateFormat: function (eventItem) {
-        eventItem.deployed_timestamp = moment(eventItem.deployed_timestamp).format("DD-MM-YY HH:mm:ss");
-        return eventItem;
     },
 
     viewMoreResults: function () {
@@ -160,7 +180,6 @@ module.exports = DeployLog = React.createClass({
     },
 
     toggleOnlyLatest: function () {
-        console.log("asd");
         var filter = _.clone(this.state.filters, true);
         filter['onlyLatest'] = !this.state.filters.onlyLatest;
         this.setState({filters: filter});

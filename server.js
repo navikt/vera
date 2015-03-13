@@ -29,8 +29,7 @@ var logError = function (err, req, res, next) {
 var errorHandler = function (err, req, res, next) {
     res.send({
         status: res.statusCode,
-        message: "internal error",
-        error: err.message
+        message: err.message || "internal error"
     });
 };
 
