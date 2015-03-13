@@ -56,13 +56,13 @@ module.exports = DeployLog = React.createClass({
                             <i className="fa fa-trash"></i>
                         &nbsp;
                         clear</button>
-                        <label className={this.currentToggleButtonClasses()}>
+                        <label className={this.toggleButtonClasses(this.state.filters.onlyLatest)}>
                             <input type="checkbox" autoComplete="off" onClick={this.toggleOnlyLatest} />
                             <i className="fa fa-asterisk"></i>
                         &nbsp;
                         show only latest
                         </label>
-                        <label className={this.currentToggleButtonClasses()}>
+                        <label className={this.toggleButtonClasses(this.state.isPolling)}>
                             <input type="checkbox" autoComplete="off" onClick={this.togglePolling} />
                             <i className={this.autoRefreshClasses()}></i>
                         &nbsp;
@@ -235,7 +235,7 @@ module.exports = DeployLog = React.createClass({
         })
     },
 
-    currentToggleButtonClasses: function (isActive) {
+    toggleButtonClasses: function (isActive) {
         return classString({
             "btn": true,
             "btn-default": true,
