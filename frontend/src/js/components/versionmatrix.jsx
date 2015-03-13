@@ -1,11 +1,12 @@
-var React = require('react/addons');
-var util = require('../../vera-parser');
 var $ = jQuery = require('jquery');
 var moment = require('moment');
 var _ = require('lodash');
-var TheTable = require('./thetable.jsx');
+var React = require('react/addons');
 var Router = require('react-router');
+var classString = require('react-classset');
 var Link = Router.Link;
+var util = require('../../vera-parser');
+var VersionTable = require('./versiontable.jsx');
 
 var prerest;
 var start;
@@ -210,49 +211,6 @@ module.exports = VersionMatrix = React.createClass({
         var headers = filteredData.header;
         var body = filteredData.body;
 
-        var cx = React.addons.classSet;
-        var toggle24hrs = cx({
-            "btn": true,
-            "btn-toggle": true,
-            "btn-sm": true,
-            "toggle-on": this.state.filters.newDeployment
-        });
-
-        var toggleU = cx({
-            "btn": true,
-            "btn-toggle": true,
-            "btn-sm": true,
-            "toggle-on": this.hasEnvClass('u')
-        });
-
-        var toggleT = cx({
-            "btn": true,
-            "btn-toggle": true,
-            "btn-sm": true,
-            "toggle-on": this.hasEnvClass('t')
-        });
-
-        var toggleQ = cx({
-            "btn": true,
-            "btn-toggle": true,
-            "btn-sm": true,
-            "toggle-on": this.hasEnvClass('q')
-        });
-
-        var toggleP = cx({
-            "btn": true,
-            "btn-toggle": true,
-            "btn-sm": true,
-            "toggle-on": this.hasEnvClass('p')
-        });
-
-        var spinnerClasses = cx({
-            'fa': true,
-            'fa-spinner': true,
-            'fa-spin': true,
-            'hidden': this.state.loaded
-        });
-
         return (
             <div className="container-fluid">
                 <div className="row">
@@ -274,20 +232,21 @@ module.exports = VersionMatrix = React.createClass({
                                         </button>
                                     </div>
                                     <div className="btn-group pull-right" data-toggle="buttons" role="group">
-                                        {this.createToggleButton('Show only applications deployed in the last 24 hrs', toggle24hrs, 'newDeployments', 'last 24 hrs', this.state.filters.newDeployment)}
-                                        {this.createToggleButton('Show only developement environments', toggleU, 'showU', 'u', this.hasEnvClass('u'))}
-                                        {this.createToggleButton('Show only test environments', toggleT, 'showT', 't', this.hasEnvClass('t'))}
-                                        {this.createToggleButton('Show only Q environments', toggleQ, 'showQ', 'q', this.hasEnvClass('q'))}
-                                        {this.createToggleButton('Show only production', toggleP, 'showP', 'p', this.hasEnvClass('p'))}
+                                        {this.createToggleButton('show only applications deployed in the last 24 hrs',
+                                            'newDeployments', 'last 24 hrs', this.state.filters.newDeployment)}
+                                        {this.createToggleButton('show only developement environments', 'showU', 'u', this.hasEnvClass('u'))}
+                                        {this.createToggleButton('show only test environments', 'showT', 't', this.hasEnvClass('t'))}
+                                        {this.createToggleButton('show only Q environments', 'showQ', 'q', this.hasEnvClass('q'))}
+                                        {this.createToggleButton('show only production', 'showP', 'p', this.hasEnvClass('p'))}
                                     </div>
                                 </div>
                             </form>
                         </div>
                     </div>
                 </div>
-                <TheTable key="tablekey" tableHeader={headers} tableBody={body} />
+                <VersionTable key="tablekey" tableHeader={headers} tableBody={body} />
                 {<h3>
-                    <i className={spinnerClasses}></i>
+                    <i className={this.spinnerClasses()}></i>
                 </h3>}
             </div >
         )
@@ -304,12 +263,30 @@ module.exports = VersionMatrix = React.createClass({
         )
     },
 
-    createToggleButton: function (tooltipText, cssClassNames, inputId, buttonLabel, isChecked) {
+    createToggleButton: function (tooltipText, inputId, buttonLabel, isChecked) {
         return (
-            <label className={cssClassNames} title={tooltipText}>
+            <label className={this.toggleBtnClasses(isChecked)} title={tooltipText}>
                 <input ref={inputId}  type="checkbox" autoComplete="off"onChange={this.updateFilters} checked={isChecked}/>
           {buttonLabel}
             </label>
         )
+    },
+
+    toggleBtnClasses: function (isToggled) {
+        return classString({
+            'btn': true,
+            'btn-toggle': true,
+            'btn-sm': true,
+            'toggle-on': isToggled
+        })
+    },
+
+    spinnerClasses: function () {
+        return classString({
+            'fa': true,
+            'fa-spinner': true,
+            'fa-spin': true,
+            'hidden': this.state.loaded
+        })
     }
 });

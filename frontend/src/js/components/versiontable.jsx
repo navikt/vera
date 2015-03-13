@@ -1,9 +1,8 @@
 var React = require('react');
 var Router = require('react-router');
-var classString = require('react-classset');
 var Link = Router.Link;
 
-module.exports = TheTable = React.createClass({
+module.exports = VersionTable = React.createClass({
 
     getInitialState: function () {
         return {rowsToRender: 50};
