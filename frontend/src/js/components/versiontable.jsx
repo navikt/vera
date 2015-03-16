@@ -1,6 +1,7 @@
 var React = require('react');
 var Router = require('react-router');
 var Link = Router.Link;
+var uuid = require('node-uuid');
 
 module.exports = VersionTable = React.createClass({
 
@@ -56,8 +57,8 @@ module.exports = VersionTable = React.createClass({
     },
 
     buildTableRow: function (row) {
-        return (<tr>{row.map(function (cell) {
-                return (<td className='text-nowrap'>{this.cellContent(cell)}</td>)
+        return (<tr key={row[0]}>{row.map(function (cell) {
+                return (<td key={uuid.v1()} className='text-nowrap'>{this.cellContent(cell)}</td>)
             }.bind(this)
         )}</tr>)
     },
