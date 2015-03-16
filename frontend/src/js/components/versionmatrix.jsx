@@ -8,9 +8,6 @@ var Link = Router.Link;
 var util = require('../../vera-parser');
 var VersionTable = require('./versiontable.jsx');
 
-var prerest;
-var start;
-var stop;
 module.exports = VersionMatrix = React.createClass({
 
 
@@ -36,21 +33,11 @@ module.exports = VersionMatrix = React.createClass({
     mixins: [Router.State],
 
     shouldComponentUpdate: function (nextProps, nextState) {
-        if (nextState.jsonData.length > 0) {
-            console.log('will fucking render ');
-            return true;
-        }
-        else {
-            console.log('no need to fucking render');
-            return false;
-        }
-        ;
+        return nextState.jsonData.length > 0;
     },
 
     componentDidMount: function () {
-        prerest = new Date();
-
-        $.getJSON('/api/v1/deploylog?onlyLatest=true').done(function (data) {
+        $.getJSON('/api/v1/deploylog?onlyLatest=true&filterUndeployed=true').done(function (data) {
             var enrichedLogEvents = _.map(data, function (logEvent) {
                 if (isDeployedLast24Hrs(logEvent)) {
                     var enrichedObject = _.clone(logEvent)
@@ -59,17 +46,7 @@ module.exports = VersionMatrix = React.createClass({
                 }
                 return logEvent;
             });
-            console.log('Redy to render')
-            start = new Date();
-            //React.addons.Perf.start();
             this.setState({jsonData: enrichedLogEvents});
-
-            //console.log((stop-start)/1000.0);
-            //React.addons.Perf.stop();
-            //React.addons.Perf.printInclusive()
-            //React.addons.Perf.printExclusive()
-            //React.addons.Perf.printWasted()
-            //React.addons.Perf.printDOM()
         }.bind(this));
 
         var isDeployedLast24Hrs = function (logEvent) {
@@ -96,10 +73,6 @@ module.exports = VersionMatrix = React.createClass({
         if (!this.state.loaded) {
             this.setState({loaded: true});
         }
-        console.log('done');
-        stop = new Date();
-        console.log('Took with rest ', (stop - prerest) / 1000.0);
-        console.log('Took ', (stop - start) / 1000.0);
     },
 
     updateFilters: function (e) {
@@ -181,11 +154,7 @@ module.exports = VersionMatrix = React.createClass({
                 filteredJsonData = applyFilter(filteredJsonData, filters[filterProperty], filterProperty);
             });
         }
-        var starPA = new Date();
-        var tempi = util.buildVersionMatrix(filteredJsonData)
-        var stopPA = new Date();
-        console.log('parsertime', (stopPA - starPA) / 1000.0)
-        return tempi;
+        return util.buildVersionMatrix(filteredJsonData);
     },
 
     clear: function (e) {
@@ -204,7 +173,6 @@ module.exports = VersionMatrix = React.createClass({
     },
 
     render: function () {
-        console.log('Rendering', this.state)
         var appFilter = this.state.filters.application;
         var envFilter = this.state.filters.environment;
         var filteredData = this.applyFilters();
