@@ -94,7 +94,7 @@ module.exports = DeployLog = React.createClass({
 
     DEPLOYLOG_SERVICE: '/api/v1/deploylog',
 
-    POLLING_INTERVAL_SECONDS: 5,
+    POLLING_INTERVAL_SECONDS: 90,
 
     tableHeaderFilter: function (elem) {
         return elem.application.toLowerCase().indexOf(this.state.filters.application.toLowerCase()) > -1
