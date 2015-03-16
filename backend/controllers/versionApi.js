@@ -20,7 +20,7 @@ exports.deployLog = function () {
         });
 
         Event.find(predicate).sort([['deployed_timestamp', 'descending']]).exec(function (err, events) {
-            res.write(JSON.stringify(events));
+            res.write(JSON.stringify(events || []));
             res.send();
         });
     }
@@ -58,7 +58,12 @@ var parameterDefinition = {
     environmentClass: {transform: caseInsensitiveRegexMatch},
     version: {transform: caseInsensitiveRegexMatch},
     last: {transform: fromMomentFormatToActualDate, mapToKey: "deployed_timestamp"},
-    onlyLatest: {transform: emptyOrAll, mapToKey: "replaced_timestamp"}
+    onlyLatest: {transform: emptyOrAll, mapToKey: "replaced_timestamp"},
+    filterUndeployed: {
+        transform: function (val) {
+            return (val === "true") ? {'$ne': null} : {'$exists': true};
+        }, mapToKey: "version"
+    }
 }
 
 exports.config = function () {
@@ -103,7 +108,7 @@ exports.getVersion = function () {
     }
 }
 
-exports.registerDeployment = function () {
+exports.registerEvent = function () {
     function logErrorHandler(err) {
         if (err) {
             logger.error(err);
@@ -122,14 +127,27 @@ exports.registerDeployment = function () {
         res.send({status: 400, message: mappedErrors.join(", ")});
     }
 
-
     /**
      * Creates a new event object, and stores it in mongo if there are no validation errors
      * If a new event document is successfully created, the existing documents for this application and environment are
      * updated so that latest is set to false
      * */
     return function (req, res, next) {
-        var event = Event.createFromObject(req.body);
+        var validated = function (body) {
+            if (!body.environment) {
+                res.statusCode = 400;
+                throw new Error("Property environment is missing in request");
+            }
+
+            if (body.version !== undefined && body.version.trim() === "") {
+                res.statusCode = 400;
+                throw new Error("Property version is empty. If you are trying to undeploy you must remove the property.");
+            }
+
+            return body;
+        }
+
+        var event = Event.createFromObject(validated(req.body));
 
         Event.find({
             environment: new RegExp("^" + event.environment + "$", "i"),
@@ -139,8 +157,7 @@ exports.registerDeployment = function () {
             event.save(function (err, savedEvent) {
                 if (err) {
                     handleErrors(err, res);
-                }
-                else {
+                } else {
                     events.forEach(function (e) {
                         e.replaced_timestamp = new Date();
                         e.save(logErrorHandler);

@@ -15,30 +15,12 @@ module.exports = DeployLog = React.createClass({
             items: [],
             loaded: false,
             itemRenderCount: 50,
-            isPolling: false,
             filters: this.enrichFromObject(this.emptyFilters, this.getQuery())
         };
     },
 
     componentDidMount: function () {
-        var urlContainsValidBackendParams = this.extractFromObject(this.validBackendParams, this.getQuery()).length > 0;
-        var initialBackendParams = '';
-
-        if (urlContainsValidBackendParams) {
-            var extractedValidParams = _.pick(this.getQuery(), this.validBackendParams);
-            initialBackendParams = this.serialize(extractedValidParams);
-        } else {
-            initialBackendParams = '?last=1month';
-        }
-
-        $.getJSON(this.DEPLOYLOG_SERVICE + initialBackendParams).done(function (data) {
-            this.setState({items: data.map(this.toReadableDateFormat)})
-            $.getJSON(this.DEPLOYLOG_SERVICE).done(function (data) {
-                this.setState({
-                    items: data.map(this.toReadableDateFormat), loaded: true
-                })
-            }.bind(this));
-        }.bind(this));
+        this.getInitialDataFromBackend().success(this.getEverything);
     },
 
     render: function () {
@@ -54,19 +36,11 @@ module.exports = DeployLog = React.createClass({
                     <div className="pull-right btn-toolbar" data-toggle="buttons" role="group">
                         <button type="button"  className="btn btn-default btn-sm" onClick={this.clearFilters} >
                             <i className="fa fa-trash"></i>
-                        &nbsp;
                         clear</button>
-                        <label className={this.toggleButtonClasses(this.state.filters.onlyLatest)}>
+                        <label className={this.currentToggleButtonClasses()}>
                             <input type="checkbox" autoComplete="off" onClick={this.toggleOnlyLatest} />
                             <i className="fa fa-asterisk"></i>
-                        &nbsp;
                         show only latest
-                        </label>
-                        <label className={this.toggleButtonClasses(this.state.isPolling)}>
-                            <input type="checkbox" autoComplete="off" onClick={this.togglePolling} />
-                            <i className={this.autoRefreshClasses()}></i>
-                        &nbsp;
-                        {this.autoRefreshBtnText()}
                         </label>
                     </div>
                 </h2>
@@ -113,8 +87,6 @@ module.exports = DeployLog = React.createClass({
 
     DEPLOYLOG_SERVICE: '/api/v1/deploylog',
 
-    POLLING_INTERVAL_SECONDS: 60,
-
     tableHeaderFilter: function (elem) {
         return elem.application.toLowerCase().indexOf(this.state.filters.application.toLowerCase()) > -1
             && elem.environment.toLowerCase().indexOf(this.state.filters.environment.toLowerCase()) > -1
@@ -122,14 +94,6 @@ module.exports = DeployLog = React.createClass({
             && elem.version.toLowerCase().indexOf(this.state.filters.version.toLowerCase()) > -1
             && elem.deployed_timestamp.toString().toLowerCase().indexOf(this.state.filters.timestamp.toLowerCase()) > -1;
     },
-
-    serialize: function (obj) {
-        return '?' + Object.keys(obj).reduce(function (a, k) {
-                a.push(k + '=' + encodeURIComponent(obj[k]));
-                return a;
-            }, []).join('&')
-    },
-
 
     inactiveVersionsIfEnabled: function (elem) {
         if (!this.state.filters.onlyLatest) {
@@ -145,23 +109,66 @@ module.exports = DeployLog = React.createClass({
         this.setState({filters: filter});
     },
 
+    getInitialBackendParams: function () {
+        var serialize = function (obj) {
+            return '?' + Object.keys(obj).reduce(function (a, k) {
+                    a.push(k + '=' + encodeURIComponent(obj[k]));
+                    return a;
+                }, []).join('&')
+        };
+
+        var extractFromObject = function (values, object) {
+            return Object.keys(object).filter(function (val) {
+                return values.indexOf(val) > -1;
+            });
+        };
+
+        var urlContainsValidBackendParams = extractFromObject(this.validBackendParams, this.getQuery()).length > 0;
+        if (urlContainsValidBackendParams) {
+            var extractedValidParams = _.pick(this.getQuery(), this.validBackendParams);
+            return serialize(extractedValidParams);
+        } else {
+            return '?last=1week';
+        }
+    },
+
+    mapToViewFormat: function (data) {
+        var toReadableDateFormat = function (eventItem) {
+            eventItem.deployed_timestamp = moment(eventItem.deployed_timestamp).format("DD-MM-YY HH:mm:ss");
+            return eventItem;
+        }
+
+        var nullVersionsToUndeployed = function (eventItem) {
+            if (!eventItem.version) {
+                eventItem.version = '<undeployed>';
+            }
+            return eventItem;
+        }
+
+        return data.map(toReadableDateFormat).map(nullVersionsToUndeployed);
+    },
+
+    getInitialDataFromBackend: function () {
+        return $.getJSON(this.DEPLOYLOG_SERVICE + this.getInitialBackendParams()).success(function (data) {
+            this.setState({items: this.mapToViewFormat(data)})
+        }.bind(this));
+    },
+
+    getEverything: function () {
+        $.getJSON(this.DEPLOYLOG_SERVICE).done(function (data) {
+            this.setState({
+                items: this.mapToViewFormat(data),
+                loaded: true
+            })
+        }.bind(this));
+    },
+
     enrichFromObject: function (base, object) {
         var enrichedObject = {};
         Object.keys(base).forEach(function (key) {
             enrichedObject[key] = object[key] ? object[key] : '';
         });
         return enrichedObject;
-    },
-
-    extractFromObject: function (values, object) {
-        return Object.keys(object).filter(function (val) {
-            return values.indexOf(val) > -1;
-        });
-    },
-
-    toReadableDateFormat: function (eventItem) {
-        eventItem.deployed_timestamp = moment(eventItem.deployed_timestamp).format("DD-MM-YY HH:mm:ss");
-        return eventItem;
     },
 
     viewMoreResults: function () {
@@ -178,45 +185,6 @@ module.exports = DeployLog = React.createClass({
         this.setState({filters: filter});
     },
 
-    togglePolling: function () {
-        var disablePolling = function () {
-            clearInterval(this.interval);
-            this.setState({isPolling: false});
-        }.bind(this)
-
-        var enablePolling = function () {
-            this.interval = setInterval(this.tick, 1000);
-            this.setState({secondsToNextPoll: this.POLLING_INTERVAL_SECONDS, isPolling: true});
-        }.bind(this)
-
-        this.state.isPolling ? disablePolling() : enablePolling();
-    },
-
-    tick: function () {
-        var secondsToNextPoll = this.state.secondsToNextPoll;
-        this.setState({secondsToNextPoll: secondsToNextPoll - 1})
-        if (secondsToNextPoll < 1) {
-            this.setState({secondsToNextPoll: this.POLLING_INTERVAL_SECONDS, loaded: false});
-
-            $.getJSON(this.DEPLOYLOG_SERVICE).done(function (data) {
-                this.setState({
-                    items: data.map(this.toReadableDateFormat), loaded: true
-                })
-            }.bind(this));
-        }
-    },
-
-    autoRefreshBtnText: function () {
-        if (this.state.isPolling) {
-            var nextPoll = this.state.secondsToNextPoll
-            if (this.state.secondsToNextPoll < 10) {
-                nextPoll = '0' + nextPoll;
-            }
-            return 'refreshing in ' + nextPoll;
-        }
-        return 'auto refresh'
-    },
-
     spinnerClasses: function () {
         return classString({
             'fa': true,
@@ -227,20 +195,12 @@ module.exports = DeployLog = React.createClass({
         })
     },
 
-    autoRefreshClasses: function () {
-        return classString({
-            'fa': true,
-            'fa-refresh': true,
-            'fa-spin': this.state.isPolling
-        })
-    },
-
-    toggleButtonClasses: function (isActive) {
+    currentToggleButtonClasses: function () {
         return classString({
             "btn": true,
             "btn-default": true,
             "btn-sm": true,
-            "active": isActive
+            "active": this.state.filters.onlyLatest
         })
     }
 });
