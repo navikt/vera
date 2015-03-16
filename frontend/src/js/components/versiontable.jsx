@@ -2,6 +2,7 @@ var React = require('react');
 var Router = require('react-router');
 var Link = Router.Link;
 var uuid = require('node-uuid');
+var _ = require('lodash');
 
 module.exports = VersionTable = React.createClass({
 
@@ -12,7 +13,15 @@ module.exports = VersionTable = React.createClass({
     shouldComponentUpdate: function (nextProps, nextState) {
         return nextProps.tableBody.length !== this.props.tableBody.length ||
             this.state.rowsToRender !== nextState.rowsToRender ||
-            nextProps.tableHeader.length !== this.props.tableHeader.length
+            nextProps.tableHeader.length !== this.props.tableHeader.length ||
+            this.hasFilteredAppsChanged(this.props.tableBody, nextProps.tableBody);
+    },
+
+    hasFilteredAppsChanged: function(existingTableBody, newTableBody) {
+        var getApplicationNames = function(body) {
+            return body.map(function(elem){return elem[0]});
+        }
+        return _.difference(getApplicationNames(existingTableBody), getApplicationNames(newTableBody) ).length > 0;
     },
 
     render: function () {
