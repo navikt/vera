@@ -7,7 +7,7 @@ var eventSchema = mongoose.Schema({
     application: {type: String, lowercase: true, trim: true, required: true},
     environment: {type: String, lowercase: true, trim: true, required: true},
     environmentClass: String,
-    version: {type: String, trim: true, required: true},
+    version: {type: String, trim: true},
     deployer: {type: String, trim: true, required: true},
     deployed_timestamp: Date,
     replaced_timestamp: Date
@@ -21,18 +21,18 @@ eventSchema.set('toJSON', {
 });
 
 function getEnvClassFromEnv(environment) {
-    var potentialEnvClass =  environment.charAt(0).toLowerCase();
-    if(potentialEnvClass === "t" || potentialEnvClass === "q" || potentialEnvClass === "p") {
+    var potentialEnvClass = environment.charAt(0).toLowerCase();
+    if (potentialEnvClass === "t" || potentialEnvClass === "q" || potentialEnvClass === "p") {
         return potentialEnvClass;
     }
     return "u";
 }
 
-eventSchema.statics.createFromObject = function(obj) {
+eventSchema.statics.createFromObject = function (obj) {
     return new Event({
         application: obj.application,
         environment: obj.environment,
-        version: obj.version,
+        version: obj.version || null,
         deployer: obj.deployedBy,
         deployed_timestamp: new Date(),
         replaced_timestamp: null,
