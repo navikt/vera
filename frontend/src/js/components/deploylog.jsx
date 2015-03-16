@@ -15,6 +15,7 @@ module.exports = DeployLog = React.createClass({
             items: [],
             loaded: false,
             itemRenderCount: 50,
+            isPolling: false,
             filters: this.enrichFromObject(this.emptyFilters, this.getQuery())
         };
     },
@@ -35,12 +36,18 @@ module.exports = DeployLog = React.createClass({
                     </small>
                     <div className="pull-right btn-toolbar" data-toggle="buttons" role="group">
                         <button type="button"  className="btn btn-default btn-sm" onClick={this.clearFilters} >
-                            <i className="fa fa-trash"></i>
+                            <i className="fa fa-trash"></i>&nbsp;
                         clear</button>
-                        <label className={this.currentToggleButtonClasses()}>
+                        <label className={this.currentToggleButtonClasses(this.state.filters.onlyLatest)}>
                             <input type="checkbox" autoComplete="off" onClick={this.toggleOnlyLatest} />
-                            <i className="fa fa-asterisk"></i>
+                            <i className="fa fa-asterisk"></i>&nbsp;
                         show only latest
+                        </label>
+                        <label className={this.currentToggleButtonClasses(this.state.isPolling)}>
+                            <input type="checkbox" autoComplete="off" onClick={this.togglePolling} />
+                            <i className={this.autoRefreshClasses()}></i>
+                        &nbsp;
+                        {this.autoRefreshBtnText()}
                         </label>
                     </div>
                 </h2>
@@ -86,6 +93,8 @@ module.exports = DeployLog = React.createClass({
     validBackendParams: ["application", "environment", "deployer", "version", "onlyLatest"],
 
     DEPLOYLOG_SERVICE: '/api/v1/deploylog',
+
+    POLLING_INTERVAL_SECONDS: 5,
 
     tableHeaderFilter: function (elem) {
         return elem.application.toLowerCase().indexOf(this.state.filters.application.toLowerCase()) > -1
@@ -185,6 +194,48 @@ module.exports = DeployLog = React.createClass({
         this.setState({filters: filter});
     },
 
+    togglePolling: function () {
+        var disablePolling = function () {
+            clearInterval(this.interval);
+            this.setState({isPolling: false});
+        }.bind(this)
+
+        var enablePolling = function () {
+            this.interval = setInterval(this.tick, 1000);
+            this.setState({secondsToNextPoll: this.POLLING_INTERVAL_SECONDS, isPolling: true});
+        }.bind(this)
+
+        this.state.isPolling ? disablePolling() : enablePolling();
+    },
+
+    tick: function () {
+        var secondsToNextPoll = this.state.secondsToNextPoll;
+        this.setState({secondsToNextPoll: secondsToNextPoll - 1})
+        if (secondsToNextPoll < 1) {
+            this.setState({secondsToNextPoll: this.POLLING_INTERVAL_SECONDS, loaded: false});
+            this.getEverything();
+        }
+    },
+
+    autoRefreshBtnText: function () {
+        if (this.state.isPolling) {
+            var nextPoll = this.state.secondsToNextPoll
+            if (this.state.secondsToNextPoll < 10) {
+                nextPoll = '0' + nextPoll;
+            }
+            return 'refreshing in ' + nextPoll;
+        }
+        return 'auto refresh'
+    },
+
+    autoRefreshClasses: function () {
+        return classString({
+            'fa': true,
+            'fa-refresh': true,
+            'fa-spin': this.state.isPolling
+        })
+    },
+
     spinnerClasses: function () {
         return classString({
             'fa': true,
@@ -195,12 +246,12 @@ module.exports = DeployLog = React.createClass({
         })
     },
 
-    currentToggleButtonClasses: function () {
+    currentToggleButtonClasses: function (isActive) {
         return classString({
             "btn": true,
             "btn-default": true,
             "btn-sm": true,
-            "active": this.state.filters.onlyLatest
+            "active": isActive
         })
     }
 });
