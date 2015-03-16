@@ -9,7 +9,7 @@ module.exports = LogRow = React.createClass({
             <td>{event.application.toLowerCase()}</td>
             <td>{event.environment.toUpperCase()}</td>
             <td>{event.deployer}</td>
-            <td>{event.version}
+            <td><i className={this.undeployedIcon()}></i> {event.version}
                 <small>
                     <sup>
                         <i className={this.newVersionAsterisk()}></i>
@@ -25,6 +25,14 @@ module.exports = LogRow = React.createClass({
             "fa": true,
             "fa-asterisk": true,
             "hidden": this.props.event.replaced_timestamp
+        })
+    },
+
+    undeployedIcon: function() {
+        return classString({
+            "fa": true,
+            "fa-trash-o": true,
+            "hidden": this.props.event.version !== 'undeployed'
         })
     }
 });

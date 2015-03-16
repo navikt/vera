@@ -149,7 +149,7 @@ module.exports = DeployLog = React.createClass({
 
         var nullVersionsToUndeployed = function (eventItem) {
             if (!eventItem.version) {
-                eventItem.version = '<undeployed>';
+                eventItem.version = 'undeployed';
             }
             return eventItem;
         }
