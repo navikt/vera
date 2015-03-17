@@ -52,7 +52,7 @@ module.exports = DeployLog = React.createClass({
                         </label>
                         <label className={this.regexpToggleButtonClasses()}>
                             <input type="checkbox" autoComplete="off" onClick={this.toggleRegexpMode} />
-                        (.*) regexp mode
+                        (.*) regexp
                         </label>
                         <label className={this.currentToggleButtonClasses(this.state.isPolling)}>
                             <input type="checkbox" autoComplete="off" onClick={this.togglePolling} />
