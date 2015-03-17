@@ -37,14 +37,14 @@ var Vera = React.createClass({
                         </div>
                             <ul className="nav navbar-nav">
                                 <li>
-                                    <Link to="matrix">
-                                        <i className="fa fa-table fa-sm active"></i>
-                                    &nbsp;matrix</Link>
-                                </li>
-                                <li>
                                     <Link to="log">
                                         <i className="fa fa-bars"></i>
                                     &nbsp;log</Link>
+                                </li>
+                                <li>
+                                    <Link to="matrix">
+                                        <i className="fa fa-table fa-sm active"></i>
+                                    &nbsp;matrix</Link>
                                 </li>
                             </ul>
                         <ul className="nav navbar-nav pull-right">
