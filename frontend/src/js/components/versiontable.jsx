@@ -82,7 +82,7 @@ module.exports = VersionTable = React.createClass({
         if(typeof cellContent === 'string') {
             return {application: cellContent};
         }
-        return {environment: cellContent.environment, application: cellContent.application}
+        return {environment: cellContent.environment, application: cellContent.application, regexp: true}
     },
 
     createLinkContent: function(cellContent) {

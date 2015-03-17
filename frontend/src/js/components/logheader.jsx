@@ -2,30 +2,30 @@ var React = require('react');
 var classString = require('react-classset');
 
 module.exports = LogHeader = React.createClass({
-    render: function () {
-        var event = this.props.event;
 
+    render: function () {
         return <th>
-            <div className={this.regexValidationClasses("application")}>
-                <input id="application" type="text" className="form-control input-sm" placeholder="application" value={this.state.filters.application}  onChange={this.handleChange} />
+            <div className={this.regexValidationClasses()}>
+                <input ref={this.props.columnName} id={this.props.columnName} type="text" className="form-control input-sm" value={this.props.value} placeholder={this.props.columnName} onChange={this.props.changeHandler} />
             </div>
         </th>
     },
 
-    regexValidationClasses: function (field) {
-        return classString({
-            "has-success": this.state.filters.regexMode && this.isValidRegex(this.state.filters[field]),
-            "has-error": this.state.filters.regexMode && !this.isValidRegex(this.state.filters[field])
-        })
-    },
+    regexValidationClasses: function () {
+        var filterValue = this.refs[this.props.columnName] ? this.refs[this.props.columnName].getDOMNode().value : '';
 
-    isValidRegex: function (expression) {
-        try {
-            new RegExp("^" + expression + "$");
-            return true;
-        } catch (e) {
-            return false;
+        var isValidRegex = function (expression) {
+            try {
+                new RegExp("^" + expression + "$");
+                return true;
+            } catch (e) {
+                return false;
+            }
         }
-    }
 
+        return classString({
+            "has-success": this.props.regexp && isValidRegex(filterValue),
+            "has-error": this.props.regexp && !isValidRegex(filterValue)
+        })
+    }
 });

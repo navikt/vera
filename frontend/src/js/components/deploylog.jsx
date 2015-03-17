@@ -22,11 +22,15 @@ module.exports = DeployLog = React.createClass({
     },
 
     componentDidMount: function () {
-        this.getInitialDataFromBackend();//.success(this.getEverything);
+        this.getInitialDataFromBackend().success(this.getEverything);
     },
 
+
+
+
     render: function () {
-        var filteredEvents = this.state.items.filter(this.tableHeaderFilter).filter(this.inactiveVersionsIfEnabled);
+
+        var filteredEvents = this.applyHeaderFilter(this.state.items, this.state.filters.regexp).filter(this.inactiveVersionsIfEnabled);
         var eventsToRender = filteredEvents.slice(0, this.state.itemRenderCount);
 
         return (
@@ -37,16 +41,18 @@ module.exports = DeployLog = React.createClass({
                     </small>
                     <div className="pull-right btn-toolbar" data-toggle="buttons" role="group">
                         <button type="button"  className="btn btn-default btn-sm" onClick={this.clearFilters} >
-                            <i className="fa fa-trash"></i>&nbsp;
+                            <i className="fa fa-trash"></i>
+                        &nbsp;
                         clear</button>
                         <label className={this.currentToggleButtonClasses(this.state.filters.onlyLatest)}>
                             <input type="checkbox" autoComplete="off" onClick={this.toggleOnlyLatest} />
-                            <i className="fa fa-asterisk"></i>&nbsp;
+                            <i className="fa fa-asterisk"></i>
+                        &nbsp;
                         show only latest
                         </label>
-                        <label className={this.regexToggleButtonClasses()}>
-                            <input type="checkbox" autoComplete="off" onClick={this.toggleRegexMode} />
-                        (*.) RegEx mode
+                        <label className={this.regexpToggleButtonClasses()}>
+                            <input type="checkbox" autoComplete="off" onClick={this.toggleRegexpMode} />
+                        (*.) RegExp mode
                         </label>
                         <label className={this.currentToggleButtonClasses(this.state.isPolling)}>
                             <input type="checkbox" autoComplete="off" onClick={this.togglePolling} />
@@ -59,31 +65,11 @@ module.exports = DeployLog = React.createClass({
 
                 <table className='table table-bordered table-striped'>
                     <tr>
-                        <th>
-                            <div className={this.regexValidationClasses("application")}>
-                                <input id="application" type="text" className="form-control input-sm" placeholder="application" value={this.state.filters.application}  onChange={this.handleChange} />
-                            </div>
-                        </th>
-                        <th>
-                            <div className={this.regexValidationClasses("environment")}>
-                                <input id="environment" type="text" className="form-control input-sm" placeholder="environment" value={this.state.filters.environment}  onChange={this.handleChange} />
-                            </div>
-                        </th>
-                        <th>
-                            <div className={this.regexValidationClasses("deployer")}>
-                                <input id="deployer" type="text" className="form-control input-sm" placeholder="deployer" value={this.state.filters.deployer}  onChange={this.handleChange} />
-                            </div>
-                        </th>
-                        <th>
-                            <div className={this.regexValidationClasses("version")}>
-                                <input id="version" type="text" className="form-control input-sm" placeholder="version" value={this.state.filters.version}  onChange={this.handleChange} />
-                            </div>
-                        </th>
-                        <th>
-                            <div className={this.regexValidationClasses("timestamp")}>
-                                <input id="timestamp" type="text" className="form-control input-sm" placeholder="timestamp"  value={this.state.filters.timestamp}  onChange={this.handleChange} />
-                            </div>
-                        </th>
+                        <LogHeader columnName="application" regexp={this.state.filters.regexp} value={this.state.filters.application} changeHandler={this.handleChange} />
+                        <LogHeader columnName="environment" regexp={this.state.filters.regexp} value={this.state.filters.environment} changeHandler={this.handleChange} />
+                        <LogHeader columnName="deployer" regexp={this.state.filters.regexp} value={this.state.filters.deployer} changeHandler={this.handleChange} />
+                        <LogHeader columnName="version" regexp={this.state.filters.regexp} value={this.state.filters.version} changeHandler={this.handleChange} />
+                        <LogHeader columnName="timestamp" regexp={this.state.filters.regexp} value={this.state.filters.timestamp} changeHandler={this.handleChange} />
                     </tr>
                     <tbody>
                         {eventsToRender.map(function (elem) {
@@ -103,7 +89,7 @@ module.exports = DeployLog = React.createClass({
         version: '',
         timestamp: '',
         onlyLatest: false,
-        regexMode: false
+        regexp: false
     },
 
     validBackendParams: ["application", "environment", "deployer", "version", "onlyLatest"],
@@ -112,31 +98,56 @@ module.exports = DeployLog = React.createClass({
 
     POLLING_INTERVAL_SECONDS: 90,
 
-    tableHeaderFilter: function (elem) {
-        var matches = function (criteria, stringToSearch, regexMode) {
-            criteria = criteria.toLowerCase();
-            stringToSearch = stringToSearch.toLowerCase();
 
-            if (regexMode) {
-                if (criteria === "") {
-                    criteria = ".*";
-                }
+    applyHeaderFilter: function (items, regexpMode) {
+        if (regexpMode) {
+            return this.filterWithPreCompiledRegexp(items);
+        } else {
+            return items.filter(this.stringContainedIn);
+        }
+    },
 
+    filterWithPreCompiledRegexp: function (items) {
+        var compileValidRegEx = function(filterValue){
+            var isValidRegex = function (expression) {
                 try {
-                    return new RegExp("^" + criteria + "$").test(stringToSearch);
+                    new RegExp("^" + expression + "$");
+                    return true;
                 } catch (e) {
                     return false;
                 }
+            }
+
+            if (isValidRegex(filterValue)){
+                return new RegExp("^" + (filterValue ? filterValue : ".*") + "$", "i");
             } else {
-                return stringToSearch.indexOf(criteria) > -1;
+                return new RegExp("^$");
             }
         }
 
-        return matches(this.state.filters.application, elem.application, this.state.filters.regexMode)
-            && matches(this.state.filters.environment, elem.environment, this.state.filters.regexMode)
-            && matches(this.state.filters.deployer, elem.deployer, this.state.filters.regexMode)
-            && matches(this.state.filters.version, elem.version, this.state.filters.regexMode)
-            && matches(this.state.filters.timestamp, elem.deployed_timestamp.toString(), this.state.filters.regexMode)
+        var preCompiledRegexp = {
+            "application": compileValidRegEx(this.state.filters["application"]),
+            "environment": compileValidRegEx(this.state.filters["environment"]),
+            "version": compileValidRegEx(this.state.filters["version"]),
+            "deployer": compileValidRegEx(this.state.filters["deployer"]),
+            "timestamp": compileValidRegEx(this.state.filters["timestamp"])
+        }
+
+        return items.filter(function (item) {
+            return preCompiledRegexp["application"].test(item.application) &&
+                preCompiledRegexp["environment"].test(item.environment) &&
+                preCompiledRegexp["version"].test(item.version) &&
+                preCompiledRegexp["deployer"].test(item.deployer) &&
+                preCompiledRegexp["timestamp"].test(item.timestamp);
+        }.bind(this));
+    },
+
+    stringContainedIn: function (elem) {
+        return elem.application.toLowerCase().indexOf(this.state.filters.application.toLowerCase()) > -1
+            && elem.environment.toLowerCase().indexOf(this.state.filters.environment.toLowerCase()) > -1
+            && elem.deployer.toLowerCase().indexOf(this.state.filters.deployer.toLowerCase()) > -1
+            && elem.version.toLowerCase().indexOf(this.state.filters.version.toLowerCase()) > -1
+            && elem.deployed_timestamp.toString().toLowerCase().indexOf(this.state.filters.timestamp.toLowerCase()) > -1;
     },
 
     inactiveVersionsIfEnabled: function (elem) {
@@ -272,9 +283,9 @@ module.exports = DeployLog = React.createClass({
         })
     },
 
-    toggleRegexMode: function () {
+    toggleRegexpMode: function () {
         var filter = _.clone(this.state.filters, true);
-        filter['regexMode'] = !this.state.filters.regexMode;
+        filter['regexp'] = !this.state.filters.regexp;
         this.setState({filters: filter});
     },
 
@@ -297,27 +308,12 @@ module.exports = DeployLog = React.createClass({
         })
     },
 
-    regexToggleButtonClasses: function () {
+    regexpToggleButtonClasses: function () {
         return classString({
             "btn": true,
             "btn-default": true,
             "btn-sm": true,
-            "active": this.state.filters.regexMode
+            "active": this.state.filters.regexp
         })
-    },
-    regexValidationClasses: function (field) {
-        return classString({
-            "has-success": this.state.filters.regexMode && this.isValidRegex(this.state.filters[field]),
-            "has-error": this.state.filters.regexMode && !this.isValidRegex(this.state.filters[field])
-        })
-    },
-
-    isValidRegex: function (expression) {
-        try {
-            new RegExp("^" + expression + "$");
-            return true;
-        } catch (e) {
-            return false;
-        }
     }
 });
