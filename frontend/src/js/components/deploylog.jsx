@@ -4,6 +4,7 @@ var moment = require('moment');
 var _ = require('lodash');
 var Router = require('react-router');
 var LogRow = require('./logrow.jsx');
+var LogHeader = require('./logheader.jsx')
 var classString = require('react-classset');
 
 module.exports = DeployLog = React.createClass({
@@ -24,8 +25,12 @@ module.exports = DeployLog = React.createClass({
         this.getInitialDataFromBackend().success(this.getEverything);
     },
 
+
+
+
     render: function () {
-        var filteredEvents = this.state.items.filter(this.tableHeaderFilter).filter(this.inactiveVersionsIfEnabled);
+
+        var filteredEvents = this.applyHeaderFilter(this.state.items, this.state.filters.regexp).filter(this.inactiveVersionsIfEnabled);
         var eventsToRender = filteredEvents.slice(0, this.state.itemRenderCount);
 
         return (
@@ -36,12 +41,18 @@ module.exports = DeployLog = React.createClass({
                     </small>
                     <div className="pull-right btn-toolbar" data-toggle="buttons" role="group">
                         <button type="button"  className="btn btn-default btn-sm" onClick={this.clearFilters} >
-                            <i className="fa fa-trash"></i>&nbsp;
+                            <i className="fa fa-trash"></i>
+                        &nbsp;
                         clear</button>
                         <label className={this.currentToggleButtonClasses(this.state.filters.onlyLatest)}>
                             <input type="checkbox" autoComplete="off" onClick={this.toggleOnlyLatest} />
-                            <i className="fa fa-asterisk"></i>&nbsp;
+                            <i className="fa fa-asterisk"></i>
+                        &nbsp;
                         show only latest
+                        </label>
+                        <label className={this.regexpToggleButtonClasses()}>
+                            <input type="checkbox" autoComplete="off" onClick={this.toggleRegexpMode} />
+                        (*.) RegExp mode
                         </label>
                         <label className={this.currentToggleButtonClasses(this.state.isPolling)}>
                             <input type="checkbox" autoComplete="off" onClick={this.togglePolling} />
@@ -54,21 +65,11 @@ module.exports = DeployLog = React.createClass({
 
                 <table className='table table-bordered table-striped'>
                     <tr>
-                        <th>
-                            <input id="application" type="text" className="form-control input-sm" placeholder="application" value={this.state.filters.application}  onChange={this.handleChange} />
-                        </th>
-                        <th>
-                            <input id="environment" type="text" className="form-control input-sm" placeholder="environment" value={this.state.filters.environment}  onChange={this.handleChange} />
-                        </th>
-                        <th>
-                            <input id="deployer" type="text" className="form-control input-sm" placeholder="deployer" value={this.state.filters.deployer}  onChange={this.handleChange} />
-                        </th>
-                        <th>
-                            <input id="version" type="text" className="form-control input-sm" placeholder="version" value={this.state.filters.version}  onChange={this.handleChange} />
-                        </th>
-                        <th>
-                            <input id="timestamp" type="text" className="form-control input-sm" placeholder="timestamp"  value={this.state.filters.timestamp}  onChange={this.handleChange} />
-                        </th>
+                        <LogHeader columnName="application" regexp={this.state.filters.regexp} value={this.state.filters.application} changeHandler={this.handleChange} />
+                        <LogHeader columnName="environment" regexp={this.state.filters.regexp} value={this.state.filters.environment} changeHandler={this.handleChange} />
+                        <LogHeader columnName="deployer" regexp={this.state.filters.regexp} value={this.state.filters.deployer} changeHandler={this.handleChange} />
+                        <LogHeader columnName="version" regexp={this.state.filters.regexp} value={this.state.filters.version} changeHandler={this.handleChange} />
+                        <LogHeader columnName="timestamp" regexp={this.state.filters.regexp} value={this.state.filters.timestamp} changeHandler={this.handleChange} />
                     </tr>
                     <tbody>
                         {eventsToRender.map(function (elem) {
@@ -87,7 +88,8 @@ module.exports = DeployLog = React.createClass({
         deployer: '',
         version: '',
         timestamp: '',
-        onlyLatest: false
+        onlyLatest: false,
+        regexp: false
     },
 
     validBackendParams: ["application", "environment", "deployer", "version", "onlyLatest"],
@@ -96,7 +98,51 @@ module.exports = DeployLog = React.createClass({
 
     POLLING_INTERVAL_SECONDS: 90,
 
-    tableHeaderFilter: function (elem) {
+
+    applyHeaderFilter: function (items, regexpMode) {
+        if (regexpMode) {
+            return this.filterWithPreCompiledRegexp(items);
+        } else {
+            return items.filter(this.stringContainedIn);
+        }
+    },
+
+    filterWithPreCompiledRegexp: function (items) {
+        var compileValidRegEx = function(filterValue){
+            var isValidRegex = function (expression) {
+                try {
+                    new RegExp("^" + expression + "$");
+                    return true;
+                } catch (e) {
+                    return false;
+                }
+            }
+
+            if (isValidRegex(filterValue)){
+                return new RegExp("^" + (filterValue ? filterValue : ".*") + "$", "i");
+            } else {
+                return new RegExp("^$");
+            }
+        }
+
+        var preCompiledRegexp = {
+            "application": compileValidRegEx(this.state.filters["application"]),
+            "environment": compileValidRegEx(this.state.filters["environment"]),
+            "version": compileValidRegEx(this.state.filters["version"]),
+            "deployer": compileValidRegEx(this.state.filters["deployer"]),
+            "timestamp": compileValidRegEx(this.state.filters["timestamp"])
+        }
+
+        return items.filter(function (item) {
+            return preCompiledRegexp["application"].test(item.application) &&
+                preCompiledRegexp["environment"].test(item.environment) &&
+                preCompiledRegexp["version"].test(item.version) &&
+                preCompiledRegexp["deployer"].test(item.deployer) &&
+                preCompiledRegexp["timestamp"].test(item.timestamp);
+        }.bind(this));
+    },
+
+    stringContainedIn: function (elem) {
         return elem.application.toLowerCase().indexOf(this.state.filters.application.toLowerCase()) > -1
             && elem.environment.toLowerCase().indexOf(this.state.filters.environment.toLowerCase()) > -1
             && elem.deployer.toLowerCase().indexOf(this.state.filters.deployer.toLowerCase()) > -1
@@ -177,6 +223,7 @@ module.exports = DeployLog = React.createClass({
         Object.keys(base).forEach(function (key) {
             enrichedObject[key] = object[key] ? object[key] : '';
         });
+
         return enrichedObject;
     },
 
@@ -236,6 +283,12 @@ module.exports = DeployLog = React.createClass({
         })
     },
 
+    toggleRegexpMode: function () {
+        var filter = _.clone(this.state.filters, true);
+        filter['regexp'] = !this.state.filters.regexp;
+        this.setState({filters: filter});
+    },
+
     spinnerClasses: function () {
         return classString({
             'fa': true,
@@ -252,6 +305,15 @@ module.exports = DeployLog = React.createClass({
             "btn-default": true,
             "btn-sm": true,
             "active": isActive
+        })
+    },
+
+    regexpToggleButtonClasses: function () {
+        return classString({
+            "btn": true,
+            "btn-default": true,
+            "btn-sm": true,
+            "active": this.state.filters.regexp
         })
     }
 });
