@@ -12,9 +12,17 @@ var logger = require('./backend/config/syslog');
 var cors = function (req, res, next) {
     res.setHeader("Access-Control-Allow-Origin", "*");
     return next();
-}
+};
+
+var noCache = function(req,res,next){
+    res.header("Cache-Control", "no-cache, no-store, must-revalidate");
+    res.header("Pragma", "no-cache");
+    res.header("Expires", 0);
+    return next();
+};
 
 app.use(cors);
+app.use(noCache);
 app.use(bodyParser());
 app.use(dexter());
 
@@ -32,6 +40,8 @@ var errorHandler = function (err, req, res, next) {
         message: err.message || "internal error"
     });
 };
+
+
 
 mongoose.connect(config.dbUrl);
 logger.log("Using MongoDB URL", config.dbUrl);
