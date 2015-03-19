@@ -50,9 +50,9 @@ module.exports = DeployLog = React.createClass({
                         &nbsp;
                         show only latest
                         </label>
-                        <label className={this.regexpToggleButtonClasses()}>
+                        <label className={this.regexpToggleButtonClasses()} title="Matcher strengene eksakt. F.eks 't1' matcher kun 't1', ikke 't10', 't11' osv. Støtter også regulære uttrykk.">
                             <input type="checkbox" autoComplete="off" onClick={this.toggleRegexpMode} />
-                        (.*) regexp
+                        eksakt match
                         </label>
                         <label className={this.currentToggleButtonClasses(this.state.isPolling)}>
                             <input type="checkbox" autoComplete="off" onClick={this.togglePolling} />
