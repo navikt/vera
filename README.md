@@ -10,10 +10,11 @@ For å komme i gang med utvikling:
 
 Ved push til master trigges byggejobben til vera (aura.devillo.no/view/cd/job/cd_vera/).
 Denne gjør følgende:
-* Bumper versjon
-* Lager tag
-* Bygger prosjektet
-* Oppretter og pusher et nytt docker image til docker.adeo.no (image tag = docker.adeo.no:5000/vera:<versjon>)
-* Deployer denne til cd-u1 miljøet
-* Kjører tester
+
+1. Bumper versjon
+2. Lager tag
+3. Bygger prosjektet
+4. Oppretter og pusher et nytt docker image til docker.adeo.no (image tag = docker.adeo.no:5000/vera:<versjon>)
+5. Deployer denne til cd-u1 miljøet
+6. Kjører tester
 
