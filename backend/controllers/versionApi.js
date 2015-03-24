@@ -12,7 +12,14 @@ exports.deployLog = function () {
             if (_.has(parameterDefinition, key)) {
                 var keyToUse = parameterDefinition[key].mapToKey ? parameterDefinition[key].mapToKey : key;
                 var transformFunction = parameterDefinition[key].transform;
-                predicate[keyToUse] = transformFunction(value);
+
+                try {
+                    predicate[keyToUse] = transformFunction(value);
+                } catch(exception){
+                    res.statusCode = 400;
+                    throw new Error(exception);
+                }
+
             } else {
                 res.statusCode = 400;
                 throw new Error("Unknown parameter provided: " + key + ". Valid parameters are: " + _.keys(parameterDefinition).join(", "));
@@ -20,7 +27,7 @@ exports.deployLog = function () {
         });
 
         Event.find(predicate).sort([['deployed_timestamp', 'descending']]).exec(function (err, events) {
-            res.write(JSON.stringify(events || []));
+            res.write(JSON.stringify(events));
             res.send();
         });
     }
@@ -38,7 +45,6 @@ var fromMomentFormatToActualDate = function (momentValue) {
         var timeUnit = matches[2];
         return {"$gte": moment().subtract(quantity, timeUnit).format()}
     } else {
-        res.statusCode = 400;
         throw new Error("Invalid format for parameter 'last'. Format should be <number><period>, e.g. '7days'. See http://momentjs.com/docs/#/manipulating for more info");
     }
 };

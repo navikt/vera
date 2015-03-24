@@ -25,9 +25,6 @@ module.exports = DeployLog = React.createClass({
         this.getInitialDataFromBackend().success(this.getEverything);
     },
 
-
-
-
     render: function () {
 
         var filteredEvents = this.applyHeaderFilter(this.state.items, this.state.filters.regexp).filter(this.inactiveVersionsIfEnabled);

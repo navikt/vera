@@ -35,26 +35,27 @@ var Vera = React.createClass({
                                 </span>
                             &nbsp;vera</a>
                         </div>
-                            <ul className="nav navbar-nav">
-                                <li>
-                                    <Link to="log">
-                                        <i className="fa fa-bars"></i>
-                                    &nbsp;log</Link>
-                                </li>
-                                <li>
-                                    <Link to="matrix">
-                                        <i className="fa fa-table fa-sm active"></i>
-                                    &nbsp;matrix</Link>
-                                </li>
-                            </ul>
+                        <ul className="nav navbar-nav">
+                            <li>
+                                <Link to="log">
+                                    <i className="fa fa-bars"></i>
+                                &nbsp;log</Link>
+                            </li>
+                            <li>
+                                <Link to="matrix">
+                                    <i className="fa fa-table fa-sm active"></i>
+                                &nbsp;matrix</Link>
+                            </li>
+                        </ul>
                         <ul className="nav navbar-nav pull-right">
-                        <li>
-                            <a href={(this.state.plasterUrl)  ? this.state.plasterUrl : '#'} target="_blank">
-                                <i className="fa fa-medkit"></i>&nbsp;plaster
-                            </a>
-                        </li>
-                            </ul>
-                        </div>
+                            <li>
+                                <a href={(this.state.plasterUrl) ? this.state.plasterUrl : '#'} target="_blank">
+                                    <i className="fa fa-medkit"></i>
+                                &nbsp;plaster
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
                 </nav>
                 <RouteHandler />
             </div>
@@ -66,7 +67,6 @@ var routes = (
     <Route handler={Vera}>
         <DefaultRoute handler={VersionMatrix} />
         <Route name="matrix" handler={VersionMatrix} />
-
         <Route name="log" handler={DeployLog}/>
     </Route>
 )
