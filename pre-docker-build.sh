@@ -19,4 +19,3 @@ gulp dist || exit 1
 
 cp -r dist $DOCKERDIR
 cp Dockerfile $DOCKERDIR
-
