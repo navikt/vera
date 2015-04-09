@@ -33,6 +33,7 @@ gulp.task('compile-js', function () {
     return browserify('./app.jsx')
         .transform(reactify)
         .bundle()
+        .on('error', handleError)
         .pipe(source('vera.js'))
         .pipe(buffer())
         .pipe(gulpif(env === 'production', uglify()))
@@ -95,3 +96,9 @@ gulp.task('dist', function () {
     env = 'production';
     runSequence('clean', 'build', 'handle-dist-files');
 });
+
+var handleError = function(err){
+    console.error(err);
+    console.error("[ERROR]", err.description)
+    this.emit('end');
+};
