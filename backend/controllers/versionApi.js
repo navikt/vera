@@ -1,6 +1,7 @@
 var config = require("../config/config");
 var logger = require("../config/syslog");
 var Event = require('../models/event');
+var jsonToCSV = require('json-csv');
 var _ = require('lodash');
 var moment = require('moment');
 
@@ -11,11 +12,12 @@ exports.deployLog = function () {
         _.forOwn(req.query, function (value, key) {
             if (_.has(parameterDefinition, key)) {
                 var keyToUse = parameterDefinition[key].mapToKey ? parameterDefinition[key].mapToKey : key;
-                var transformFunction = parameterDefinition[key].transform;
-
+                var transformFunction = parameterDefinition[key].mongoTransformation;
                 try {
-                    predicate[keyToUse] = transformFunction(value);
-                } catch(exception){
+                    if (transformFunction) {
+                        predicate[keyToUse] = transformFunction(value);
+                    }
+                } catch (exception) {
                     res.statusCode = 400;
                     throw new Error(exception);
                 }
@@ -27,10 +29,38 @@ exports.deployLog = function () {
         });
 
         Event.find(predicate).sort([['deployed_timestamp', 'descending']]).exec(function (err, events) {
-            res.write(JSON.stringify(events));
-            res.send();
+            if (req.query.csv === 'true') {
+                returnCSVPayload(res, events);
+            } else {
+                res.write(JSON.stringify(events));
+                res.send();
+            }
         });
     }
+}
+
+var returnCSVPayload = function (res, events) {
+    var jsonToCsvMapping = {
+        fields: [
+            {name: "environment", label: "environment"},
+            {name: "application", label: "application"},
+            {name: "version", label: "version"},
+            {name: "deployer", label: "deployer"},
+            {name: "deployed_timestamp", label: "deployed_timestamp"},
+            {name: "replaced_timestamp", label: "replaced_timestamp"},
+            {name: "environmentClass", label: "environmentClass"},
+            {name: "id", label: "id"}
+        ]
+    };
+
+    jsonToCSV.csvBuffered(events, jsonToCsvMapping, function (err, csv) {
+        if (err) {
+            res.statusCode = 500;
+            throw new Error(err);
+        }
+        res.write(csv);
+        res.send();
+    });
 }
 
 var caseInsensitiveRegexMatch = function (val) {
@@ -58,22 +88,23 @@ var emptyOrAll = function (boolean) {
 }
 
 var parameterDefinition = {
-    application: {transform: caseInsensitiveRegexMatch},
-    environment: {transform: caseInsensitiveRegexMatch},
-    deployer: {transform: caseInsensitiveRegexMatch},
-    environmentClass: {transform: caseInsensitiveRegexMatch},
-    version: {transform: caseInsensitiveRegexMatch},
-    last: {transform: fromMomentFormatToActualDate, mapToKey: "deployed_timestamp"},
-    onlyLatest: {transform: emptyOrAll, mapToKey: "replaced_timestamp"},
+    application: {mongoTransformation: caseInsensitiveRegexMatch},
+    environment: {mongoTransformation: caseInsensitiveRegexMatch},
+    deployer: {mongoTransformation: caseInsensitiveRegexMatch},
+    environmentClass: {mongoTransformation: caseInsensitiveRegexMatch},
+    version: {mongoTransformation: caseInsensitiveRegexMatch},
+    last: {mongoTransformation: fromMomentFormatToActualDate, mapToKey: "deployed_timestamp"},
+    onlyLatest: {mongoTransformation: emptyOrAll, mapToKey: "replaced_timestamp"},
     filterUndeployed: {
-        transform: function (val) {
+        mongoTransformation: function (val) {
             return (val === "true") ? {'$ne': null} : {'$exists': true};
         }, mapToKey: "version"
-    }
+    },
+    csv: {}
 }
 
 exports.config = function () {
-    return function(req, res, next){
+    return function (req, res, next) {
         var environmentCfg = {
             plasterUrl: config.plasterUrl,
             dbUrl: config.dbUrl,
