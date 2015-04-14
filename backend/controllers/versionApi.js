@@ -32,6 +32,7 @@ exports.deployLog = function () {
             if (req.query.csv === 'true') {
                 returnCSVPayload(res, events);
             } else {
+                res.header("Content-Type", "application/json; charset=utf-8");
                 res.write(JSON.stringify(events));
                 res.send();
             }
@@ -58,6 +59,7 @@ var returnCSVPayload = function (res, events) {
             res.statusCode = 500;
             throw new Error(err);
         }
+        res.header("Content-Type", "text/csv; charset=utf-8");
         res.write(csv);
         res.send();
     });
