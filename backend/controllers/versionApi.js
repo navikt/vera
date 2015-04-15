@@ -41,14 +41,20 @@ exports.deployLog = function () {
 }
 
 var returnCSVPayload = function (res, events) {
+    var toExcelDateFormat = function(value){
+        if (value){
+            return moment(value).format("YYYY-MM-DD HH:mm:ss");
+        }
+    };
+
     var jsonToCsvMapping = {
         fields: [
             {name: "environment", label: "environment"},
             {name: "application", label: "application"},
             {name: "version", label: "version"},
             {name: "deployer", label: "deployer"},
-            {name: "deployed_timestamp", label: "deployed_timestamp"},
-            {name: "replaced_timestamp", label: "replaced_timestamp"},
+            {name: "deployed_timestamp", label: "deployed_timestamp", filter: toExcelDateFormat},
+            {name: "replaced_timestamp", label: "replaced_timestamp", filter: toExcelDateFormat},
             {name: "environmentClass", label: "environmentClass"},
             {name: "id", label: "id"}
         ]
@@ -59,7 +65,7 @@ var returnCSVPayload = function (res, events) {
             res.statusCode = 500;
             throw new Error(err);
         }
-        res.header("Content-Type", "text/csv; charset=utf-8");
+        res.header("Content-Type", "text/plain; charset=utf-8");
         res.write(csv);
         res.send();
     });
