@@ -207,7 +207,8 @@ exports.registerEvent = function () {
                         e.replaced_timestamp = new Date();
                         e.save(logErrorHandler);
                     })
-                    logger.log("Saved event", savedEvent.toJSON(), "from client ip", req.headers["x-forwarded-for"] || req.connection.remoteAddress);
+                    logger.log("Saved event", savedEvent.toJSON());
+                    //logger.log("Saved event", savedEvent.toJSON(), "from client ip", req.headers["x-forwarded-for"] || req.connection.remoteAddress);
                     res.send(200, JSON.stringify(savedEvent.toJSON()));
                 }
             }.bind(events));
