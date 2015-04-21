@@ -135,7 +135,7 @@ module.exports = DeployLog = React.createClass({
                 preCompiledRegexp["environment"].test(item.environment) &&
                 preCompiledRegexp["version"].test(item.version) &&
                 preCompiledRegexp["deployer"].test(item.deployer) &&
-                preCompiledRegexp["timestamp"].test(item.timestamp);
+                preCompiledRegexp["timestamp"].test(item.deployed_timestamp);
         }.bind(this));
     },
 
