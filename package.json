@@ -11,6 +11,12 @@
     "name": "Mats Rodney Harley Dennis Rikardo Byfuglien",
     "email": "mats.byfuglien@nav.no"
   },
+  "contributors": [
+    {
+      "name": "Johnny Amadeus Jerimia Aron Rullgardina Horvi aka jdawg",
+      "email": "johnny.horvi@nav.no"
+    }
+  ],
   "engines": {
     "node": ">= 0.10.0"
   },
