@@ -31,7 +31,9 @@ module.exports = VersionTable = React.createClass({
         }.bind(this)
 
         var bodyToRender = this.props.tableBody;
-
+        console.log("***");
+        console.log(this.props);
+        console.log("***");
         if (this.state.rowsToRender.length != this.props.tableBody.length) {
             bodyToRender = this.props.tableBody.slice(0, this.state.rowsToRender);
 
@@ -50,7 +52,7 @@ module.exports = VersionTable = React.createClass({
                     <thead>
                         <tr>
                         {this.props.tableHeader.map(function (header) {
-                            return <th key={header}>{header.toUpperCase()}</th>
+                            return <th key={header} className='text-nowrap'>{header.toUpperCase()}</th>
                         })}
                         </tr>
                     </thead>
@@ -115,5 +117,4 @@ module.exports = VersionTable = React.createClass({
             </span>
         );
     }
-
 });

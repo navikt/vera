@@ -1,27 +1,21 @@
 var $ = jQuery = require('jquery');
 var moment = require('moment');
 var _ = require('lodash');
-var React = require('react/addons');
+var React = require('react');
 var Router = require('react-router');
 var classString = require('react-classset');
 var Link = Router.Link;
-var util = require('../../vera-parser');
+var util = require('../vera-parser');
 var VersionTable = require('./versiontable.jsx');
+var ToggleButtonGroup = require('./toggle-button-group.jsx');
+var ToggleButton = require('./toggle-button.jsx');
 
 module.exports = VersionMatrix = React.createClass({
-
-
     getInitialState: function () {
-        var filters = {environmentClass: 't,q,p'}
-        var appsQueryParam = this.getQuery().apps;
+        var filters = {environmentClass: ['t', 'q', 'p']};
 
-        if (appsQueryParam) {
-            filters.application = appsQueryParam;
-        }
-        var envsQueryParam = this.getQuery().envs;
-        if (envsQueryParam) {
-            filters.environment = envsQueryParam;
-        }
+        filters.application = this.getQueryParam('apps');
+        filters.environment = this.getQueryParam('envs');
 
         return {
             loaded: false,
@@ -54,19 +48,18 @@ module.exports = VersionMatrix = React.createClass({
         };
     },
 
+    getQueryParam: function (paramName) {
+        var queryParam = this.getQuery()[paramName];
+        return (queryParam) ? queryParam.split(',') : [];
+    },
+
     componentWillUpdate: function () {
         var filters = this.state.filters;
-        var appsQueryParam = this.getQuery().apps;
         delete filters.application;
         delete filters.environment;
 
-        if (appsQueryParam) {
-            filters.application = appsQueryParam;
-        }
-        var envsQueryParam = this.getQuery().envs;
-        if (envsQueryParam) {
-            filters.environment = envsQueryParam;
-        }
+        filters.application = this.getQueryParam('apps');
+        filters.environment = this.getQueryParam('envs');
     },
 
     componentDidUpdate: function () {
@@ -80,34 +73,18 @@ module.exports = VersionMatrix = React.createClass({
         var appFilter = this.refs.applicationFilter.getDOMNode().value.toLowerCase();
         var envFilter = this.refs.environmentFilter.getDOMNode().value.toLowerCase();
         if (appFilter) {
-            filters.application = appFilter;
+            filters.application = appFilter.split(',');
         }
 
         if (envFilter) {
-            filters.environment = envFilter;
+            filters.environment = envFilter.split(',');
         }
 
-        if (this.refs.newDeployments.getDOMNode().checked) {
-            filters.newDeployment = true;
-        }
+        //if (this.refs.newDeployments.getDOMNode().checked) {
+        //    filters.newDeployment = true;
+        //}
 
-        var environmentClasses = [];
-        if (this.refs.showU.getDOMNode().checked) {
-            environmentClasses.push('u')
-        }
-
-        if (this.refs.showT.getDOMNode().checked) {
-            environmentClasses.push('t')
-        }
-
-        if (this.refs.showQ.getDOMNode().checked) {
-            environmentClasses.push('q')
-        }
-
-        if (this.refs.showP.getDOMNode().checked) {
-            environmentClasses.push('p')
-        }
-        filters.environmentClass = environmentClasses.join(',');
+        filters.environmentClass = this.refs.envClasses.getCheckedValues();
         this.setState({filters: filters});
 
         if (e.target.type === 'submit') { // prevent form submission, no need to call the server as everything happens client side
@@ -118,46 +95,45 @@ module.exports = VersionMatrix = React.createClass({
     },
 
     applyFilters: function () {
-        var filters = this.state.filters;
 
-        var isElementIn = function (filterString, element, property) {
-            var filterTokens = filterString.split(",");
-            var match = false;
-            for (var i = 0; i < filterTokens.length; i++) {
-                var filterPattern = new RegExp('\\b' + filterTokens[i].trim().replace(new RegExp('\\*', 'g'), '.*') + '\\b');
-                if (element[property].toLocaleLowerCase().search(filterPattern) > -1) {
-                    match = true;
+        _.mixin({
+            'regexpMatchByValues': function (collection, property, filters) {
+                if (!filters || filters.length === 0) {
+                    return collection;
                 }
+                return _.filter(collection, function (item) {
+                    var match = false;
+                    for (var i = 0; i < filters.length; i++) {
+                        var filterPattern = new RegExp('\\b' + filters[i].trim().replace(new RegExp('\\*', 'g'), '.*') + '\\b');
+                        if (item[property].toLocaleLowerCase().search(filterPattern) > -1) {
+                            match = true;
+                        }
+                    }
+                    return match;
+                })
             }
-            return match;
-        }
+        });
 
-        var applyFilter = function (inputData, filterString, filterProperty) {
-            if (typeof filterString === 'boolean') {
-                return inputData.filter(function (elem) {
-                    return elem[filterProperty] === true;
-                });
-
-            }
-            else {
-                return inputData.filter(function (elem) {
-                    return isElementIn(filters[filterProperty], elem, filterProperty);
-                });
-            }
-        }
+        var filters = this.state.filters;
+        //var applyFilter = function (inputData, filterString, filterProperty) {
+        //    if (typeof filterString === 'boolean') {
+        //        return inputData.filter(function (elem) {
+        //            return elem[filterProperty] === true;
+        //        });
+        //
+        //    }
+        //}
 
         var filteredJsonData = this.state.jsonData;
-
         if (filters) {
-            var keys = Object.keys(filters);
-            keys.forEach(function (filterProperty) {
-                filteredJsonData = applyFilter(filteredJsonData, filters[filterProperty], filterProperty);
-            });
+            _.keys(filters).forEach(function (key) {
+                filteredJsonData = _.regexpMatchByValues(filteredJsonData, key, filters[key]);
+            })
         }
-        return util.buildVersionMatrix(filteredJsonData);
+        return util.buildVersionMatrix(filteredJsonData, this.state.inverseTable);
     },
 
-    clear: function (e) {
+    clear: function () {
         this.refs.environmentFilter.getDOMNode().value = '';
         this.refs.applicationFilter.getDOMNode().value = '';
         var currentFilters = this.state.filters;
@@ -165,6 +141,18 @@ module.exports = VersionMatrix = React.createClass({
         delete currentFilters.environment;
         //this.setState({filters: currentFilters});
         window.location.href = "#/matrix";
+    },
+
+    inverseTable: function(clickedElement) {
+        console.log("click");
+        console.log(clickedElement);
+        console.log(clickedElement.target.checked);
+
+        this.setState({inverseTable: clickedElement.target.checked})
+
+        //if(clickedElement.getValue()) {
+        //
+        //}
     },
 
 
@@ -189,30 +177,40 @@ module.exports = VersionMatrix = React.createClass({
                                     <div className="form-group">
                                         {this.createInputFilter('applications', 'applicationFilter', appFilter)}&nbsp;
                                         {this.createInputFilter('environments', 'environmentFilter', envFilter)}
-                                        <button type="submit" className="btn btn-default btn-sm" onClick={this.updateFilters}>
+                                        <button type="submit" className="btn btn-default btn-sm"
+                                                onClick={this.updateFilters}>
                                             <i className="fa fa-filter"></i>
-                                        &nbsp;
-                                        apply
+                                            &nbsp;
+                                            apply
                                         </button>
                                         <button type="button" className="btn btn-danger btn-sm" onClick={this.clear}>
                                             <i className="fa fa-trash"></i>
-                                        &nbsp;reset
+                                            &nbsp;reset
                                         </button>
                                     </div>
-                                    <div className="btn-group pull-right" data-toggle="buttons" role="group">
-                                        {this.createToggleButton('show only applications deployed in the last 24 hrs',
-                                            'newDeployments', 'last 24 hrs', this.state.filters.newDeployment)}
-                                        {this.createToggleButton('show only developement environments', 'showU', 'u', this.hasEnvClass('u'))}
-                                        {this.createToggleButton('show only test environments', 'showT', 't', this.hasEnvClass('t'))}
-                                        {this.createToggleButton('show only Q environments', 'showQ', 'q', this.hasEnvClass('q'))}
-                                        {this.createToggleButton('show only production', 'showP', 'p', this.hasEnvClass('p'))}
+                                    <div className="pull-right">
+                                        <ToggleButtonGroup name="controls">
+                                            <ToggleButton label='inverse' tooltip="swap environments and applications"
+                                                          value="inverse" onChange={this.inverseTable}
+                                                          checked={this.state.inverseTable}
+                                                          iconClassName={["fa fa-level-down fa-flip-horizontal", "fa fa-level-up"]}/>
+                                        </ToggleButtonGroup>
+                                        <ToggleButtonGroup name="envClasses" ref="envClasses"
+                                                           onChange={this.updateFilters}
+                                                           value={this.state.filters.environmentClass}>
+                                            <ToggleButton label='u' tooltip="show only development environments"
+                                                          value="u"/>
+                                            <ToggleButton label='t' tooltip="show onuply test environments" value="t"/>
+                                            <ToggleButton label='q' tooltip="show only q environments" value="q"/>
+                                            <ToggleButton label='p' tooltip="show only production" value="p"/>
+                                        </ToggleButtonGroup>
                                     </div>
                                 </div>
                             </form>
                         </div>
                     </div>
                 </div>
-                <VersionTable key="tablekey" tableHeader={headers} tableBody={body} />
+                <VersionTable key="tablekey" tableHeader={headers} tableBody={body}/>
                 {<h3>
                     <i className={this.spinnerClasses()}></i>
                 </h3>}
@@ -225,28 +223,11 @@ module.exports = VersionMatrix = React.createClass({
             <div className="form-group">
                 <div className="input-group">
                     <div className="input-group-addon">{labelText}</div>
-                    <input ref={inputId} type="text" className="form-control input-sm"  defaultValue={defaultValue}></input>
+                    <input ref={inputId} type="text" className="form-control input-sm"
+                           defaultValue={defaultValue}></input>
                 </div>
             </div>
         )
-    },
-
-    createToggleButton: function (tooltipText, inputId, buttonLabel, isChecked) {
-        return (
-            <label className={this.toggleBtnClasses(isChecked)} title={tooltipText}>
-                <input ref={inputId}  type="checkbox" autoComplete="off"onChange={this.updateFilters} checked={isChecked}/>
-          {buttonLabel}
-            </label>
-        )
-    },
-
-    toggleBtnClasses: function (isToggled) {
-        return classString({
-            'btn': true,
-            'btn-toggle': true,
-            'btn-sm': true,
-            'toggle-on': isToggled
-        })
     },
 
     spinnerClasses: function () {

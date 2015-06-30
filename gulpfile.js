@@ -13,7 +13,7 @@ var del = require('del');
 var runSequence = require('run-sequence');
 
 var paths = {
-    js: ['./frontend/src/js/**/*.jsx', './app.jsx'],
+    js: ['./frontend/src/js/**/*.jsx', './app.jsx', './frontend/src/js/vera-parser.js'],
     jsLibs: './frontend/src/lib/**/*.js',
     css: './frontend/src/css/**/*.css',
     fonts: ['./frontend/src/fonts/**/*', './node_modules/font-awesome/fonts/**/*'],
