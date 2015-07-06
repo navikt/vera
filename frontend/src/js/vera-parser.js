@@ -44,16 +44,22 @@ function groupBy(key, versionData) {
 }
 
 function getTableHeader(versionData, key, firstColumnTitle) {
+    var toHeaderObject = function(element) {
+        var queryParams = {}
+        queryParams[key] = element;
+        return {'columnTitle': element, 'queryParams': queryParams}
+    };
+
     var headerData = _.chain(versionData).pluck(key).uniq(function (element) {
         return element.toLowerCase();
-    }).sortBy(String).value();
-    headerData.unshift(firstColumnTitle);
-    return headerData;
+    }).sortBy(String).map(toHeaderObject).value();
+
+    return [{'columnTitle': firstColumnTitle}].concat(headerData);
 }
 
 function generateRow(columns, firstColumnTitle, applicationInstances, elementKey) {
     var rowData = Array.apply(null, Array(columns.length - 1))
-    rowData.unshift(firstColumnTitle)
+    rowData.unshift({'name': elementKey, 'value': firstColumnTitle})
 
     for (var i = 1; i < columns.length; i++) {
         var filtered = _.filter(applicationInstances, function (appInstance) {

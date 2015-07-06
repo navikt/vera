@@ -17,11 +17,13 @@ module.exports = VersionTable = React.createClass({
             this.hasFilteredAppsChanged(this.props.tableBody, nextProps.tableBody);
     },
 
-    hasFilteredAppsChanged: function(existingTableBody, newTableBody) {
-        var getApplicationNames = function(body) {
-            return body.map(function(elem){return elem[0]});
+    hasFilteredAppsChanged: function (existingTableBody, newTableBody) {
+        var getApplicationNames = function (body) {
+            return body.map(function (elem) {
+                return elem[0]
+            });
         }
-        return _.difference(getApplicationNames(existingTableBody), getApplicationNames(newTableBody) ).length > 0;
+        return _.difference(getApplicationNames(existingTableBody), getApplicationNames(newTableBody)).length > 0;
     },
 
     render: function () {
@@ -30,10 +32,8 @@ module.exports = VersionTable = React.createClass({
             this.setState({rowsToRender: this.props.tableBody.length});
         }.bind(this)
 
+        var headerToRender = this.props.tableHeader;
         var bodyToRender = this.props.tableBody;
-        console.log("***");
-        console.log(this.props);
-        console.log("***");
         if (this.state.rowsToRender.length != this.props.tableBody.length) {
             bodyToRender = this.props.tableBody.slice(0, this.state.rowsToRender);
 
@@ -50,28 +50,42 @@ module.exports = VersionTable = React.createClass({
             <div>
                 <table ref="thematrix" className="table table-bordered table-striped">
                     <thead>
-                        <tr>
-                        {this.props.tableHeader.map(function (header) {
-                            return <th key={header} className='text-nowrap'>{header.toUpperCase()}</th>
+                    <tr>
+                        <th key='titleColumn' className='text-nowrap'>{_.first(headerToRender).columnTitle}</th>
+                        {_.rest(headerToRender).map(function (header) {
+                            return (
+                                <th key={header.columnTitle} className='text-nowrap'>
+                                    <Link to="log" query={header.queryParams}>{header.columnTitle.toUpperCase()}</Link>
+                                </th>
+                            )
                         })}
-                        </tr>
+                    </tr>
                     </thead>
-                    <tbody>
-                        {bodyToRender.map(this.buildTableRow)}
-                    </tbody>
+                    <tbody>{bodyToRender.map(this.buildTableRow)}</tbody>
                 </table>
                 <div>
-                 {showMoreLink}
+                    {showMoreLink}
                 </div>
             </div>
         )
     },
 
     buildTableRow: function (row) {
-        return (<tr key={row[0]}>{row.map(function (cell) {
-                return (<td key={uuid.v1()} className='text-nowrap'>{this.cellContent(cell)}</td>)
-            }.bind(this)
-        )}</tr>)
+        var firstColumn = _.first(row);
+        var dataColumns = _.rest(row);
+
+        var labelLinkQuery = {};
+
+        console.log("Maporama");
+        console.log(row);
+        labelLinkQuery[firstColumn.name] = firstColumn.value;
+
+        return (<tr key={row[0]}>
+            <td><Link to="log" query={labelLinkQuery}>{firstColumn.value}</Link></td>
+            {dataColumns.map(function (cell) {
+                    return (<td key={uuid.v1()} className='text-nowrap'>{this.cellContent(cell)}</td>)
+                }.bind(this)
+            )}</tr>)
     },
 
 
@@ -80,38 +94,21 @@ module.exports = VersionTable = React.createClass({
             return '-';
         }
 
-        var newDeployment = this.newDeployment(cell);
+        //var newDeployment = this.newDeployment(cell);
         var tooltip = newDeployment ? cell.application + " has been deployed to " + cell.environment + " in the last 24 hrs" : "";
         return (
             <Link to="log" query={this.createLinkQuery(cell)} title={tooltip}>
-            {this.createLinkContent(cell)} {newDeployment ? this.newDeploymentIcon() : null}
+                {cell.version} {cell.newDeployment ? this.newDeploymentIcon() : null}
             </Link>
-            );
+        );
     },
 
-    createLinkQuery: function(cellContent) {
-        if(typeof cellContent === 'string') {
-            return {application: cellContent};
-        }
+    createLinkQuery: function (cellContent) {
         return {environment: cellContent.environment, application: cellContent.application, regexp: true}
     },
 
-    createLinkContent: function(cellContent) {
-        if(typeof cellContent === 'string') {
-            return cellContent;
-        }
-        return cellContent.version  ;
-    },
-
-    newDeployment: function (rowElem) {
-        if (!rowElem || typeof rowElem == 'string') {
-            return false;
-        }
-        return rowElem.newDeployment;
-    },
-
-    newDeploymentIcon: function() {
-        return(
+    newDeploymentIcon: function () {
+        return (
             <span>
                 <i className="fa fa-star text-danger"></i>
             </span>

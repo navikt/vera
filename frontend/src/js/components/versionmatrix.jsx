@@ -130,6 +130,7 @@ module.exports = VersionMatrix = React.createClass({
                 filteredJsonData = _.regexpMatchByValues(filteredJsonData, key, filters[key]);
             })
         }
+
         return util.buildVersionMatrix(filteredJsonData, this.state.inverseTable);
     },
 
