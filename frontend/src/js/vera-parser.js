@@ -11,14 +11,14 @@ module.exports = {
 
 
 function buildVersionMatrixWithAppsAsRows(versionData) {
-    var tableHeader = getTableHeader(versionData, 'environment', 'Applications');
+    var tableHeader = getTableHeader(versionData, 'environment');
     var applicationInstancesGroupedByApplication = groupBy('application', versionData);
 
-    return buildVersionMatrix(tableHeader, applicationInstancesGroupedByApplication, 'environment')
+    return buildVersionMatrix(tableHeader, applicationInstancesGroupedByApplication, 'environment');
 }
 
 function buildVersionMatrixWithEnvsAsRows(versionData) {
-    var tableHeader = getTableHeader(versionData, 'application', 'Environments');
+    var tableHeader = getTableHeader(versionData, 'application');
     var applicationInstancesGroupedByEnvironment = groupBy('environment', versionData);
     return buildVersionMatrix(tableHeader, applicationInstancesGroupedByEnvironment, 'application');
 }
@@ -43,7 +43,7 @@ function groupBy(key, versionData) {
     });
 }
 
-function getTableHeader(versionData, key, firstColumnTitle) {
+function getTableHeader(versionData, key) {
     var toHeaderObject = function(element) {
         var queryParams = {}
         queryParams[key] = element;
@@ -54,16 +54,17 @@ function getTableHeader(versionData, key, firstColumnTitle) {
         return element.toLowerCase();
     }).sortBy(String).map(toHeaderObject).value();
 
-    return [{'columnTitle': firstColumnTitle}].concat(headerData);
+    return [{'columnTitle': ''}].concat(headerData);
 }
 
 function generateRow(columns, firstColumnTitle, applicationInstances, elementKey) {
+
     var rowData = Array.apply(null, Array(columns.length - 1))
-    rowData.unshift({'name': elementKey, 'value': firstColumnTitle})
+    rowData.unshift(firstColumnTitle)
 
     for (var i = 1; i < columns.length; i++) {
         var filtered = _.filter(applicationInstances, function (appInstance) {
-            return appInstance[elementKey] === columns[i]
+            return appInstance[elementKey] === columns[i].columnTitle
         });
 
         if (filtered.length === 1) {

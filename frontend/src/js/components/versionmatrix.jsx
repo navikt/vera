@@ -144,16 +144,8 @@ module.exports = VersionMatrix = React.createClass({
         window.location.href = "#/matrix";
     },
 
-    inverseTable: function(clickedElement) {
-        console.log("click");
-        console.log(clickedElement);
-        console.log(clickedElement.target.checked);
-
+    inverseTable: function (clickedElement) {
         this.setState({inverseTable: clickedElement.target.checked})
-
-        //if(clickedElement.getValue()) {
-        //
-        //}
     },
 
 
@@ -190,9 +182,10 @@ module.exports = VersionMatrix = React.createClass({
                                         </button>
                                     </div>
                                     <div className="pull-right">
-                                        <ToggleButtonGroup name="controls">
+
+                                        <ToggleButtonGroup name="controls" onChange={this.inverseTable}>
                                             <ToggleButton label='inverse' tooltip="swap environments and applications"
-                                                          value="inverse" onChange={this.inverseTable}
+                                                          value="inverse"
                                                           checked={this.state.inverseTable}
                                                           iconClassName={["fa fa-level-down fa-flip-horizontal", "fa fa-level-up"]}/>
                                         </ToggleButtonGroup>
@@ -201,7 +194,7 @@ module.exports = VersionMatrix = React.createClass({
                                                            value={this.state.filters.environmentClass}>
                                             <ToggleButton label='u' tooltip="show only development environments"
                                                           value="u"/>
-                                            <ToggleButton label='t' tooltip="show onuply test environments" value="t"/>
+                                            <ToggleButton label='t' tooltip="show only test environments" value="t"/>
                                             <ToggleButton label='q' tooltip="show only q environments" value="q"/>
                                             <ToggleButton label='p' tooltip="show only production" value="p"/>
                                         </ToggleButtonGroup>
@@ -211,7 +204,8 @@ module.exports = VersionMatrix = React.createClass({
                         </div>
                     </div>
                 </div>
-                <VersionTable key="tablekey" tableHeader={headers} tableBody={body}/>
+                <VersionTable key="tablekey" tableHeader={headers} tableBody={body}
+                              inverseTable={this.state.inverseTable}/>
                 {<h3>
                     <i className={this.spinnerClasses()}></i>
                 </h3>}

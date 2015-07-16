@@ -51,7 +51,7 @@ module.exports = VersionTable = React.createClass({
                 <table ref="thematrix" className="table table-bordered table-striped">
                     <thead>
                     <tr>
-                        <th key='titleColumn' className='text-nowrap'>{_.first(headerToRender).columnTitle}</th>
+                        <th />
                         {_.rest(headerToRender).map(function (header) {
                             return (
                                 <th key={header.columnTitle} className='text-nowrap'>
@@ -75,15 +75,13 @@ module.exports = VersionTable = React.createClass({
         var dataColumns = _.rest(row);
 
         var labelLinkQuery = {};
+        var queryElement = this.props.inverseTable ? 'environment' : 'application';
+        labelLinkQuery[queryElement] = firstColumn;
 
-        console.log("Maporama");
-        console.log(row);
-        labelLinkQuery[firstColumn.name] = firstColumn.value;
-
-        return (<tr key={row[0]}>
-            <td><Link to="log" query={labelLinkQuery}>{firstColumn.value}</Link></td>
+        return (<tr key={uuid.v1()}>
+            <td key={firstColumn}><Link to="log" query={labelLinkQuery}>{firstColumn}</Link></td>
             {dataColumns.map(function (cell) {
-                    return (<td key={uuid.v1()} className='text-nowrap'>{this.cellContent(cell)}</td>)
+                    return (<td key={(cell) ? cell.id : uuid.v1()} className='text-nowrap'>{this.cellContent(cell)}</td>)
                 }.bind(this)
             )}</tr>)
     },
@@ -94,13 +92,20 @@ module.exports = VersionTable = React.createClass({
             return '-';
         }
 
-        //var newDeployment = this.newDeployment(cell);
+        var newDeployment = this.newDeployment(cell);
         var tooltip = newDeployment ? cell.application + " has been deployed to " + cell.environment + " in the last 24 hrs" : "";
         return (
             <Link to="log" query={this.createLinkQuery(cell)} title={tooltip}>
                 {cell.version} {cell.newDeployment ? this.newDeploymentIcon() : null}
             </Link>
         );
+    },
+
+    newDeployment: function (rowElem) {
+        if (!rowElem) {
+            return false;
+        }
+        return rowElem.newDeployment;
     },
 
     createLinkQuery: function (cellContent) {

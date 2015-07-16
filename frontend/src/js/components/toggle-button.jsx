@@ -2,13 +2,17 @@ var React = require('react');
 var classString = require('react-classset');
 
 module.exports = ToggleButton = React.createClass({
-    getInitialState: function() {
+    getInitialState: function () {
         return {}
     },
 
-    render: function() {
-        return this.transferPropsTo(
-            <label className={this.toggleBtnClasses(this.props.checked)} title={this.props.tooltip}>
+    componentDidMount: function () {
+        this.setState({domNode: this.getDOMNode().querySelector('input[type="checkbox"]')});
+    },
+
+    render: function () {
+        return (
+            <label className={this.toggleBtnClasses()} title={this.props.tooltip}>
                 <input type="checkbox" value={this.props.value} autoComplete="off" className={this.toggleBtnClasses}/>
                 {this.createBtnIcons(this.props.iconClassName)}&nbsp;
                 {this.props.label}
@@ -33,7 +37,7 @@ module.exports = ToggleButton = React.createClass({
             'btn': true,
             'btn-toggle': true,
             'btn-sm': true,
-            'toggle-on': this.isMounted() && this.getDOMNode().querySelector('input[type="checkbox"]').checked
+            'toggle-on': this.state.domNode && this.state.domNode.checked
         })
     }
 });

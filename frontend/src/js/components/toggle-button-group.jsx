@@ -16,8 +16,8 @@ module.exports = ToggleButtonGroup = React.createClass({
     },
 
     render: function() {
-        return this.transferPropsTo(
-            <div className="btn-group" data-toggle="buttons" role="group" onChange={this.props.onChange}>
+        return (
+            <div className="btn-group" data-toggle="buttons" role="group" onChange={this.props.onChange} value={this.props.value}>
                  {this.props.children}
             </div>
         );
