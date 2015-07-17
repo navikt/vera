@@ -3,6 +3,8 @@ var Router = require('react-router');
 var Link = Router.Link;
 var uuid = require('node-uuid');
 var _ = require('lodash');
+var OverlayTrigger = require('react-bootstrap').OverlayTrigger;
+var Tooltip = require('react-bootstrap').Tooltip;
 
 module.exports = VersionTable = React.createClass({
 
@@ -81,7 +83,8 @@ module.exports = VersionTable = React.createClass({
         return (<tr key={uuid.v1()}>
             <td key={firstColumn}><Link to="log" query={labelLinkQuery}>{firstColumn}</Link></td>
             {dataColumns.map(function (cell) {
-                    return (<td key={(cell) ? cell.id : uuid.v1()} className='text-nowrap'>{this.cellContent(cell)}</td>)
+                    return (
+                        <td key={(cell) ? cell.id : uuid.v1()} className='text-nowrap'>{this.cellContent(cell)}</td>)
                 }.bind(this)
             )}</tr>)
     },
@@ -92,12 +95,22 @@ module.exports = VersionTable = React.createClass({
             return '-';
         }
 
+        function buildTooltip(versionEntry) {
+            return (
+                <Tooltip>
+                    {"Deployed: " + versionEntry.momentTimestamp.fromNow() + " by: " + versionEntry.deployer}
+                </Tooltip>
+            )
+        }
+
         var newDeployment = this.newDeployment(cell);
         var tooltip = newDeployment ? cell.application + " has been deployed to " + cell.environment + " in the last 24 hrs" : "";
         return (
-            <Link to="log" query={this.createLinkQuery(cell)} title={tooltip}>
-                {cell.version} {cell.newDeployment ? this.newDeploymentIcon() : null}
-            </Link>
+            <OverlayTrigger placement="top" overlay={buildTooltip(cell)}>
+                <Link to="log" query={this.createLinkQuery(cell)} title={tooltip}>
+                    {cell.version} {cell.newDeployment ? this.newDeploymentIcon() : null}
+                </Link>
+            </OverlayTrigger>
         );
     },
 

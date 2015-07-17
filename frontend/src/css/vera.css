@@ -80,7 +80,15 @@ nav.vera-header {
     border-bottom-color: #4E5D6C;
 }
 
-.btn-toggle:hover, .toggle-on:hover, .btn-toogle:hover {
+.dropdown-toggle {
+    border-bottom: 0px;
+}
+
+.open>.dropdown-toggle.btn-default {
+    color: #111;
+}
+
+.btn-toggle:hover, .toggle-on:hover, .dropdown-toggle:hover {
     border-bottom-color: #df691a;
 }
 
