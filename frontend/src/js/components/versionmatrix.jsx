@@ -135,7 +135,7 @@ module.exports = VersionMatrix = React.createClass({
             var matches = lastDeployedFilter.match(timespanPattern);
             var quantity = matches[1];
             var timeUnit = matches[2];
-            const deployedDateBackInTime = moment().subtract(quantity, timeUnit);
+            var deployedDateBackInTime = moment().subtract(quantity, timeUnit);
             filteredJsonData = filteredJsonData.filter(function(elem) {
                 return elem.momentTimestamp.isAfter(deployedDateBackInTime);
             });
