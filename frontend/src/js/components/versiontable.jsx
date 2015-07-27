@@ -3,6 +3,8 @@ var Router = require('react-router');
 var Link = Router.Link;
 var uuid = require('node-uuid');
 var _ = require('lodash');
+var OverlayTrigger = require('react-bootstrap').OverlayTrigger;
+var Tooltip = require('react-bootstrap').Tooltip;
 
 module.exports = VersionTable = React.createClass({
 
@@ -17,11 +19,13 @@ module.exports = VersionTable = React.createClass({
             this.hasFilteredAppsChanged(this.props.tableBody, nextProps.tableBody);
     },
 
-    hasFilteredAppsChanged: function(existingTableBody, newTableBody) {
-        var getApplicationNames = function(body) {
-            return body.map(function(elem){return elem[0]});
+    hasFilteredAppsChanged: function (existingTableBody, newTableBody) {
+        var getApplicationNames = function (body) {
+            return body.map(function (elem) {
+                return elem[0]
+            });
         }
-        return _.difference(getApplicationNames(existingTableBody), getApplicationNames(newTableBody) ).length > 0;
+        return _.difference(getApplicationNames(existingTableBody), getApplicationNames(newTableBody)).length > 0;
     },
 
     render: function () {
@@ -30,8 +34,8 @@ module.exports = VersionTable = React.createClass({
             this.setState({rowsToRender: this.props.tableBody.length});
         }.bind(this)
 
+        var headerToRender = this.props.tableHeader;
         var bodyToRender = this.props.tableBody;
-
         if (this.state.rowsToRender.length != this.props.tableBody.length) {
             bodyToRender = this.props.tableBody.slice(0, this.state.rowsToRender);
 
@@ -48,72 +52,81 @@ module.exports = VersionTable = React.createClass({
             <div>
                 <table ref="thematrix" className="table table-bordered table-striped">
                     <thead>
-                        <tr>
-                        {this.props.tableHeader.map(function (header) {
-                            return <th key={header}>{header.toUpperCase()}</th>
+                    <tr>
+                        <th />
+                        {_.rest(headerToRender).map(function (header) {
+                            return (
+                                <th key={header.columnTitle} className='text-nowrap'>
+                                    <Link to="log" query={header.queryParams}>{header.columnTitle.toUpperCase()}</Link>
+                                </th>
+                            )
                         })}
-                        </tr>
+                    </tr>
                     </thead>
-                    <tbody>
-                        {bodyToRender.map(this.buildTableRow)}
-                    </tbody>
+                    <tbody>{bodyToRender.map(this.buildTableRow)}</tbody>
                 </table>
                 <div>
-                 {showMoreLink}
+                    {showMoreLink}
                 </div>
             </div>
         )
     },
 
     buildTableRow: function (row) {
-        return (<tr key={row[0]}>{row.map(function (cell) {
-                return (<td key={uuid.v1()} className='text-nowrap'>{this.cellContent(cell)}</td>)
-            }.bind(this)
-        )}</tr>)
+        var firstColumn = _.first(row);
+        var dataColumns = _.rest(row);
+
+        var labelLinkQuery = {};
+        var queryElement = this.props.inverseTable ? 'environment' : 'application';
+        labelLinkQuery[queryElement] = firstColumn;
+
+        return (<tr key={uuid.v1()}>
+            <td key={firstColumn}><Link to="log" query={labelLinkQuery}>{firstColumn}</Link></td>
+            {dataColumns.map(function (cell) {
+                    return (
+                        <td key={(cell) ? cell.id : uuid.v1()} className='text-nowrap'>{this.cellContent(cell)}</td>)
+                }.bind(this)
+            )}</tr>)
     },
 
 
     cellContent: function (cell) {
+
         if (!cell) {
             return '-';
         }
 
-        var newDeployment = this.newDeployment(cell);
-        var tooltip = newDeployment ? cell.application + " has been deployed to " + cell.environment + " in the last 24 hrs" : "";
+        var me = this;
+
+        function buildTooltip(versionEntry) {
+            var newDeploymentLegend = <div><small>{me.newDeploymentIcon()}: deployed in the last 24 hrs</small></div>
+
+            return (
+                <Tooltip>
+                    <div>{versionEntry.momentTimestamp.fromNow() + " by: " + versionEntry.deployer}</div>
+                    {versionEntry.newDeployment ? newDeploymentLegend : null}
+                </Tooltip>
+            )
+        }
+
         return (
-            <Link to="log" query={this.createLinkQuery(cell)} title={tooltip}>
-            {this.createLinkContent(cell)} {newDeployment ? this.newDeploymentIcon() : null}
-            </Link>
-            );
+            <OverlayTrigger placement="top" overlay={buildTooltip(cell)}>
+                <Link to="log" query={this.createLinkQuery(cell)}>
+                    {cell.version} {cell.newDeployment ? this.newDeploymentIcon() : null}
+                </Link>
+            </OverlayTrigger>
+        );
     },
 
-    createLinkQuery: function(cellContent) {
-        if(typeof cellContent === 'string') {
-            return {application: cellContent};
-        }
+    createLinkQuery: function (cellContent) {
         return {environment: cellContent.environment, application: cellContent.application, regexp: true}
     },
 
-    createLinkContent: function(cellContent) {
-        if(typeof cellContent === 'string') {
-            return cellContent;
-        }
-        return cellContent.version  ;
-    },
-
-    newDeployment: function (rowElem) {
-        if (!rowElem || typeof rowElem == 'string') {
-            return false;
-        }
-        return rowElem.newDeployment;
-    },
-
-    newDeploymentIcon: function() {
-        return(
+    newDeploymentIcon: function () {
+        return (
             <span>
                 <i className="fa fa-star text-danger"></i>
             </span>
         );
     }
-
 });
