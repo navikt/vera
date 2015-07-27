@@ -99,14 +99,13 @@ module.exports = VersionTable = React.createClass({
         var me = this;
 
         function buildTooltip(versionEntry) {
-            var newDeploymentLegend =  (versionEntry.newDeployment) ? (
-                <div>
-                    {me.newDeploymentIcon()}: {versionEntry.application} has been deployed in the last 24 hrs
-                </div>) : ""
+            var newDeploymentLegend;
+            if (versionEntry.newDeployment)
+                newDeploymentLegend = (<div><small>{me.newDeploymentIcon()}: {versionEntry.application} has been deployed in the last 24 hrs</small><div>)
             return (
                 <Tooltip>
-                    {"Deployed: " + versionEntry.momentTimestamp.fromNow() + " by: " + versionEntry.deployer}
-                    <small>{newDeploymentLegend}</small>
+                    <div>{"Deployed: " + versionEntry.momentTimestamp.fromNow() + " by: " + versionEntry.deployer}</div>
+                    {newDeploymentLegend}
                 </Tooltip>
             )
         }
