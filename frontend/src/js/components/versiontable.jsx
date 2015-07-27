@@ -91,34 +91,33 @@ module.exports = VersionTable = React.createClass({
 
 
     cellContent: function (cell) {
+
         if (!cell) {
             return '-';
         }
 
+        var me = this;
+
         function buildTooltip(versionEntry) {
+            var newDeploymentLegend =  (versionEntry.newDeployment) ? (
+                <div>
+                    {me.newDeploymentIcon()}: {versionEntry.application} has been deployed in the last 24 hrs
+                </div>) : ""
             return (
                 <Tooltip>
                     {"Deployed: " + versionEntry.momentTimestamp.fromNow() + " by: " + versionEntry.deployer}
+                    <small>{newDeploymentLegend}</small>
                 </Tooltip>
             )
         }
 
-        var newDeployment = this.newDeployment(cell);
-        var tooltip = newDeployment ? cell.application + " has been deployed to " + cell.environment + " in the last 24 hrs" : "";
         return (
             <OverlayTrigger placement="top" overlay={buildTooltip(cell)}>
-                <Link to="log" query={this.createLinkQuery(cell)} title={tooltip}>
+                <Link to="log" query={this.createLinkQuery(cell)}>
                     {cell.version} {cell.newDeployment ? this.newDeploymentIcon() : null}
                 </Link>
             </OverlayTrigger>
         );
-    },
-
-    newDeployment: function (rowElem) {
-        if (!rowElem) {
-            return false;
-        }
-        return rowElem.newDeployment;
     },
 
     createLinkQuery: function (cellContent) {

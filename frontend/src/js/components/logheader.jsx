@@ -3,6 +3,8 @@ var classString = require('react-classset');
 
 module.exports = LogHeader = React.createClass({
 
+
+
     render: function () {
         return <th>
             <div className={this.regexValidationClasses()}>
@@ -12,7 +14,7 @@ module.exports = LogHeader = React.createClass({
     },
 
     regexValidationClasses: function () {
-        var filterValue = this.refs[this.props.columnName] ? this.refs[this.props.columnName].getDOMNode().value : '';
+        var filterValue = this.props.value || '';
 
         var isValidRegex = function (expression) {
             try {

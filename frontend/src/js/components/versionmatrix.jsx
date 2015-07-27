@@ -13,10 +13,13 @@ var DropdownButton = require('react-bootstrap').DropdownButton;
 var MenuItem = require('react-bootstrap').MenuItem;
 var ButtonToolbar = require('react-bootstrap').ButtonToolbar;
 var ButtonGroup = require('react-bootstrap').ButtonGroup;
+var Input = require('react-bootstrap').Input;
+var FormGroup = require('react-bootstrap').FormGroup;
 
 module.exports = VersionMatrix = React.createClass({
     getInitialState: function () {
         var filters = {environmentClass: ['t', 'q', 'p']};
+        var lastDeployedFilter = '6M';
 
         filters.application = this.getQueryParam('apps');
         filters.environment = this.getQueryParam('envs');
@@ -24,7 +27,8 @@ module.exports = VersionMatrix = React.createClass({
         return {
             loaded: false,
             jsonData: [],
-            filters: filters
+            filters: filters,
+            lastDeployedFilter: lastDeployedFilter
         }
     },
 
@@ -39,15 +43,14 @@ module.exports = VersionMatrix = React.createClass({
 
             var enrichedLogEvents = _.map(data, function (logEvent) {
                 logEvent.momentTimestamp = moment(logEvent.deployed_timestamp);
-                var ddbit = moment().subtract(24, 'hours');
-                if (isDeployedLast24Hrs(logEvent, ddbit)) {
+                if (isDeployedLast24Hrs(logEvent, moment().subtract(24, 'hours'))) {
                     logEvent.newDeployment = true;
                     return logEvent;
                 }
 
                 return logEvent;
             });
-            this.setState({jsonData: enrichedLogEvents});
+            this.setState({jsonData: enrichedLogEvents, loaded: true});
         }.bind(this));
 
         var isDeployedLast24Hrs = function (logEvent, deployDateBackInTime) {
@@ -69,11 +72,11 @@ module.exports = VersionMatrix = React.createClass({
         filters.environment = this.getQueryParam('envs');
     },
 
-    componentDidUpdate: function () {
-        if (!this.state.loaded) {
-            this.setState({loaded: true});
-        }
-    },
+    //componentDidUpdate: function () {
+    //    if (!this.state.loaded) {
+    //        this.setState({loaded: true});
+    //    }
+    //},
 
     updateFilters: function (e) {
         var filters = {};
@@ -128,13 +131,11 @@ module.exports = VersionMatrix = React.createClass({
         }
 
         if(lastDeployedFilter) {
-
             var timespanPattern = /(^[0-9]+)([a-zA-Z]+$)/;
-                var matches = lastDeployedFilter.match(timespanPattern);
-                var quantity = matches[1];
-                var timeUnit = matches[2];
+            var matches = lastDeployedFilter.match(timespanPattern);
+            var quantity = matches[1];
+            var timeUnit = matches[2];
             const deployedDateBackInTime = moment().subtract(quantity, timeUnit);
-            console.log(quantity + " " + timeUnit);
             filteredJsonData = filteredJsonData.filter(function(elem) {
                 return elem.momentTimestamp.isAfter(deployedDateBackInTime);
             });
@@ -166,14 +167,26 @@ module.exports = VersionMatrix = React.createClass({
         return this.state.filters.environmentClass.indexOf(envClass) > -1
     },
 
+    buildLastDeployedFilterDropdown: function() {
+        var lastDeployedFilter = this.state.lastDeployedFilter;
+
+        return (
+        <DropdownButton ref="unit"  className="btn-toggle"
+                        onSelect={this.updateTimeFilter}
+                        bsSize="small"
+                        title={this.getLabelBy(lastDeployedFilter)}>
+            {this.lastDeployFilterMapping.map(function(choice) {
+                return <MenuItem key={choice.momentValue} eventKey={choice.momentValue} active={lastDeployedFilter === choice.momentValue}>{choice.label}</MenuItem>
+            })}
+        </DropdownButton>)
+    },
+
     render: function () {
         var appFilter = this.state.filters.application;
         var envFilter = this.state.filters.environment;
         var filteredData = this.applyFilters();
         var headers = filteredData.header;
         var body = filteredData.body;
-
-        var meg = this;
 
         return (
             <div className="container-fluid">
@@ -208,34 +221,7 @@ module.exports = VersionMatrix = React.createClass({
                                             </ToggleButtonGroup>
                                         </ButtonGroup>
 
-                                        <ButtonGroup>
-                                            <DropdownButton  className="btn-toggle"
-                                                             onSelect={meg.updateTimeFilter}
-                                                            title="in last" key="hei" bsSize="small">
-                                                <MenuItem eventKey="1d">last 1 day</MenuItem>
-                                                <MenuItem eventKey="2d">last 2 days</MenuItem>
-                                                <MenuItem eventKey="3d">last 3 days</MenuItem>
-                                                <MenuItem eventKey="4d">last 4 days</MenuItem>
-                                                <MenuItem eventKey="5d">last 5 days</MenuItem>
-                                                <MenuItem divider />
-                                                <MenuItem eventKey="1w">last 1 week</MenuItem>
-                                                <MenuItem eventKey="2w">last 2 weeks</MenuItem>
-                                                <MenuItem eventKey="3w">last 3 weeks</MenuItem>
-                                                <MenuItem divider />
-                                                <MenuItem eventKey="1M">last 1 month</MenuItem>
-                                                <MenuItem eventKey="2M">last 2 months</MenuItem>
-                                                <MenuItem eventKey="3M">last 3 months</MenuItem>
-                                                <MenuItem eventKey="4M">last 4 months</MenuItem>
-                                                <MenuItem eventKey="5M">last 5 months</MenuItem>
-                                                <MenuItem eventKey="6M">last 6 months</MenuItem>
-                                                <MenuItem divider />
-                                                <MenuItem eventKey="1y">last 1 year</MenuItem>
-                                                <MenuItem eventKey="2y">last 2 years</MenuItem>
-                                                <MenuItem eventKey="3y">last 3 years</MenuItem>
-                                                <MenuItem divider />
-                                                <MenuItem eventKey="">beginning of time</MenuItem>
-                                            </DropdownButton>
-                                        </ButtonGroup>
+                                        {this.buildLastDeployedFilterDropdown()}
 
                                         <ButtonGroup>
                                             <ToggleButtonGroup name="envClasses" ref="envClasses"
@@ -275,6 +261,30 @@ module.exports = VersionMatrix = React.createClass({
                 </div>
             </div>
         )
+    },
+
+    lastDeployFilterMapping: [
+        {momentValue: "1d", label: "last day"},
+        {momentValue: "2d", label: "last 2 days"},
+        {momentValue: "3d", label: "last 3 days"},
+        {momentValue: "4d", label: "last 4 days"},
+        {momentValue: "1w", label: "last week"},
+        {momentValue: "2w", label: "last 2 weeks"},
+        {momentValue: "3w", label: "last 3 weeks"},
+        {momentValue: "1M", label: "last month"},
+        {momentValue: "2M", label: "last 2 months"},
+        {momentValue: "3M", label: "last 3 months"},
+        {momentValue: "4M", label: "last 4 months"},
+        {momentValue: "5M", label: "last 5 months"},
+        {momentValue: "6M", label: "last 6 months"},
+        {momentValue: "1y", label: "last year"},
+        {momentValue: "2y", label: "last 2 years"},
+        {momentValue: "", label: "beginning of time"}],
+
+    getLabelBy:function(momentValue) {
+        return _.chain(this.lastDeployFilterMapping).filter(function(element) {
+            return element.momentValue === momentValue;
+        }).first().value().label;
     },
 
     spinnerClasses: function () {
