@@ -5,7 +5,12 @@ var _ = require('lodash');
 var Router = require('react-router');
 var LogRow = require('./logrow.jsx');
 var LogHeader = require('./logheader.jsx')
+var ToggleButton = require('./toggle-button.jsx');
 var classString = require('react-classset');
+var LastDeploymentDropdown = require('./last-deployment-dropdown.jsx');
+var ButtonToolbar = require('react-bootstrap').ButtonToolbar;
+var ButtonGroup = require('react-bootstrap').ButtonGroup;
+var Button = require('react-bootstrap').Button;
 
 module.exports = DeployLog = React.createClass({
 
@@ -15,15 +20,28 @@ module.exports = DeployLog = React.createClass({
         return {
             items: [],
             loaded: false,
-            itemRenderCount: 50,
+            itemRenderCount: 100,
             isPolling: false,
+            deployEventTimeLimit: '1w',
             filters: this.enrichFromObject(this.emptyFilters, this.getQuery())
         };
     },
 
     componentDidMount: function () {
-        this.getInitialDataFromBackend().success(this.getEverything);
+        this.getDeployEvents();
     },
+
+    componentDidUpdate: function(prevProps, prevState) {
+        if(this.state.deployEventTimeLimit !== prevState.deployEventTimeLimit) {
+            this.getDeployEvents();
+        }
+    },
+
+    setDeployEventTimeLimit: function(newLimit) {
+        this.setState({loaded: false, deployEventTimeLimit: newLimit});
+    },
+
+
 
     render: function () {
 
@@ -36,47 +54,63 @@ module.exports = DeployLog = React.createClass({
                     <small> {filteredEvents.length + "/" + this.state.items.length}
                         <i className={this.spinnerClasses()}></i>
                     </small>
-                    <div className="pull-right btn-toolbar" data-toggle="buttons" role="group">
-                        <button type="button"  className="btn btn-default btn-sm" onClick={this.clearFilters} >
-                            <i className="fa fa-trash"></i>
-                        &nbsp;
-                        clear</button>
-                        <label className={this.currentToggleButtonClasses(this.state.filters.onlyLatest)}>
-                            <input type="checkbox" autoComplete="off" onClick={this.toggleOnlyLatest} />
-                            <i className="fa fa-asterisk"></i>
-                        &nbsp;
-                        show only latest
-                        </label>
-                        <label className={this.regexpToggleButtonClasses()} title="Matcher strengene eksakt. F.eks 't1' matcher kun 't1', ikke 't10', 't11' osv. Støtter også regulære uttrykk.">
-                            <input type="checkbox" autoComplete="off" onClick={this.toggleRegexpMode} />
-                        eksakt match
-                        </label>
-                        <label className={this.currentToggleButtonClasses(this.state.isPolling)}>
-                            <input type="checkbox" autoComplete="off" onClick={this.togglePolling} />
-                            <i className={this.autoRefreshClasses()}></i>
-                        &nbsp;
-                        {this.autoRefreshBtnText()}
-                        </label>
-                    </div>
+                    <ButtonToolbar className="col col-lg pull-right">
+                        <LastDeploymentDropdown onSelect={this.setDeployEventTimeLimit} selected={this.state.deployEventTimeLimit}/>
+
+                        <ButtonGroup data-toggle="buttons">
+                            <ToggleButton label='only latest' checked={this.state.filters.onlyLatest}
+                                          onChange={this.toggleOnlyLatest} iconClassName={["fa fa-asterisk"]}/>
+                        </ButtonGroup>
+                        <ButtonGroup data-toggle="buttons">
+                            <ToggleButton label='exact match' checked={this.state.filters.regexp}
+                                          onChange={this.toggleRegexpMode}
+                                          tooltip="matches search term exact. F.ex t1 matches only t1, not t10, t11 etc. supports regexp aswell"/>
+                        </ButtonGroup>
+                        <ButtonGroup data-toggle="buttons">
+                            <ToggleButton label={this.autoRefreshBtnText()} checked={this.state.isPolling}
+                                          onChange={this.togglePolling}
+                                          iconClassName={[this.autoRefreshClasses()]}/>
+                        </ButtonGroup>
+                    </ButtonToolbar>
                 </h2>
 
                 <table className='table table-bordered table-striped'>
                     <tr>
-                        <LogHeader columnName="application" regexp={this.state.filters.regexp} value={this.state.filters.application} changeHandler={this.handleChange} />
-                        <LogHeader columnName="environment" regexp={this.state.filters.regexp} value={this.state.filters.environment} changeHandler={this.handleChange} />
-                        <LogHeader columnName="deployer" regexp={this.state.filters.regexp} value={this.state.filters.deployer} changeHandler={this.handleChange} />
-                        <LogHeader columnName="version" regexp={this.state.filters.regexp} value={this.state.filters.version} changeHandler={this.handleChange} />
-                        <LogHeader columnName="timestamp" regexp={this.state.filters.regexp} value={this.state.filters.timestamp} changeHandler={this.handleChange} />
+                        <LogHeader columnName="application" regexp={this.state.filters.regexp}
+                                   value={this.state.filters.application} changeHandler={this.handleChange}/>
+                        <LogHeader columnName="environment" regexp={this.state.filters.regexp}
+                                   value={this.state.filters.environment} changeHandler={this.handleChange}/>
+                        <LogHeader columnName="deployer" regexp={this.state.filters.regexp}
+                                   value={this.state.filters.deployer} changeHandler={this.handleChange}/>
+                        <LogHeader columnName="version" regexp={this.state.filters.regexp}
+                                   value={this.state.filters.version} changeHandler={this.handleChange}/>
+                        <LogHeader columnName="timestamp" regexp={this.state.filters.regexp}
+                                   value={this.state.filters.timestamp} changeHandler={this.handleChange}>
+                        </LogHeader>
+                        <th>
+                            <Button bsSize="small" onClick={this.clearFilters}>
+                                <i className="fa fa-trash"></i>
+                                &nbsp;
+                                clear all filters
+                            </Button>
+                        </th>
                     </tr>
                     <tbody>
-                        {eventsToRender.map(function (elem) {
-                            return <LogRow key={elem.id} event={elem} />
-                        })}
+                    {eventsToRender.map(function (elem) {
+                        return <LogRow key={elem.id} event={elem}/>
+                    })}
                     </tbody>
                 </table>
-                <button type="button" className="btn btn-link" onClick={this.viewMoreResults}>View more results...</button>
+                {this.createShowMoreButtonWhenTooManyResults()}
+
             </div>
         )
+    },
+
+    createShowMoreButtonWhenTooManyResults: function(renderedEvents) {
+      if(this.state.items.length > this.state.itemRenderCount) {
+          return (<Button bsStyle="link" onClick={this.viewMoreResults}>View more results...</Button>)
+      }
     },
 
     emptyFilters: {
@@ -105,7 +139,7 @@ module.exports = DeployLog = React.createClass({
     },
 
     filterWithPreCompiledRegexp: function (items) {
-        var compileValidRegEx = function(filterValue){
+        var compileValidRegEx = function (filterValue) {
             var isValidRegex = function (expression) {
                 try {
                     new RegExp("^" + expression + "$");
@@ -115,7 +149,7 @@ module.exports = DeployLog = React.createClass({
                 }
             }
 
-            if (isValidRegex(filterValue)){
+            if (isValidRegex(filterValue)) {
                 return new RegExp("^" + (filterValue ? filterValue : ".*") + "$", "i");
             } else {
                 return new RegExp("^$");
@@ -161,7 +195,7 @@ module.exports = DeployLog = React.createClass({
         this.setState({filters: filter});
     },
 
-    getInitialBackendParams: function () {
+    getBackendParams: function () {
         var serialize = function (obj) {
             return '?' + Object.keys(obj).reduce(function (a, k) {
                     a.push(k + '=' + encodeURIComponent(obj[k]));
@@ -175,17 +209,22 @@ module.exports = DeployLog = React.createClass({
             });
         };
 
+        var params = {};
         var urlContainsValidBackendParams = extractFromObject(this.validBackendParams, this.getQuery()).length > 0;
+
         if (urlContainsValidBackendParams) {
-            var extractedValidParams = _.pick(this.getQuery(), this.validBackendParams);
-            return serialize(extractedValidParams);
-        } else {
-            return '?last=1week';
+            params = _.pick(this.getQuery(), this.validBackendParams);
         }
+        if(this.state.deployEventTimeLimit) {
+            params.last = this.state.deployEventTimeLimit;
+        }
+
+        return  serialize(params) ;
     },
 
     mapToViewFormat: function (data) {
         var toReadableDateFormat = function (eventItem) {
+            eventItem.original_timestamp = eventItem.deployed_timestamp;
             eventItem.deployed_timestamp = moment(eventItem.deployed_timestamp).format("DD-MM-YY HH:mm:ss");
             return eventItem;
         }
@@ -200,18 +239,9 @@ module.exports = DeployLog = React.createClass({
         return data.map(toReadableDateFormat).map(nullVersionsToUndeployed);
     },
 
-    getInitialDataFromBackend: function () {
-        return $.getJSON(this.DEPLOYLOG_SERVICE + this.getInitialBackendParams()).success(function (data) {
-            this.setState({items: this.mapToViewFormat(data)})
-        }.bind(this));
-    },
-
-    getEverything: function () {
-        $.getJSON(this.DEPLOYLOG_SERVICE).done(function (data) {
-            this.setState({
-                items: this.mapToViewFormat(data),
-                loaded: true
-            })
+        getDeployEvents: function () {
+        return $.getJSON(this.DEPLOYLOG_SERVICE + this.getBackendParams()).success(function (data) {
+            this.setState({loaded: true, items: this.mapToViewFormat(data)})
         }.bind(this));
     },
 
@@ -225,7 +255,7 @@ module.exports = DeployLog = React.createClass({
     },
 
     viewMoreResults: function () {
-        this.setState({itemRenderCount: this.state.itemRenderCount + 50})
+        this.setState({itemRenderCount: this.state.itemRenderCount + 100})
     },
 
     clearFilters: function () {
@@ -257,7 +287,7 @@ module.exports = DeployLog = React.createClass({
         this.setState({secondsToNextPoll: secondsToNextPoll - 1})
         if (secondsToNextPoll < 1) {
             this.setState({secondsToNextPoll: this.POLLING_INTERVAL_SECONDS, loaded: false});
-            this.getEverything();
+            this.getDeployEvents();
         }
     },
 
@@ -273,11 +303,7 @@ module.exports = DeployLog = React.createClass({
     },
 
     autoRefreshClasses: function () {
-        return classString({
-            'fa': true,
-            'fa-refresh': true,
-            'fa-spin': this.state.isPolling
-        })
+        return "fa fa-refresh".concat((this.state.isPolling) ? " fa-spin" : "");
     },
 
     toggleRegexpMode: function () {
@@ -293,24 +319,6 @@ module.exports = DeployLog = React.createClass({
             'fa-fw': true,
             'fa-spin': true,
             'hidden': this.state.loaded
-        })
-    },
-
-    currentToggleButtonClasses: function (isActive) {
-        return classString({
-            "btn": true,
-            "btn-default": true,
-            "btn-sm": true,
-            "active": isActive
-        })
-    },
-
-    regexpToggleButtonClasses: function () {
-        return classString({
-            "btn": true,
-            "btn-default": true,
-            "btn-sm": true,
-            "active": this.state.filters.regexp
         })
     }
 });

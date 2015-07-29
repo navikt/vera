@@ -1,23 +1,44 @@
 var React = require('react');
 var classString = require('react-classset');
+var _ = require('lodash');
+var OverlayTrigger = require('react-bootstrap').OverlayTrigger;
+var Tooltip = require('react-bootstrap').Tooltip;
+var Input = require('react-bootstrap').Tooltip;
 
 module.exports = ToggleButton = React.createClass({
     getInitialState: function () {
         return {}
     },
 
-    componentDidMount: function () {
-        this.setState({domNode: this.getDOMNode().querySelector('input[type="checkbox"]')});
+    render: function () {
+        var tooltipPlacement = this.props.tooltipPlacement || "bottom";
+
+        if (this.props.tooltip) {
+            var tooltip = (<Tooltip><div>{this.props.tooltip}</div></Tooltip>);
+            return (<OverlayTrigger placement={tooltipPlacement} overlay={tooltip}>
+                {this.buildCheckbox()}
+            </OverlayTrigger>)
+        }
+        else {
+            return this.buildCheckbox();
+        }
     },
 
-    render: function () {
+    buildCheckbox: function () {
+        var optionalProps = {};
+
+        if (this.props.onChange) {
+            optionalProps = {onChange: this.props.onChange}
+        }
+
         return (
-            <label className={this.toggleBtnClasses()} title={this.props.tooltip}>
-                <input type="checkbox" value={this.props.value} autoComplete="off" className={this.toggleBtnClasses}/>
+            <label className={this.toggleBtnClasses()}>
+                <input type="checkbox" value={this.props.value} autoComplete="off"
+                       className={this.toggleBtnClasses} {...optionalProps} />
                 {this.createBtnIcons(this.props.iconClassName)}&nbsp;
                 {this.props.label}
             </label>
-        );
+        )
     },
 
     createBtnIcons: function (cssClassesNames) {
@@ -37,7 +58,7 @@ module.exports = ToggleButton = React.createClass({
             'btn': true,
             'btn-toggle': true,
             'btn-sm': true,
-            'toggle-on': this.state.domNode && this.state.domNode.checked
+            'toggle-on': this.props.checked
         })
     }
 });
