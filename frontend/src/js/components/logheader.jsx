@@ -4,13 +4,16 @@ var classString = require('react-classset');
 module.exports = LogHeader = React.createClass({
 
 
-
     render: function () {
-        return <th>
-            <div className={this.regexValidationClasses()}>
-                <input ref={this.props.columnName} id={this.props.columnName} type="text" className="form-control input-sm" value={this.props.value} placeholder={this.props.columnName} onChange={this.props.changeHandler} />
-            </div>
-        </th>
+        return (
+            <th>
+                <div className={this.regexValidationClasses()}>
+                    <input ref={this.props.columnName} id={this.props.columnName} type="text"
+                           className="form-control input-sm" value={this.props.value}
+                           placeholder={this.props.columnName} onChange={this.props.changeHandler}/>
+                </div>
+            </th>
+        )
     },
 
     regexValidationClasses: function () {

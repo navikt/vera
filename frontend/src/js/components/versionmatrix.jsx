@@ -7,19 +7,17 @@ var classString = require('react-classset');
 var Link = Router.Link;
 var util = require('../vera-parser');
 var VersionTable = require('./versiontable.jsx');
+var LastDeploymentDropdown = require('./last-deployment-dropdown.jsx');
 var ToggleButtonGroup = require('./toggle-button-group.jsx');
 var ToggleButton = require('./toggle-button.jsx');
-var DropdownButton = require('react-bootstrap').DropdownButton;
-var MenuItem = require('react-bootstrap').MenuItem;
 var ButtonToolbar = require('react-bootstrap').ButtonToolbar;
 var ButtonGroup = require('react-bootstrap').ButtonGroup;
-var Input = require('react-bootstrap').Input;
 var FormGroup = require('react-bootstrap').FormGroup;
 
 module.exports = VersionMatrix = React.createClass({
     getInitialState: function () {
         var filters = {environmentClass: ['t', 'q', 'p']};
-        var lastDeployedFilter = '6M';
+        var lastDeployedFilter = '';
 
         filters.application = this.getQueryParam('apps');
         filters.environment = this.getQueryParam('envs');
@@ -167,19 +165,7 @@ module.exports = VersionMatrix = React.createClass({
         return this.state.filters.environmentClass.indexOf(envClass) > -1
     },
 
-    buildLastDeployedFilterDropdown: function() {
-        var lastDeployedFilter = this.state.lastDeployedFilter;
 
-        return (
-        <DropdownButton ref="unit"  className="btn-toggle"
-                        onSelect={this.updateTimeFilter}
-                        bsSize="small"
-                        title={this.getLabelBy(lastDeployedFilter)}>
-            {this.lastDeployFilterMapping.map(function(choice) {
-                return <MenuItem key={choice.momentValue} eventKey={choice.momentValue} active={lastDeployedFilter === choice.momentValue}>{choice.label}</MenuItem>
-            })}
-        </DropdownButton>)
-    },
 
     render: function () {
         var appFilter = this.state.filters.application;
@@ -211,31 +197,27 @@ module.exports = VersionMatrix = React.createClass({
                                     </div>
 
                                     <ButtonToolbar className="pull-right">
-                                        <ButtonGroup>
-                                            <ToggleButtonGroup name="controls" onChange={this.inverseTable}>
+                                            <ButtonGroup data-toggle="buttons">
                                                 <ToggleButton label='inverse'
                                                               tooltip="swap environments and applications"
-                                                              value="inverse"
                                                               checked={this.state.inverseTable}
+                                                              onChange={this.inverseTable}
                                                               iconClassName={["fa fa-level-down fa-flip-horizontal", "fa fa-level-up"]}/>
-                                            </ToggleButtonGroup>
-                                        </ButtonGroup>
+                                                </ButtonGroup>
 
-                                        {this.buildLastDeployedFilterDropdown()}
+                                        <LastDeploymentDropdown selected={this.state.lastDeployedFilter} onSelect={this.updateTimeFilter} ></LastDeploymentDropdown>
 
-                                        <ButtonGroup>
                                             <ToggleButtonGroup name="envClasses" ref="envClasses"
                                                                onChange={this.updateFilters}
                                                                value={this.state.filters.environmentClass}>
-                                                <ToggleButton label='u' tooltip="show only development environments"
+                                                <ToggleButton label='u' tooltip="show/hide development environments"
                                                               value="u"/>
-                                                <ToggleButton label='t' tooltip="show only test environments"
+                                                <ToggleButton label='t' tooltip="show/hide test environments"
                                                               value="t"/>
-                                                <ToggleButton label='q' tooltip="show only q environments"
+                                                <ToggleButton label='q' tooltip="show/hide q environments"
                                                               value="q"/>
-                                                <ToggleButton label='p' tooltip="show only production" value="p"/>
+                                                <ToggleButton label='p' tooltip="show/hide production" value="p"/>
                                             </ToggleButtonGroup>
-                                        </ButtonGroup>
                                     </ButtonToolbar>
                                 </div>
                             </form>
@@ -261,30 +243,6 @@ module.exports = VersionMatrix = React.createClass({
                 </div>
             </div>
         )
-    },
-
-    lastDeployFilterMapping: [
-        {momentValue: "1d", label: "last day"},
-        {momentValue: "2d", label: "last 2 days"},
-        {momentValue: "3d", label: "last 3 days"},
-        {momentValue: "4d", label: "last 4 days"},
-        {momentValue: "1w", label: "last week"},
-        {momentValue: "2w", label: "last 2 weeks"},
-        {momentValue: "3w", label: "last 3 weeks"},
-        {momentValue: "1M", label: "last month"},
-        {momentValue: "2M", label: "last 2 months"},
-        {momentValue: "3M", label: "last 3 months"},
-        {momentValue: "4M", label: "last 4 months"},
-        {momentValue: "5M", label: "last 5 months"},
-        {momentValue: "6M", label: "last 6 months"},
-        {momentValue: "1y", label: "last year"},
-        {momentValue: "2y", label: "last 2 years"},
-        {momentValue: "", label: "beginning of time"}],
-
-    getLabelBy:function(momentValue) {
-        return _.chain(this.lastDeployFilterMapping).filter(function(element) {
-            return element.momentValue === momentValue;
-        }).first().value().label;
     },
 
     spinnerClasses: function () {

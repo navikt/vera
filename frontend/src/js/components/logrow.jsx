@@ -1,5 +1,6 @@
 var React = require('react');
 var classString = require('react-classset');
+var moment = require('moment');
 
 module.exports = LogRow = React.createClass({
     render: function () {
@@ -16,7 +17,8 @@ module.exports = LogRow = React.createClass({
                     </sup>
                 </small>
             </td>
-            <td>{event.deployed_timestamp}</td>
+            <td >{event.deployed_timestamp}</td>
+            <td>{moment(event.original_timestamp).fromNow()}</td>
         </tr>
     },
 
