@@ -1,61 +1,70 @@
 var React = require('react');
+var _ = require('lodash');
 var ButtonGroup = require('react-bootstrap').ButtonGroup;
 
 
 module.exports = ToggleButtonGroup = React.createClass({
-    getInitialState: function() {
-        return {defaultValue: this.props.defaultValue || []}
+
+
+    getInitialState: function () {
+        return {}
     },
 
-    componentDidMount: function() {
+    componentDidMount: function () {
         this.setCheckboxNames();
         this.setCheckedBoxes();
     },
 
-    componentDidUpdate: function() {
+    componentDidUpdate: function () {
         this.setCheckboxNames();
         this.setCheckedBoxes();
     },
 
-    render: function() {
+    render: function () {
+        var checkboxes = this.setCheckedValues();
         return (
             <ButtonGroup data-toggle="buttons" role="group" onChange={this.props.onChange} value={this.props.value}>
-                 {this.props.children}
+                {checkboxes}
             </ButtonGroup>
         );
     },
 
-    setCheckboxNames: function() {
+    setCheckedValues: function () {
+        return this.props.children.map(function (elem) {
+            return React.cloneElement(elem, {key: elem.props.value, checked: this.props.value.indexOf(elem.props.value) >= 0})
+        }.bind(this));
+    },
+
+    setCheckboxNames: function () {
         var $checkboxes = this.getCheckboxes();
 
-        for(var i = 0; i < $checkboxes.length; i++) {
+        for (var i = 0; i < $checkboxes.length; i++) {
             $checkboxes[i].setAttribute('name', this.props.name);
         }
     },
 
-    getCheckboxes: function() {
+    getCheckboxes: function () {
         return this.getDOMNode().querySelectorAll('input[type="checkbox"]');
     },
 
-    setCheckedBoxes: function() {
+    setCheckedBoxes: function () {
         var $checkboxes = this.getCheckboxes();
-        var desinationValue = this.props.value != null ? this.props.value : this.state.defaultValue;
 
-        for(var i = 0; i < $checkboxes.length; i++) {
+        for (var i = 0; i < $checkboxes.length; i++) {
             var $checkbox = $checkboxes[i];
 
-            if(desinationValue.indexOf($checkbox.value) >= 0 ) {
+            if (this.props.value.indexOf($checkbox.value) >= 0) {
                 $checkbox.checked = true;
             }
         }
     },
 
-    getCheckedValues: function() {
+    getCheckedValues: function () {
         var $checkboxes = this.getCheckboxes();
         var checked = [];
 
-        for(var i = 0; i < $checkboxes.length; i++) {
-            if($checkboxes[i].checked) {
+        for (var i = 0; i < $checkboxes.length; i++) {
+            if ($checkboxes[i].checked) {
                 checked.push($checkboxes[i].value);
             }
         }

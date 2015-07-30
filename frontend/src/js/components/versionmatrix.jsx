@@ -165,8 +165,6 @@ module.exports = VersionMatrix = React.createClass({
         return this.state.filters.environmentClass.indexOf(envClass) > -1
     },
 
-
-
     render: function () {
         var appFilter = this.state.filters.application;
         var envFilter = this.state.filters.environment;
