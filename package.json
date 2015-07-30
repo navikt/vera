@@ -1,7 +1,7 @@
 {
   "name": "vera",
   "description": "Web application for logging and viewing application deployment events",
-  "version": "65.0.0",
+  "version": "67.0.0",
   "url": "http://vera.adeo.no",
   "repository": {
     "type": "git",
