@@ -48,7 +48,10 @@ module.exports = DeployLog = React.createClass({
 
 
     render: function () {
-
+        console.log("Filters are in render");
+        console.log(this.state.filters);
+        console.log("State is in render");
+        console.log(this.state);
         var filteredEvents = this.applyHeaderFilter(this.state.items, this.state.filters.regexp).filter(this.inactiveVersionsIfEnabled);
         var eventsToRender = filteredEvents.slice(0, this.state.itemRenderCount);
 
@@ -268,6 +271,8 @@ module.exports = DeployLog = React.createClass({
     },
 
     clearFilters: function () {
+        console.log("Clearing filters");
+        console.log(this.getEmptyFilters());
             this.setState({deployEventTimeLimit: '1w', filters: this.getEmptyFilters()});
             this.replaceWith('log');
     },
