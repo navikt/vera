@@ -18,7 +18,6 @@ module.exports = DeployLog = React.createClass({
     mixins: [State, Navigation],
 
     getInitialState: function () {
-        console.log("Getting initial state");
         return {
             items: [],
             loaded: false,
@@ -30,7 +29,6 @@ module.exports = DeployLog = React.createClass({
     },
 
     componentDidMount: function () {
-        console.log("Component did mount");
         this.getDeployEvents();
     },
 
@@ -38,7 +36,6 @@ module.exports = DeployLog = React.createClass({
         if(this.state.deployEventTimeLimit !== prevState.deployEventTimeLimit ||
                 this.getQuery() != prevProps.query) {
             //Either query params has been cleared or timelimit param has changed. Time to call the backend again.
-            console.log("Time to call backend");
             this.getDeployEvents();
         }
     },
@@ -50,8 +47,6 @@ module.exports = DeployLog = React.createClass({
 
 
     render: function () {
-        console.log("State is in render");
-        console.log(this.state);
         var filteredEvents = this.applyHeaderFilter(this.state.items, this.state.filters.regexp).filter(this.inactiveVersionsIfEnabled);
         var eventsToRender = filteredEvents.slice(0, this.state.itemRenderCount);
 
@@ -254,8 +249,6 @@ module.exports = DeployLog = React.createClass({
 
     getDeployEvents: function () {
         return $.getJSON(this.DEPLOYLOG_SERVICE + this.getBackendParams()).success(function (data) {
-            console.log("Called backend " + this.DEPLOYLOG_SERVICE + this.getBackendParams());
-            console.log(data);
             this.setState({loaded: true, items: this.mapToViewFormat(data)})
         }.bind(this));
     },
@@ -274,10 +267,8 @@ module.exports = DeployLog = React.createClass({
     },
 
     clearFilters: function () {
-        console.log("Clearing filters");
-        console.log(this.getEmptyFilters());
-            this.setState({deployEventTimeLimit: '1w', filters: this.getEmptyFilters()});
-            this.replaceWith('log');
+        this.replaceWith('log');
+        this.setState({deployEventTimeLimit: '1w', filters: this.getEmptyFilters()});
     },
 
     toggleOnlyLatest: function () {
