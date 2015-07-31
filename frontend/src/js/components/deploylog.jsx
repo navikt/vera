@@ -18,7 +18,7 @@ module.exports = DeployLog = React.createClass({
     mixins: [State, Navigation],
 
     getInitialState: function () {
-
+        console.log("Getting initial state");
         return {
             items: [],
             loaded: false,
@@ -48,8 +48,6 @@ module.exports = DeployLog = React.createClass({
 
 
     render: function () {
-        console.log("Filters are in render");
-        console.log(this.state.filters);
         console.log("State is in render");
         console.log(this.state);
         var filteredEvents = this.applyHeaderFilter(this.state.items, this.state.filters.regexp).filter(this.inactiveVersionsIfEnabled);
@@ -248,11 +246,15 @@ module.exports = DeployLog = React.createClass({
             return eventItem;
         }
 
-        return data.map(toReadableDateFormat).map(nullVersionsToUndeployed);
+        var viewFormat = _.chain(data).map(toReadableDateFormat).map(nullVersionsToUndeployed).value();
+        console.log("Items will soon be");
+        console.log(viewFormat);
+        return viewFormat
     },
 
     getDeployEvents: function () {
         return $.getJSON(this.DEPLOYLOG_SERVICE + this.getBackendParams()).success(function (data) {
+
             this.setState({loaded: true, items: this.mapToViewFormat(data)})
         }.bind(this));
     },
