@@ -30,6 +30,7 @@ module.exports = DeployLog = React.createClass({
     },
 
     componentDidMount: function () {
+        console.log("Component did mount");
         this.getDeployEvents();
     },
 
@@ -37,6 +38,7 @@ module.exports = DeployLog = React.createClass({
         if(this.state.deployEventTimeLimit !== prevState.deployEventTimeLimit ||
                 this.getQuery() != prevProps.query) {
             //Either query params has been cleared or timelimit param has changed. Time to call the backend again.
+            console.log("Time to call backend");
             this.getDeployEvents();
         }
     },
@@ -247,14 +249,13 @@ module.exports = DeployLog = React.createClass({
         }
 
         var viewFormat = _.chain(data).map(toReadableDateFormat).map(nullVersionsToUndeployed).value();
-        console.log("Items will soon be");
-        console.log(viewFormat);
         return viewFormat
     },
 
     getDeployEvents: function () {
         return $.getJSON(this.DEPLOYLOG_SERVICE + this.getBackendParams()).success(function (data) {
-
+            console.log("Called backend " + this.DEPLOYLOG_SERVICE + this.getBackendParams());
+            console.log(data);
             this.setState({loaded: true, items: this.mapToViewFormat(data)})
         }.bind(this));
     },
