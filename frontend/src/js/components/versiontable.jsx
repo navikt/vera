@@ -119,7 +119,7 @@ module.exports = VersionTable = React.createClass({
     },
 
     createLinkQuery: function (cellContent) {
-        return {environment: cellContent.environment, application: cellContent.application, regexp: true}
+        return {environment: cellContent.environment, application: cellContent.application, regexp: true }
     },
 
     newDeploymentIcon: function () {

@@ -2,7 +2,8 @@ var React = require('react');
 var $ = require('jquery');
 var moment = require('moment');
 var _ = require('lodash');
-var Router = require('react-router');
+var State = require('react-router').State;
+var Navigation = require('react-router').Navigation;
 var LogRow = require('./logrow.jsx');
 var LogHeader = require('./logheader.jsx')
 var ToggleButton = require('./toggle-button.jsx');
@@ -14,7 +15,7 @@ var Button = require('react-bootstrap').Button;
 
 module.exports = DeployLog = React.createClass({
 
-    mixins: [Router.State],
+    mixins: [State, Navigation],
 
     getInitialState: function () {
         return {
@@ -32,7 +33,9 @@ module.exports = DeployLog = React.createClass({
     },
 
     componentDidUpdate: function(prevProps, prevState) {
-        if(this.state.deployEventTimeLimit !== prevState.deployEventTimeLimit) {
+        if(this.state.deployEventTimeLimit !== prevState.deployEventTimeLimit ||
+                this.getQuery() != prevProps.query) {
+            //Either query params has been cleard or timelimit param has changed. Time to call the backend again.
             this.getDeployEvents();
         }
     },
@@ -215,7 +218,8 @@ module.exports = DeployLog = React.createClass({
         if (urlContainsValidBackendParams) {
             params = _.pick(this.getQuery(), this.validBackendParams);
         }
-        if(this.state.deployEventTimeLimit) {
+        else {
+            // When only set last param when no query params otherwise it looks wierd when you clik on something in the matrix view and get an empty log...
             params.last = this.state.deployEventTimeLimit;
         }
 
@@ -239,7 +243,7 @@ module.exports = DeployLog = React.createClass({
         return data.map(toReadableDateFormat).map(nullVersionsToUndeployed);
     },
 
-        getDeployEvents: function () {
+    getDeployEvents: function () {
         return $.getJSON(this.DEPLOYLOG_SERVICE + this.getBackendParams()).success(function (data) {
             this.setState({loaded: true, items: this.mapToViewFormat(data)})
         }.bind(this));
@@ -259,7 +263,8 @@ module.exports = DeployLog = React.createClass({
     },
 
     clearFilters: function () {
-        this.setState({filters: _.clone(this.emptyFilters)});
+            this.setState({filters: _.clone(this.emptyFilters)});
+            this.replaceWith('log');
     },
 
     toggleOnlyLatest: function () {

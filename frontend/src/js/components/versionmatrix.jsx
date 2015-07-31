@@ -2,9 +2,10 @@ var $ = jQuery = require('jquery');
 var moment = require('moment');
 var _ = require('lodash');
 var React = require('react');
-var Router = require('react-router');
+var State = require('react-router').State;
+var Navigation = require('react-router').Navigation;
+var Link = require('react-router').Link;
 var classString = require('react-classset');
-var Link = Router.Link;
 var util = require('../vera-parser');
 var VersionTable = require('./versiontable.jsx');
 var LastDeploymentDropdown = require('./last-deployment-dropdown.jsx');
@@ -13,16 +14,26 @@ var ToggleButton = require('./toggle-button.jsx');
 var ButtonToolbar = require('react-bootstrap').ButtonToolbar;
 var ButtonGroup = require('react-bootstrap').ButtonGroup;
 var FormGroup = require('react-bootstrap').FormGroup;
+var Button = require('react-bootstrap').Button;
+var Input = require('react-bootstrap').Input;
 
 module.exports = VersionMatrix = React.createClass({
+
+    defaultFilter: {environmentClass: ['t', 'q', 'p']},
+
     getInitialState: function () {
-        var filters = {environmentClass: ['t', 'q', 'p']};
+        var filters = _.clone(this.defaultFilter);
         var lastDeployedFilter = '';
 
-        filters.application = this.getQueryParam('apps');
-        filters.environment = this.getQueryParam('envs');
+        var apps = this.getQueryParam('apps');
+        var envs = this.getQueryParam('envs');
+
+        filters.application = apps.split(',');
+        filters.environment = envs.split(',');
 
         return {
+            applicationInput: apps,
+            environmentInput: envs,
             loaded: false,
             jsonData: [],
             filters: filters,
@@ -30,13 +41,14 @@ module.exports = VersionMatrix = React.createClass({
         }
     },
 
-    mixins: [Router.State],
+    mixins: [State, Navigation],
 
     shouldComponentUpdate: function (nextProps, nextState) {
         return nextState.jsonData.length > 0;
     },
 
-    componentDidMount: function () {
+
+    componentWillMount: function() {
         $.getJSON('/api/v1/deploylog?onlyLatest=true&filterUndeployed=true').done(function (data) {
 
             var enrichedLogEvents = _.map(data, function (logEvent) {
@@ -49,6 +61,7 @@ module.exports = VersionMatrix = React.createClass({
                 return logEvent;
             });
             this.setState({jsonData: enrichedLogEvents, loaded: true});
+
         }.bind(this));
 
         var isDeployedLast24Hrs = function (logEvent, deployDateBackInTime) {
@@ -56,30 +69,46 @@ module.exports = VersionMatrix = React.createClass({
         };
     },
 
-    getQueryParam: function (paramName) {
-        var queryParam = this.getQuery()[paramName];
-        return (queryParam) ? queryParam.split(',') : [];
+    componentDidUpdate: function(nextProps, nextState) {
+        console.log("CDU");
     },
 
-    componentWillUpdate: function () {
-        var filters = this.state.filters;
-        delete filters.application;
-        delete filters.environment;
-
-        filters.application = this.getQueryParam('apps');
-        filters.environment = this.getQueryParam('envs');
-    },
-
-    //componentDidUpdate: function () {
-    //    if (!this.state.loaded) {
-    //        this.setState({loaded: true});
-    //    }
+    //componentDidMount: function () {
+    //
     //},
 
-    updateFilters: function (e) {
-        var filters = {};
-        var appFilter = this.refs.applicationFilter.getDOMNode().value.toLowerCase();
-        var envFilter = this.refs.environmentFilter.getDOMNode().value.toLowerCase();
+    getQueryParam: function (paramName) {
+        var queryParam = this.getQuery()[paramName];
+        return queryParam || '';
+    },
+
+    componentWillReceiveProps: function (nextProps) {
+        if (this.getQuery() != nextProps.query) {
+            var filters = _.clone(this.state.filters)
+            var apps = this.getQueryParam('apps');
+            var envs = this.getQueryParam('envs');
+            filters.application = apps.split(',');
+            filters.environment = envs.split(',');
+            this.setState({filters: filters, applicationInput: apps, environmentInput: envs})
+        }
+    },
+
+    setEnvironmentClassFilters: function() {
+        var currentFilters = _.clone(this.state.filters);
+        currentFilters.environmentClass = this.refs.envClasses.getCheckedValues();
+        this.setState({filters: currentFilters});
+    },
+
+    checkKeyboard: function(e) {
+      if( e.keyCode == 13 ) {
+          this.updateFilters();
+      }
+    },
+
+    updateFilters: function () {
+        var filters = _.clone(this.state.filters);
+        var appFilter = this.state.applicationInput.toLowerCase();
+        var envFilter = this.state.environmentInput.toLowerCase();
         if (appFilter) {
             filters.application = appFilter.split(',');
         }
@@ -88,18 +117,12 @@ module.exports = VersionMatrix = React.createClass({
             filters.environment = envFilter.split(',');
         }
 
-        filters.environmentClass = this.refs.envClasses.getCheckedValues();
         this.setState({filters: filters});
-
-        if (e.target.type === 'submit') { // prevent form submission, no need to call the server as everything happens client side
-            e.preventDefault();
-        }
-
-        window.location.href = "#/matrix?envs=" + envFilter + "&apps=" + appFilter;
+        this.replaceWith('matrix', {}, {apps: appFilter, envs: envFilter})
     },
 
     applyFilters: function () {
-
+        console.log(this.state.filters);
         _.mixin({
             'regexpMatchByValues': function (collection, property, filters) {
                 if (!filters || filters.length === 0) {
@@ -143,13 +166,8 @@ module.exports = VersionMatrix = React.createClass({
     },
 
     clear: function () {
-        this.refs.environmentFilter.getDOMNode().value = '';
-        this.refs.applicationFilter.getDOMNode().value = '';
-        var currentFilters = this.state.filters;
-        delete currentFilters.application;
-        delete currentFilters.environment;
-        //this.setState({filters: currentFilters});
-        window.location.href = "#/matrix";
+        this.setState({applicationInput: '', environmentInput: '', filters: _.clone(this.defaultFilter)});
+        this.replaceWith('matrix');
     },
 
     inverseTable: function (clickedElement) {
@@ -160,17 +178,23 @@ module.exports = VersionMatrix = React.createClass({
         this.setState({lastDeployedFilter: selected});
     },
 
-
     hasEnvClass: function (envClass) {
         return this.state.filters.environmentClass.indexOf(envClass) > -1
     },
 
+    setApplicationInput: function(newInput) {
+        this.setState({applicationInput: newInput.target.value})
+    },
+
+    setEnvironmentInput: function(newInput) {
+        this.setState({environmentInput: newInput.target.value})
+    },
+
     render: function () {
-        var appFilter = this.state.filters.application;
-        var envFilter = this.state.filters.environment;
         var filteredData = this.applyFilters();
-        var headers = filteredData.header;
-        var body = filteredData.body;
+        //var filtereData = this.state.filteredJsonData;
+        var headers = filteredData.header || [];
+        var body = filteredData.body || [];
 
         return (
             <div className="container-fluid">
@@ -180,18 +204,15 @@ module.exports = VersionMatrix = React.createClass({
                             <form className="form-inline">
                                 <div>
                                     <div className="form-group">
-                                        {this.createInputFilter('applications', 'applicationFilter', appFilter)}&nbsp;
-                                        {this.createInputFilter('environments', 'environmentFilter', envFilter)}
-                                        <button type="submit" className="btn btn-default btn-sm"
-                                                onClick={this.updateFilters}>
-                                            <i className="fa fa-filter"></i>
-                                            &nbsp;
-                                            apply
-                                        </button>
-                                        <button type="button" className="btn btn-danger btn-sm" onClick={this.clear}>
+                                        {this.createInputFilter('applications', this.state.applicationInput, this.setApplicationInput)}&nbsp;
+                                        {this.createInputFilter('environments', this.state.environmentInput, this.setEnvironmentInput)}
+                                        <Button bsSize="small" onClick={this.updateFilters}>
+                                            <i className="fa fa-filter"></i>&nbsp;apply
+                                        </Button>
+                                        <Button bsSize="small" bsStyle="danger" onClick={this.clear}>
                                             <i className="fa fa-trash"></i>
-                                            &nbsp;reset
-                                        </button>
+                                            &nbsp;clear all filters
+                                        </Button>
                                     </div>
 
                                     <ButtonToolbar className="pull-right">
@@ -201,12 +222,10 @@ module.exports = VersionMatrix = React.createClass({
                                                               checked={this.state.inverseTable}
                                                               onChange={this.inverseTable}
                                                               iconClassName={["fa fa-level-down fa-flip-horizontal", "fa fa-level-up"]}/>
-                                                </ButtonGroup>
-
-                                        <LastDeploymentDropdown selected={this.state.lastDeployedFilter} onSelect={this.updateTimeFilter} ></LastDeploymentDropdown>
-
+                                            </ButtonGroup>
+                                            <LastDeploymentDropdown selected={this.state.lastDeployedFilter} onSelect={this.updateTimeFilter} />
                                             <ToggleButtonGroup name="envClasses" ref="envClasses"
-                                                               onChange={this.updateFilters}
+                                                               onChange={this.setEnvironmentClassFilters}
                                                                value={this.state.filters.environmentClass}>
                                                 <ToggleButton label='u' tooltip="show/hide development environments"
                                                               value="u"/>
@@ -222,6 +241,7 @@ module.exports = VersionMatrix = React.createClass({
                         </div>
                     </div>
                 </div>
+
                 <VersionTable key="tablekey" tableHeader={headers} tableBody={body}
                               inverseTable={this.state.inverseTable}/>
                 {<h3>
@@ -231,13 +251,12 @@ module.exports = VersionMatrix = React.createClass({
         )
     },
 
-    createInputFilter: function (labelText, inputId, defaultValue) {
+    createInputFilter: function (labelText, value, onChangeHandler) {
         return (
             <div className="form-group">
                 <div className="input-group">
                     <div className="input-group-addon">{labelText}</div>
-                    <input ref={inputId} type="text" className="form-control input-sm"
-                           defaultValue={defaultValue}></input>
+                    <Input type="text" bsSize="small" onChange={onChangeHandler} onKeyDown={this.checkKeyboard}  value={value}></Input>
                 </div>
             </div>
         )
