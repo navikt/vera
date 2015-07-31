@@ -25,7 +25,7 @@ module.exports = DeployLog = React.createClass({
             itemRenderCount: 100,
             isPolling: false,
             deployEventTimeLimit: _.isEmpty(this.getQuery()) ? '1w' : '', // When query params, we came from matrix view and it makes sense to to set a time limit on backend call
-            filters: this.enrichFromObject(this.emptyFilters, this.getQuery())
+            filters: this.enrichFromObject(this.getEmptyFilters(), this.getQuery())
         };
     },
 
@@ -117,14 +117,18 @@ module.exports = DeployLog = React.createClass({
       }
     },
 
-    emptyFilters: {
-        application: '',
-        environment: '',
-        deployer: '',
-        version: '',
-        timestamp: '',
-        onlyLatest: false,
-        regexp: false
+    getEmptyFilters: function() {
+        var emptyFilters = {
+            application: '',
+            environment: '',
+            deployer: '',
+            version: '',
+            timestamp: '',
+            onlyLatest: false,
+            regexp: false
+        }
+
+        return _.clone(emptyFilters);
     },
 
     validBackendParams: ["application", "environment", "deployer", "version", "onlyLatest"],
@@ -264,7 +268,7 @@ module.exports = DeployLog = React.createClass({
     },
 
     clearFilters: function () {
-            this.setState({deployEventTimeLimit: '1w', filters: _.clone(this.emptyFilters)});
+            this.setState({deployEventTimeLimit: '1w', filters: this.getEmptyFilters()});
             this.replaceWith('log');
     },
 
@@ -272,6 +276,7 @@ module.exports = DeployLog = React.createClass({
         var filter = _.clone(this.state.filters, true);
         filter['onlyLatest'] = !this.state.filters.onlyLatest;
         this.setState({filters: filter});
+
     },
 
     togglePolling: function () {
