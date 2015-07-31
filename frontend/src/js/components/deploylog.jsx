@@ -18,12 +18,13 @@ module.exports = DeployLog = React.createClass({
     mixins: [State, Navigation],
 
     getInitialState: function () {
+
         return {
             items: [],
             loaded: false,
             itemRenderCount: 100,
             isPolling: false,
-            deployEventTimeLimit: '1w',
+            deployEventTimeLimit: _.isEmpty(this.getQuery()) ? '1w' : '', // When query params, we came from matrix view and it makes sense to to set a time limit on backend call
             filters: this.enrichFromObject(this.emptyFilters, this.getQuery())
         };
     },
@@ -35,7 +36,7 @@ module.exports = DeployLog = React.createClass({
     componentDidUpdate: function(prevProps, prevState) {
         if(this.state.deployEventTimeLimit !== prevState.deployEventTimeLimit ||
                 this.getQuery() != prevProps.query) {
-            //Either query params has been cleard or timelimit param has changed. Time to call the backend again.
+            //Either query params has been cleared or timelimit param has changed. Time to call the backend again.
             this.getDeployEvents();
         }
     },
@@ -263,7 +264,7 @@ module.exports = DeployLog = React.createClass({
     },
 
     clearFilters: function () {
-            this.setState({filters: _.clone(this.emptyFilters)});
+            this.setState({deployEventTimeLimit: '1w', filters: _.clone(this.emptyFilters)});
             this.replaceWith('log');
     },
 

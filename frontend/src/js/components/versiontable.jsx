@@ -13,39 +13,26 @@ module.exports = VersionTable = React.createClass({
     },
 
     shouldComponentUpdate: function (nextProps, nextState) {
-        return nextProps.tableBody.length !== this.props.tableBody.length ||
-            this.state.rowsToRender !== nextState.rowsToRender ||
-            nextProps.tableHeader.length !== this.props.tableHeader.length ||
-            this.hasFilteredAppsChanged(this.props.tableBody, nextProps.tableBody);
-    },
-
-    hasFilteredAppsChanged: function (existingTableBody, newTableBody) {
-        var getApplicationNames = function (body) {
-            return body.map(function (elem) {
-                return elem[0]
-            });
-        }
-        return _.difference(getApplicationNames(existingTableBody), getApplicationNames(newTableBody)).length > 0;
+        return this.props.versionData !== nextProps.versionData || this.state.rowsToRender !== nextState.rowsToRender
     },
 
     render: function () {
         var showMoreLink;
+
         var viewAllRows = function () {
-            this.setState({rowsToRender: this.props.tableBody.length});
+            this.setState({rowsToRender: this.props.versionData.body.length});
         }.bind(this)
 
-        var headerToRender = this.props.tableHeader;
-        var bodyToRender = this.props.tableBody;
-        if (this.state.rowsToRender.length != this.props.tableBody.length) {
-            bodyToRender = this.props.tableBody.slice(0, this.state.rowsToRender);
+        var headerToRender = this.props.versionData.header || [];
+        var bodyToRender = this.props.versionData.body || [];
 
-            if (this.props.tableBody.length > this.state.rowsToRender) {
-                showMoreLink = (
-                    <div>
-                        <button type="button" className="btn btn-link" onClick={viewAllRows}>View all...</button>
-                    </div>
-                )
-            }
+        if (bodyToRender.length > this.state.rowsToRender) {
+            bodyToRender = bodyToRender.slice(0, this.state.rowsToRender);
+            showMoreLink = (
+                <div>
+                    <button type="button" className="btn btn-link" onClick={viewAllRows}>View all...</button>
+                </div>
+            )
         }
 
         return (

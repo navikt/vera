@@ -36,8 +36,10 @@ module.exports = VersionMatrix = React.createClass({
             environmentInput: envs,
             loaded: false,
             jsonData: [],
+            filteredJsonData: {},
             filters: filters,
-            lastDeployedFilter: lastDeployedFilter
+            lastDeployedFilter: lastDeployedFilter,
+            inverseTable: false
         }
     },
 
@@ -70,12 +72,23 @@ module.exports = VersionMatrix = React.createClass({
     },
 
     componentDidUpdate: function(nextProps, nextState) {
-        console.log("CDU");
-    },
+        var currentFilter = this.state.filters;
+        var nextFilter = nextState.filters;
 
-    //componentDidMount: function () {
-    //
-    //},
+        var currentTimeFilter = this.state.lastDeployedFilter;
+        var nextTimeFilter = nextState.lastDeployedFilter;
+
+        var currentInverseTable = this.state.inverseTable;
+        var nextInverseTable = nextState.inverseTable
+
+        var currentJsonData = this.state.jsonData
+        var nextJsonData = nextState.jsonData;
+
+        if ((currentFilter !== nextFilter) || (currentTimeFilter !== nextTimeFilter) || (currentInverseTable !== nextInverseTable) || currentJsonData !== nextJsonData) {
+            var filteredData = this.applyFilters();
+            this.setState({filteredJsonData: filteredData});
+        }
+    },
 
     getQueryParam: function (paramName) {
         var queryParam = this.getQuery()[paramName];
@@ -122,7 +135,6 @@ module.exports = VersionMatrix = React.createClass({
     },
 
     applyFilters: function () {
-        console.log(this.state.filters);
         _.mixin({
             'regexpMatchByValues': function (collection, property, filters) {
                 if (!filters || filters.length === 0) {
@@ -144,7 +156,7 @@ module.exports = VersionMatrix = React.createClass({
         var filters = this.state.filters;
         var lastDeployedFilter = this.state.lastDeployedFilter;
 
-        var filteredJsonData = this.state.jsonData;
+        var filteredJsonData = _.clone(this.state.jsonData);
         if (filters) {
             _.keys(filters).forEach(function (key) {
                 filteredJsonData = _.regexpMatchByValues(filteredJsonData, key, filters[key]);
@@ -166,7 +178,12 @@ module.exports = VersionMatrix = React.createClass({
     },
 
     clear: function () {
-        this.setState({applicationInput: '', environmentInput: '', filters: _.clone(this.defaultFilter)});
+        this.setState({
+            applicationInput: '',
+            environmentInput: '',
+            lastDeployedFilter: '',
+            inverseTable: false,
+            filters: _.clone(this.defaultFilter)});
         this.replaceWith('matrix');
     },
 
@@ -191,11 +208,6 @@ module.exports = VersionMatrix = React.createClass({
     },
 
     render: function () {
-        var filteredData = this.applyFilters();
-        //var filtereData = this.state.filteredJsonData;
-        var headers = filteredData.header || [];
-        var body = filteredData.body || [];
-
         return (
             <div className="container-fluid">
                 <div className="row">
@@ -242,7 +254,7 @@ module.exports = VersionMatrix = React.createClass({
                     </div>
                 </div>
 
-                <VersionTable key="tablekey" tableHeader={headers} tableBody={body}
+                <VersionTable key="tablekey" versionData={this.state.filteredJsonData}
                               inverseTable={this.state.inverseTable}/>
                 {<h3>
                     <i className={this.spinnerClasses()}></i>
