@@ -11,6 +11,9 @@
     "name": "Mats Rodney Harley Dennis Rikardo Byfuglien",
     "email": "mats.byfuglien@nav.no"
   },
+  "scripts": {
+    "test": "tape test/*.js | tap-spec"
+  },
   "contributors": [
     {
       "name": "Johnny Amadeus Jerimia Aron Rullgardina Horvi aka jdawg",
@@ -56,8 +59,15 @@
     "react-router": "0.13.3",
     "reactify": "0.17.1",
     "run-sequence": "1.0.2",
-    "supertest": "0.14.0",
+    "supertest": "~1.1.0",
+    "tap-spec": "^4.1.0",
+    "tape": "~4.2.1",
     "vinyl-buffer": "1.0.0",
-    "vinyl-source-stream": "1.0.0"
-  }
+    "vinyl-source-stream": "1.0.0",
+    "mongoose-mock": "~0.4.0",
+    "proxyquire": "~1.7.3",
+    "sinon": "~1.17.1",
+    "gulp-tape": "0.0.4"
+  },
+  "license": "MIT"
 }

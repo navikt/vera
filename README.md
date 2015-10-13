@@ -3,11 +3,10 @@
 1. git clone http://stash.devillo.no/scm/aura/vera.git
 2. npm install
 3. if (!gulp.installed) npm install -g gulp
-4. export db_url=mongodb://e34apsl00652.devillo.no/deploy_log && export NODE_ENV=development && nodemon --debug --watch backend --watch server.js
+4. export db_url=[mongo url] && export NODE_ENV=development && nodemon --debug --watch backend --watch server.js
    (starter opp backend mot basen som ligger på utviklingsserveren og oppdaterer ved endringer. Alternativt kan man lage sin egen mongodb base. Bør konfigureres opp i IDEen)
 5. gulp # bygger frontend og rebygger ved endringer
 
-Ved push til master trigges [byggejobben til vera](http://aura.devillo.no/view/cd/job/cd_vera/) automatisk med mindre commitmeldingen starter med 'SKIP_BUILD'
 
 ## Denne gjør følgende:
 

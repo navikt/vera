@@ -61,3 +61,5 @@ var httpServer = http.createServer(app);
 httpServer.listen(config.port, function () {
     logger.log("Ready for e-business on port " + config.port)
 });
+
+module.exports = app;
