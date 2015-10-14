@@ -1,5 +1,6 @@
 ## For å komme i gang med utvikling:
 
+
 1. git clone http://stash.devillo.no/scm/aura/vera.git
 2. npm install
 3. if (!gulp.installed) npm install -g gulp
