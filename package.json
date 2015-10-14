@@ -2,10 +2,9 @@
   "name": "vera",
   "description": "Web application for logging and viewing application deployment events",
   "version": "77.0.0",
-  "url": "http://vera.adeo.no",
   "repository": {
     "type": "git",
-    "url": "http://stash.devillo.no/scm/aura/vera.git"
+    "url": "https://github.com/navikt/vera.git"
   },
   "author": {
     "name": "Mats Rodney Harley Dennis Rikardo Byfuglien",
@@ -64,7 +63,6 @@
     "tape": "~4.2.1",
     "vinyl-buffer": "1.0.0",
     "vinyl-source-stream": "1.0.0",
-    "mongoose-mock": "~0.4.0",
     "proxyquire": "~1.7.3",
     "sinon": "~1.17.1",
     "gulp-tape": "0.0.4"
