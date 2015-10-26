@@ -5,44 +5,43 @@ var jsonToCSV = require('json-csv');
 var _ = require('lodash');
 var moment = require('moment');
 
-exports.deployLog = function () {
-    return function (req, res, next) {
-        var predicate = {}
+exports.deployLog = function (req, res, next) {
+    var predicate = {}
 
-        _.forOwn(req.query, function (value, key) {
-            if (_.has(parameterDefinition, key)) {
-                var keyToUse = parameterDefinition[key].mapToKey ? parameterDefinition[key].mapToKey : key;
-                var transformFunction = parameterDefinition[key].mongoTransformation;
-                try {
-                    if (transformFunction) {
-                        predicate[keyToUse] = transformFunction(value);
-                    }
-                } catch (exception) {
-                    res.statusCode = 400;
-                    throw new Error(exception);
+    _.forOwn(req.query, function (value, key) {
+        if (_.has(parameterDefinition, key)) {
+            var keyToUse = parameterDefinition[key].mapToKey ? parameterDefinition[key].mapToKey : key;
+            var transformFunction = parameterDefinition[key].mongoTransformation;
+            try {
+                if (transformFunction) {
+                    predicate[keyToUse] = transformFunction(value);
                 }
-
-            } else {
+            } catch (exception) {
                 res.statusCode = 400;
-                throw new Error("Unknown parameter provided: " + key + ". Valid parameters are: " + _.keys(parameterDefinition).join(", "));
+                throw new Error(exception);
             }
-        });
 
-        Event.find(predicate).sort([['deployed_timestamp', 'descending']]).exec(function (err, events) {
-            if (req.query.csv === 'true') {
-                returnCSVPayload(res, events);
-            } else {
-                res.header("Content-Type", "application/json; charset=utf-8");
-                res.write(JSON.stringify(events));
-                res.send();
-            }
-        });
-    }
+        } else {
+            res.statusCode = 400;
+            throw new Error("Unknown parameter provided: " + key + ". Valid parameters are: " + _.keys(parameterDefinition).join(", "));
+        }
+    });
+
+    Event.find(predicate).sort([['deployed_timestamp', 'descending']]).exec(function (err, events) {
+        if (req.query.csv === 'true') {
+            returnCSVPayload(res, events);
+        } else {
+            res.header("Content-Type", "application/json; charset=utf-8");
+            res.json(events);
+
+        }
+    });
 }
 
+
 var returnCSVPayload = function (res, events) {
-    var toExcelDateFormat = function(value){
-        if (value){
+    var toExcelDateFormat = function (value) {
+        if (value) {
             return moment(value).format("YYYY-MM-DD HH:mm:ss");
         }
     };
@@ -66,8 +65,7 @@ var returnCSVPayload = function (res, events) {
             throw new Error(err);
         }
         res.header("Content-Type", "text/plain; charset=utf-8");
-        res.write(csv);
-        res.send();
+        res.send(csv);
     });
 }
 
@@ -111,49 +109,16 @@ var parameterDefinition = {
     csv: {}
 }
 
-exports.config = function () {
-    return function (req, res, next) {
+exports.config = function (req, res, next) {
         var environmentCfg = {
             plasterUrl: config.plasterUrl,
             dbUrl: config.dbUrl,
             dbUser: config.dbUser
         }
-        res.send(environmentCfg);
+        res.json(environmentCfg);
     }
-}
 
-exports.getVersion = function () {
-    return function (req, res, next) {
-
-        var whereFilter = {};
-        if (req.query.app) {
-            whereFilter.application = new RegExp(req.query.app, "i");
-        }
-        if (req.query.env) {
-            whereFilter.environment = new RegExp(req.query.env, "i");
-        }
-        if (req.query.last) {
-            var timespan = req.query.last;
-            var timespanPattern = /(^[0-9]+)([a-zA-Z]+$)/;
-            if (timespanPattern.test(timespan)) {
-                var matches = timespan.match(timespanPattern);
-                var quantity = matches[1];
-                var timeUnit = matches[2];
-                whereFilter.deployed_timestamp = {"$gte": moment().subtract(quantity, timeUnit).format()}
-            } else {
-                res.statusCode = 400;
-                throw new Error("Invalid format for parameter 'last'. Format should be <number><period>, e.g. '7days'. See http://momentjs.com/docs/#/manipulating for more info");
-            }
-        }
-
-        Event.find(whereFilter).sort([['deployed_timestamp', 'descending']]).exec(function (err, events) {
-            res.write(JSON.stringify(events));
-            res.send();
-        });
-    }
-}
-
-exports.registerEvent = function () {
+exports.registerEvent =  function (req, res, next) {
     function logErrorHandler(err) {
         if (err) {
             logger.error(err);
@@ -177,7 +142,7 @@ exports.registerEvent = function () {
      * If a new event document is successfully created, the existing documents for this application and environment are
      * updated so that latest is set to false
      * */
-    return function (req, res, next) {
+
         var validated = function (body) {
             if (!body.environment) {
                 res.statusCode = 400;
@@ -209,11 +174,11 @@ exports.registerEvent = function () {
                     });
 
                     logger.log("Saved event", savedEvent.toJSON(), "from client ip", req.headers["x-forwarded-for"] || req.connection.remoteAddress);
-                    res.send(200, JSON.stringify(savedEvent.toJSON()));
+                    res.json(savedEvent.toJSON());
+
                 }
             }.bind(events));
         });
-    }
 }
 
 
