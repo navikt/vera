@@ -6,6 +6,7 @@ var mongoose = require('mongoose');
 //var https = require('https');
 var http = require('http');
 var fs = require('fs');
+var validation = require('express-validation');
 var app = express();
 var logger = require('./backend/config/syslog');
 
@@ -30,14 +31,20 @@ app.set('port', config.port);
 require('./backend/config/routes')(app);
 
 var logError = function (err, req, res, next) {
-    logger.log("Error: %s", err.message);
+    if(!err instanceof  validation.ValidationError) {
+        logger.log("Error: %s", err.message);
+
+    }
     return next(err);
 }
 
 var errorHandler = function (err, req, res, next) {
+    if(err instanceof validation.ValidationError) {
+        return res.status(err.status).json(err);
+    }
     res.send({
         status: res.statusCode,
-        message: err.message || "internal error"
+        message: err.message || "internal error "
     });
 };
 
@@ -47,7 +54,6 @@ mongoose.connect(config.dbUrl);
 logger.log("Using MongoDB URL", config.dbUrl);
 
 var db = mongoose.connection;
-
 db.on('error', console.error.bind(console, 'connection error:'));
 
 app.use(logError);

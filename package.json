@@ -11,7 +11,7 @@
     "email": "mats.byfuglien@nav.no"
   },
   "scripts": {
-    "test": "tape test/*.js | tap-spec"
+    "test": "mocha chaitest/*.js"
   },
   "contributors": [
     {
@@ -30,7 +30,8 @@
     "moment": "2.8.4",
     "mongoose": "3.8.25",
     "json-csv": "1.0.5",
-    "morgan": "1.1.1"
+    "morgan": "1.1.1",
+    "express-validation": "~0.4.5"
   },
   "devDependencies": {
     "bootstrap": "3.3.4",
@@ -64,8 +65,10 @@
     "vinyl-buffer": "1.0.0",
     "vinyl-source-stream": "1.0.0",
     "proxyquire": "~1.7.3",
-    "sinon": "~1.17.1",
-    "gulp-tape": "0.0.4"
+    "gulp-tape": "0.0.4",
+    "scotch-tape": "~0.2.1",
+    "tape-catch": "~1.0.4",
+    "joi": "~6.9.1"
   },
   "license": "MIT"
 }

@@ -40,4 +40,8 @@ eventSchema.statics.createFromObject = function (obj) {
     });
 }
 
+eventSchema.statics.getLatestDeployedApplicationsFor = function(predicate, callback) {
+    return this.find({replaced_timestamp: null}).or(predicate).exec(callback);
+}
+
 module.exports = Event = mongoose.model('Event', eventSchema);
