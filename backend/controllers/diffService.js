@@ -44,7 +44,6 @@ var compareToBase = function (baseEvent, events, environments) {
 
 
 var getEventFor = function (events, application, environment) {
-
     return _.chain(events).filter(function (event) {
         return event.environment.toLowerCase() === environment &&
             event.application.toLowerCase() === application
