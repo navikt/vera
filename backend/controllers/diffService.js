@@ -9,13 +9,13 @@ exports.diffEnvironments = function (req, res, next) {
     var environments = requestParams.comparewith.split(",").concat(baseEnv);
 
     Event.getLatestDeployedApplicationsFor(environments.map(toEnvironmentQuery), function (err, events) {
-            var baseEvents = getEventsForEnvironment(events, baseEnv);
-            var comparedEvents = baseEvents.map(function (baseEvent) {
-                return {
+            const baseEvents = getEventsForEnvironment(events, baseEnv);
+            const comparedEvents = baseEvents.map(baseEvent =>
+                ({
                     application: baseEvent.application,
                     environments: compareToBase(baseEvent, events, environments)
-                }
-            });
+                })
+            );
 
             res.header("Content-Type", "application/json; charset=utf-8");
             res.json(comparedEvents);
@@ -23,16 +23,15 @@ exports.diffEnvironments = function (req, res, next) {
     );
 }
 
-var compareToBase = function (baseEvent, events, environments) {
+const compareToBase = function (baseEvent, events, environments) {
 
     return environments.map(function (environment) {
-        var eventToCompare = getEventFor(events, baseEvent.application, environment)
-        var isBaseEnvironment = (environment === baseEvent.environment);
-
-        var diffResult = {
+        const eventToCompare = getEventFor(events, baseEvent.application, environment)
+        const isBaseEnvironment = (environment === baseEvent.environment);
+        const diffResult = {
             environment: environment,
             isBaseEnvironment: isBaseEnvironment
-        }
+        };
 
         if (eventToCompare) {
             diffResult.event = eventToCompare
@@ -42,27 +41,12 @@ var compareToBase = function (baseEvent, events, environments) {
     })
 };
 
-
-var getEventFor = function (events, application, environment) {
-    return _.chain(events).filter(function (event) {
-        return event.environment.toLowerCase() === environment &&
-            event.application.toLowerCase() === application
+const getEventFor = (events, application, environment) => {
+     return _.chain(events).filter(event => {
+        return event.environment.toLowerCase() === environment && event.application.toLowerCase() === application
     }).first().value();
 }
 
-var getEventsForEnvironment = function (events, environment) {
-    return events.filter(function (e) {
-        return e.environment.toLowerCase() === environment
-    })
-}
+const getEventsForEnvironment = (events, env) => events.filter( e => e.environment.toLowerCase() === env )
 
-
-var toEnvironmentQuery = function (env) {
-    return {environment: caseInsensitiveRegexMatch(env)}
-}
-
-var caseInsensitiveRegexMatch = function (val) {
-    return new RegExp("^" + val + "$", "i");
-}
-
-
+const toEnvironmentQuery = env => ({environment: env})

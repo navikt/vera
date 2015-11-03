@@ -23,7 +23,7 @@ exports.deployLog = function (req, res, next) {
 
         } else {
             res.statusCode = 400;
-            throw new Error("Unknown parameter provided: " + key + ". Valid parameters are: " + _.keys(parameterDefinition).join(", "));
+            throw new Error(`Unknown parameter provided: ${key}. Valid parameters are:  ${_.keys(parameterDefinition).join(", ")}`);
         }
     });
 
@@ -173,7 +173,7 @@ exports.registerEvent =  function (req, res, next) {
                         e.save(logErrorHandler);
                     });
 
-                    logger.log("Saved event", savedEvent.toJSON(), "from client ip", req.headers["x-forwarded-for"] || req.connection.remoteAddress);
+                    logger.log(`Saved event ${savedEvent} from client ip ${req.headers["x-forwarded-for"] || req.connection.remoteAddress}` );
                     res.json(savedEvent.toJSON());
 
                 }

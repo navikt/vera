@@ -25,7 +25,7 @@ var noCache = function(req,res,next){
 app.use(cors);
 app.use(noCache);
 app.use(bodyParser.json());
-app.use(morgan('[:date[clf]] :remote-addr :method :url :status content-length: :res[content-length] response-time: :response-time ms'));
+app.use(morgan('[:date[clf]] :remote-addr :method :status :url content-length: :res[content-length] response-time: :response-time ms'));
 
 app.set('port', config.port);
 require('./backend/config/routes')(app);

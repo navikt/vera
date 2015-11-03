@@ -28,8 +28,8 @@ function getEnvClassFromEnv(environment) {
     return "u";
 }
 
-eventSchema.statics.createFromObject = function (obj) {
-    return new Event({
+eventSchema.statics.createFromObject = obj => {
+    new Event({
         application: obj.application,
         environment: obj.environment,
         version: obj.version || null,
