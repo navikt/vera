@@ -1,6 +1,5 @@
 var React = require('react');
 var classString = require('react-classset');
-var _ = require('lodash');
 var OverlayTrigger = require('react-bootstrap').OverlayTrigger;
 var Tooltip = require('react-bootstrap').Tooltip;
 var Input = require('react-bootstrap').Tooltip;
