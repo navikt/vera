@@ -3,7 +3,7 @@
     <groupId>no.nav.aura</groupId>
     <artifactId>vera</artifactId>
     <packaging>jar</packaging>
-    <version>78.0.0</version>
+    <version>79.0.0</version>
 
     <parent>
         <groupId>no.nav.aura.maven.poms</groupId>

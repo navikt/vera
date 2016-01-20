@@ -1,7 +1,7 @@
 {
   "name": "vera",
   "description": "Web application for logging and viewing application deployment events",
-  "version": "78.0.0",
+  "version": "79.0.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/navikt/vera.git"
