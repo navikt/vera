@@ -46,7 +46,7 @@ test('diffService tests', function test(it) {
         t.equal(appOneBase.diffToBase, 0, 'diff result is 0 for base environment');
         t.equal(appOneEnv.isBaseEnvironment, false, 'isBaseEnvironmentProperty is set correctly for other environments');
         t.equal(appOneEnv.diffToBase, 0, 'diff result is zero when version is equal to version in base environment');
-        t.equal(appTwoEnv.diffToBase, -1, 'diff result is -1 when version is different than version in base environment');
+        t.equal(appTwoEnv.diffToBase, 1, 'version is ahead of version in base environment');
         t.equal(appOneNotDeployedToEnv.diffToBase, undefined, 'no diff result available if application is not deployed to environment')
         t.equal(appNotDeployedToBase, undefined, 'application not deployed to base environment is not part of response')
         t.end();

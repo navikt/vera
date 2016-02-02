@@ -6,4 +6,5 @@ module.exports = {
         base: Joi.string().lowercase().required(),
         comparewith: Joi.string().lowercase().required()
     }
+
 };

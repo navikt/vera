@@ -158,7 +158,6 @@ exports.registerEvent =  function (req, res, next) {
         }
 
         var event = Event.createFromObject(validated(req.body));
-
         Event.find({
             environment: new RegExp("^" + event.environment + "$", "i"),
             application: new RegExp("^" + event.application + "$", "i"),
