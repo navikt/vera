@@ -12,7 +12,7 @@ mkdir -p $DISTDIR
 curl -O http://utviklerportalen.adeo.no/software/nodejs/nodejs-0.10.33-with-deps.el7.x86_64.tar.gz
 tar xzfv nodejs-0.10.33-with-deps.el7.x86_64.tar.gz -C $DOCKERDIR/nodejs
 
-cd $DISTDIR && cp ../../package.json . && npm install --production && rm -f package.json && cd -
+cd $DISTDIR && cp ../../package.json . && npm install --production && cd -
 
 npm install
 gulp dist || exit 1

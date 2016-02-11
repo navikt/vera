@@ -254,6 +254,8 @@ module.exports = VersionMatrix = React.createClass({
                     </div>
                 </div>
 
+
+
                 <VersionTable key="tablekey" versionData={this.state.filteredJsonData}
                               inverseTable={this.state.inverseTable}/>
                 {<h3>

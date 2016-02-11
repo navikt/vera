@@ -118,6 +118,10 @@ exports.config = function (req, res, next) {
         res.json(environmentCfg);
     }
 
+exports.isAlive =  function (req, res, next) {
+    res.send("application: UP")
+    }
+
 exports.registerEvent =  function (req, res, next) {
     function logErrorHandler(err) {
         if (err) {

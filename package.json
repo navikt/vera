@@ -32,14 +32,14 @@
     "lodash": "3.10.1",
     "moment": "2.10.6",
     "mongoose": "4.2.3",
-    "morgan": "1.6.1",
+    "morgan": "1.6.1"
   },
   "devDependencies": {
     "bootstrap": "3.3.4",
     "browserify": "8.0.3",
     "console-shim": "1.0.3",
     "del": "1.1.1",
-    "font-awesome": "4.3.0",
+    "font-awesome": "4.5.0",
     "gulp": "3.9.0",
     "gulp-concat": "2.4.3",
     "gulp-if": "1.2.5",
