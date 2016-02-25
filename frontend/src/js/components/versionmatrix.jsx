@@ -4,7 +4,6 @@ var _ = require('lodash');
 var React = require('react');
 var State = require('react-router').State;
 var Navigation = require('react-router').Navigation;
-var Link = require('react-router').Link;
 var classString = require('react-classset');
 var util = require('../vera-parser');
 var VersionTable = require('./versiontable.jsx');
@@ -13,9 +12,10 @@ var ToggleButtonGroup = require('./toggle-button-group.jsx');
 var ToggleButton = require('./toggle-button.jsx');
 var ButtonToolbar = require('react-bootstrap').ButtonToolbar;
 var ButtonGroup = require('react-bootstrap').ButtonGroup;
-var FormGroup = require('react-bootstrap').FormGroup;
 var Button = require('react-bootstrap').Button;
 var Input = require('react-bootstrap').Input;
+
+var ENTER_KEY = 13;
 
 module.exports = VersionMatrix = React.createClass({
 
@@ -71,6 +71,10 @@ module.exports = VersionMatrix = React.createClass({
         };
     },
 
+    componentDidMount: function () {
+        this.refs.applications.getInputDOMNode().focus();
+    },
+
     componentDidUpdate: function(nextProps, nextState) {
         var currentFilter = this.state.filters;
         var nextFilter = nextState.filters;
@@ -113,7 +117,7 @@ module.exports = VersionMatrix = React.createClass({
     },
 
     checkKeyboard: function(e) {
-      if( e.keyCode == 13 ) {
+      if( e.keyCode == ENTER_KEY ) {
           this.updateFilters();
       }
     },
@@ -193,6 +197,7 @@ module.exports = VersionMatrix = React.createClass({
 
     updateTimeFilter: function(selected) {
         this.setState({lastDeployedFilter: selected});
+
     },
 
     hasEnvClass: function (envClass) {
@@ -254,8 +259,6 @@ module.exports = VersionMatrix = React.createClass({
                     </div>
                 </div>
 
-
-
                 <VersionTable key="tablekey" versionData={this.state.filteredJsonData}
                               inverseTable={this.state.inverseTable}/>
                 {<h3>
@@ -270,7 +273,7 @@ module.exports = VersionMatrix = React.createClass({
             <div className="form-group">
                 <div className="input-group">
                     <div className="input-group-addon">{labelText}</div>
-                    <Input type="text" bsSize="small" onChange={onChangeHandler} onKeyDown={this.checkKeyboard}  value={value}></Input>
+                    <Input ref={labelText} type="text" bsSize="small" onChange={onChangeHandler} onKeyDown={this.checkKeyboard}  value={value}></Input>
                 </div>
             </div>
         )

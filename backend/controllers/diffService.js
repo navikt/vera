@@ -1,5 +1,3 @@
-var config = require("../config/config");
-var logger = require("../config/syslog");
 var Event = require('../models/event');
 var compareVersions = require('../modules/version-compare')
 var _ = require('lodash');
@@ -36,6 +34,9 @@ const compareToBase = function (baseEvent, events, environments) {
         if (eventToCompare) {
             diffResult.event = eventToCompare
             diffResult.diffToBase = compareVersions(eventToCompare.version, baseEvent.version)
+        }
+        if(!isBaseEnvironment) {
+            diffResult.baseVersion = baseEvent.version
         }
         return diffResult;
     })

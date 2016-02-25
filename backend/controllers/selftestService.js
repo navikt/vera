@@ -21,23 +21,21 @@ exports.testmyself = function (req, res, next) {
             "endpoint": config.dbUrl,
             "description": "Check mongodb connectivity",
             "checkResult": 0,
-            "respopnseTime": (endTime - startTime) + " ms"
+            "responseTime": (endTime - startTime) + " ms"
         }
-
 
         if(err || !event) {
             checkResult.result = 1;
             checkResult.errorMessage = (err) ? "mongodb problems" : "no data in db?"
+
             if(err) {
-                checkResult.stackTrace= err
+                checkResult.stackTrace= JSON.stringify(err)
             }
             res.statusCode = 500;
         }
 
         selftestResult.checks.push(checkResult)
-
         res.header("Content-Type", "application/json; charset=utf-8");
         res.json(selftestResult);
-
     });
 }

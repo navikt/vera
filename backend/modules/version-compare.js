@@ -42,7 +42,7 @@ const vercmp = function (versionA, versionB) {
     return 0;
 }
 
-// Will match versions like 1, 1.2, 1.2.3, 1.2.3SNAPSHOT
+// Will match versions like 1, 1.2, 1.2.3, 1.2.3-SNAPSHOT
 // but not 2.0.0-mod-alpha69, QASS294.14HL4.0 and other bat chit crazy version numbers
 const comparableVersion = function(version) {
     const parsableVersionPattern = /^[0-9]+(\.[0-9]+|-SNAPSHOT)*?$/
