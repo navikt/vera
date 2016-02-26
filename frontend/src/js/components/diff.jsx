@@ -85,11 +85,11 @@ module.exports = Diff = React.createClass({
         return queryParam || '';
     },
 
-    setEnvironmentsToDiff() {
+    setEnvironmentsToDiff: function() {
         this.setState({
             baseEnvironment: this.state.baseEnvInput,
             environmentsToCompare: this.state.envsToCompareInput
-        })
+        });
         this.replaceWith('diff', {}, {base: this.state.baseEnvInput, comparewith: this.state.envsToCompareInput})
     },
 

@@ -44,7 +44,10 @@ module.exports = DiffTable = React.createClass({
 
     noDiff: function (eventsForApp) {
         function allEqual(results) {
-            var equalAppsCount = results.filter(diffResult => diffResult.diffToBase === EQUAL).length
+            var equalAppsCount = results.filter(function (diffResult) {
+                return diffResult.diffToBase === EQUAL
+            }).length
+
             return equalAppsCount === results.length;
         }
 
@@ -63,8 +66,8 @@ module.exports = DiffTable = React.createClass({
             )
         }
 
-        return this.props.environments.map(env => {
-            var event = _.chain(eventsForApp.environments).filter(e => e.environment === env).head().value();
+        return this.props.environments.map(function(env) {
+            var event = _.chain(eventsForApp.environments).filter(function(e) { return e.environment === env}).head().value();
             var version = (event.event) ? event.event.version : "-"
             return (
                 <OverlayTrigger key={uuid.v1()} placement="left" overlay={generateTooltip(this.getDiffResult(event))}>
