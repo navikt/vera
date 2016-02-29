@@ -1,10 +1,8 @@
-FROM centos:7
+FROM docker.adeo.no:5000/alpine-node:5.7.0
 MAINTAINER Johnny Horvi <johnny.horvi@nav.no>
 
-COPY nodejs /tmp/nodejs
-RUN yum install -y /tmp/nodejs/*.rpm
-
-COPY dist /opt/vera
+WORKDIR /tmp
+ADD . /tmp
 
 EXPOSE 8443
-CMD ["node", "/opt/vera/server.js"]
+CMD ["node", "server.js"]

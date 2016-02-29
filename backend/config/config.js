@@ -9,7 +9,7 @@ var config = {
     dbPassword: process.env['veraDb_password'] || "<hemmelig>",
     tlsPrivateKey: process.env['TLS_PRIVATE_KEY'] || "private.key",
     tlsCert: process.env['TLS_CERT'] || "cacert.pem",
-    plasterUrl: process.env['plaster_url'] || ""
+    plasterUrl: process.env['plasterUrl_url'] || ""
 }
 
 module.exports = config

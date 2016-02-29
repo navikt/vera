@@ -23,7 +23,7 @@ module.exports = DeployLog = React.createClass({
             loaded: false,
             itemRenderCount: 100,
             isPolling: false,
-            deployEventTimeLimit: _.isEmpty(this.getQuery()) ? '1w' : '', // When query params, we came from matrix view and it makes sense to to set a time limit on backend call
+            deployEventTimeLimit: _.isEmpty(this.getQuery()) ? '1w' : '', // When query params, we came from matrix view and it makes sense not to set a time limit on backend call
             filters: this.enrichFromObject(this.getEmptyFilters(), this.getQuery())
         };
     },

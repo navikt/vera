@@ -2,6 +2,7 @@ var React = require('react');
 var $ = jQuery = require('jquery');
 var VersionMatrix = require('./frontend/src/js/components/versionmatrix.jsx');
 var DeployLog = require('./frontend/src/js/components/deploylog.jsx');
+var Diff = require('./frontend/src/js/components/diff.jsx');
 var Router = require('react-router');
 var RouteHandler = Router.RouteHandler;
 var DefaultRoute = Router.DefaultRoute;
@@ -46,6 +47,11 @@ var Vera = React.createClass({
                                     <i className="fa fa-table fa-sm active"></i>
                                 &nbsp;matrix</Link>
                             </li>
+                            <li>
+                                <Link to="diff">
+                                    <i className="fa fa-code-fork fa-sm active"></i>
+                                    &nbsp;diff</Link>
+                            </li>
                         </ul>
                         <ul className="nav navbar-nav pull-right">
                             <li>
@@ -68,6 +74,7 @@ var routes = (
         <DefaultRoute handler={VersionMatrix} />
         <Route name="matrix" handler={VersionMatrix} />
         <Route name="log" handler={DeployLog}/>
+        <Route name="diff" handler={Diff}/>
     </Route>
 )
 
