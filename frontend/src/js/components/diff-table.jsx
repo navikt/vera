@@ -70,10 +70,10 @@ module.exports = DiffTable = React.createClass({
             var event = _.chain(eventsForApp.environments).filter(function(e) { return e.environment === env}).head().value();
             var version = (event.event) ? event.event.version : "-"
             return (
-                <OverlayTrigger key={uuid.v1()} placement="left" overlay={generateTooltip(this.getDiffResult(event))}>
+                <OverlayTrigger key={uuid.v1()} placement="left" overlay={generateTooltip(self.getDiffResult(event))}>
                     <td className='text-nowrap'>
                         <div>
-                                <i className={this.diffIcon(event)}></i>
+                                <i className={self.diffIcon(event)}></i>
                             &nbsp;{version}
                         </div>
                     </td>
