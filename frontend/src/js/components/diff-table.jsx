@@ -20,26 +20,26 @@ module.exports = DiffTable = React.createClass({
         return nextProps.diffResult !== this.props.diffResult;
     },
 
-    sortByDiffResult: function () {
-        return _.sortBy(this.props.diffResult, function (elem) {
-            var that = this;
-            return _.reduce(elem.environments, function (result, value) {
-                var index = _.indexOf(sortOrder, that.getDiffResult(value))
+    sortByDiffResult: function (elem) {
+        var that = this;
+        return _.reduce(elem.environments, function (result, value) {
+            var index = _.indexOf(sortOrder, that.getDiffResult(value))
+            result = index < result ? index : result;
+            return result;
 
-                result = index < result ? index : result;
-                return result;
-
-            }, sortOrder.length)
-        }.bind(this))
+        }, sortOrder.length)
     },
 
     buildTableBody: function () {
-        return this.sortByDiffResult().map(function (elem) {
-            return <tr key={uuid.v1()} className={this.noDiff(elem)}>
-                <td key={elem.application}>{elem.application}</td>
-                {this.tableRow(elem)}
-            </tr>
-        }.bind(this))
+        return _.chain(this.props.diffResult).
+            sortByOrder([this.sortByDiffResult, 'application'], ['asc', 'asc'])
+            .map(function (elem) {
+                return <tr key={uuid.v1()} className={this.noDiff(elem)}>
+                    <td key={elem.application}>{elem.application}</td>
+                    {this.tableRow(elem)}
+                </tr>
+            }.bind(this)).
+            value()
     },
 
     noDiff: function (eventsForApp) {
@@ -58,6 +58,7 @@ module.exports = DiffTable = React.createClass({
 
     tableRow: function (eventsForApp) {
         var self = this;
+
         function generateTooltip(diffResult) {
             return (
                 <Tooltip>
@@ -66,14 +67,16 @@ module.exports = DiffTable = React.createClass({
             )
         }
 
-        return this.props.environments.map(function(env) {
-            var event = _.chain(eventsForApp.environments).filter(function(e) { return e.environment === env}).head().value();
+        return this.props.environments.map(function (env) {
+            var event = _.chain(eventsForApp.environments).filter(function (e) {
+                return e.environment === env
+            }).head().value();
             var version = (event.event) ? event.event.version : "-"
             return (
                 <OverlayTrigger key={uuid.v1()} placement="left" overlay={generateTooltip(self.getDiffResult(event))}>
                     <td className='text-nowrap'>
                         <div>
-                                <i className={self.diffIcon(event)}></i>
+                            <i className={self.diffIcon(event)}></i>
                             &nbsp;{version}
                         </div>
                     </td>
@@ -95,7 +98,7 @@ module.exports = DiffTable = React.createClass({
                     </tr>
                     </thead>
                     <tbody>
-                        {this.buildTableBody()}
+                    {this.buildTableBody()}
                     </tbody>
                 </table>
             )
@@ -138,20 +141,20 @@ module.exports = DiffTable = React.createClass({
         return UNKNOWN;
     },
 
-    tooltipText: function(diffResult) {
-    switch (diffResult) {
-        case BEHIND:
-            return "version is behind " + this.props.baseEnvironment
-        case MISSING:
-            return "not deployed"
-        case UNKNOWN:
-            return "unable to make sense of version number"
-        case AHEAD:
-            return "version is ahead of " + this.props.baseEnvironment
-        case EQUAL:
-            return "same version as " + this.props.baseEnvironment
-        case BASE:
-            return "base version other versions on this row are compared to"
+    tooltipText: function (diffResult) {
+        switch (diffResult) {
+            case BEHIND:
+                return "version is behind " + this.props.baseEnvironment
+            case MISSING:
+                return "not deployed"
+            case UNKNOWN:
+                return "unable to make sense of version number"
+            case AHEAD:
+                return "version is ahead of " + this.props.baseEnvironment
+            case EQUAL:
+                return "same version as " + this.props.baseEnvironment
+            case BASE:
+                return "base version other versions on this row are compared to"
+        }
     }
-}
 });
