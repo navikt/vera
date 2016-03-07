@@ -59,10 +59,10 @@ module.exports = DiffTable = React.createClass({
     tableRow: function (eventsForApp) {
         var self = this;
 
-        function generateTooltip(diffResult) {
+        function generateTooltip(event) {
             return (
                 <Tooltip>
-                    <div>{self.tooltipText(diffResult)}</div>
+                    <div>{self.tooltipText(event)}</div>
                 </Tooltip>
             )
         }
@@ -73,10 +73,10 @@ module.exports = DiffTable = React.createClass({
             }).head().value();
             var version = (event.event) ? event.event.version : "-"
             return (
-                <OverlayTrigger key={uuid.v1()} placement="left" overlay={generateTooltip(self.getDiffResult(event))}>
+                <OverlayTrigger key={uuid.v1()} placement="left" overlay={generateTooltip(event)}>
                     <td className='text-nowrap'>
                         <div>
-                            <i className={self.diffIcon(event)}></i>
+                            <i className={self.diffIcon(event)}/>
                             &nbsp;{version}
                         </div>
                     </td>
@@ -117,8 +117,8 @@ module.exports = DiffTable = React.createClass({
         var result = this.getDiffResult(diffResult)
         return classString({
             'fa': result !== BASE,
-            'fa-arrow-down': result === AHEAD,
-            'fa-arrow-up': _.includes([BEHIND, MISSING], result),
+            'fa-chevron-left': result === AHEAD,
+            'fa-chevron-right': result === BEHIND,
             'fa-check': result === EQUAL,
             'fa-question': result === UNKNOWN,
             'text-success': result === EQUAL,
@@ -137,22 +137,22 @@ module.exports = DiffTable = React.createClass({
         } else if (!something.event) {
             return MISSING
         }
-
         return UNKNOWN;
     },
 
     tooltipText: function (diffResult) {
-        switch (diffResult) {
+        result = this.getDiffResult(diffResult)
+        switch (result) {
             case BEHIND:
-                return "version is behind " + this.props.baseEnvironment
+                return diffResult.event.version + " is less then " + diffResult.baseVersion + " in " + this.props.baseEnvironment
             case MISSING:
                 return "not deployed"
             case UNKNOWN:
                 return "unable to make sense of version number"
             case AHEAD:
-                return "version is ahead of " + this.props.baseEnvironment
+                return diffResult.event.version + " is greater then " + diffResult.baseVersion + " in " + this.props.baseEnvironment
             case EQUAL:
-                return "same version as " + this.props.baseEnvironment
+                return diffResult.event.version + " equals " + this.props.baseEnvironment
             case BASE:
                 return "base version other versions on this row are compared to"
         }
