@@ -61,6 +61,7 @@ gulp.task('copy-indexhtml', function () {
         .pipe(gulp.dest(paths.buildDir));
 });
 
+
 gulp.task('copy-favicon', function() {
     return gulp.src(paths.favicon).pipe(gulp.dest(paths.buildDir));
 })
