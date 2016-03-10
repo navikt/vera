@@ -13,8 +13,9 @@ module.exports = function(versionA, versionB) {
 }
 
 const vercmp = function (versionA, versionB) {
-    const versionASequence = versionA.replace("-SNAPSHOT", "").split(".").map(Number);
-    const versionBSequence = versionB.replace("-SNAPSHOT", "").split(".").map(Number)
+    const EVERYTHING_AFTER_DASH = /-.*/ //will stip away everything after dash (-) we only want da numbaz
+    const versionASequence = versionA.replace(EVERYTHING_AFTER_DASH, "").split(".").map(Number);
+    const versionBSequence = versionB.replace(EVERYTHING_AFTER_DASH, "").split(".").map(Number)
 
     _.range(versionASequence.length, versionBSequence.length).forEach(() => {versionASequence.push(0)})
     _.range(versionBSequence.length, versionASequence.length).forEach(() => {versionBSequence.push(0)})
@@ -44,7 +45,8 @@ const vercmp = function (versionA, versionB) {
 
 // Will match versions like 1, 1.2, 1.2.3, 1.2.3-SNAPSHOT
 // but not 2.0.0-mod-alpha69, QASS294.14HL4.0 and other bat chit crazy version numbers
+// will also match an optional "metadata" part such as 1.2.3-HL3 and 1.2.3-HL3-SNAPSHOT
 const comparableVersion = function(version) {
-    const parsableVersionPattern = /^[0-9]+(\.[0-9]+|-SNAPSHOT)*?$/
+    const parsableVersionPattern = /^[0-9]+(\.[0-9]+)*(-[a-zA-Z0-9_]+)?(-SNAPSHOT)?$/
     return parsableVersionPattern.test(version)
 }

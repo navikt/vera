@@ -140,7 +140,11 @@ module.exports = Diff = React.createClass({
                                         <i className="fa fa-code-fork"></i>&nbsp;diff
                                     </Button>
                                 </div>
+                                <div className="pull-right">
+                                    <i className="fa fa-info-circle fa-lg logo"></i>&nbsp;< a href="http://confluence.adeo.no/x/Ljk9Cg" target="_blank">vera's take on version numbers</a>
+                                </div>
                             </div>
+
                         </form>
 
                         <div className={this.feedbackClasses()}>
