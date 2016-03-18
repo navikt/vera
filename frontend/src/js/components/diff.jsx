@@ -17,13 +17,16 @@ module.exports = Diff = React.createClass({
 
     getInitialState: function () {
         var baseEnv = this.getQueryParam('base');
-        var envsToCompare = this.getQueryParam('comparewith');
+        var envsToCompare = this.getQueryParam('comparewith').split(',');
+        var appFilter = this.getQueryParam('appFilter').split(',')
 
         return {
             baseEnvironment: baseEnv,
+            appFilter: appFilter,
             environmentsToCompare: envsToCompare,
             baseEnvInput: baseEnv,
             envsToCompareInput: envsToCompare,
+            appFilterInput: appFilter,
             loading: false,
             diffResult: [],
             errors: []
@@ -32,11 +35,14 @@ module.exports = Diff = React.createClass({
 
     componentWillReceiveProps: function (nextProps) {
         var baseEnv = this.getQueryParam('base');
-        var envsToCompare = this.getQueryParam('comparewith');
+        var envsToCompare = this.getQueryParam('comparewith').split(',');
+        var appFilter = this.getQueryParam('appFilter').split(',')
 
         this.setState({
             baseEnvironment: baseEnv,
             baseEnvInput: baseEnv,
+            appFilter: appFilter,
+            appFilterInput: appFilter,
             environmentsToCompare: envsToCompare,
             envsToCompareInput: envsToCompare
         })
@@ -50,7 +56,7 @@ module.exports = Diff = React.createClass({
         var currentBaseEnv = this.state.baseEnvironment;
         var currentEnvsToCompare = this.state.environmentsToCompare;
 
-        if (currentBaseEnv !== prevState.baseEnvironment || currentEnvsToCompare !== prevState.environmentsToCompare) {
+        if (currentBaseEnv !== prevState.baseEnvironment || ! _.isEqual(currentEnvsToCompare, prevState.environmentsToCompare)) {
             if (this.isInputValid()) {
                 this.callBackendDiffService();
             }
@@ -58,7 +64,7 @@ module.exports = Diff = React.createClass({
     },
 
     componentWillMount: function () {
-        if (this.state.baseEnvInput || this.state.envsToCompareInput) {
+        if (this.getQueryParam('base') !== '' && this.getQueryParam('comparewith') !== '') {
             if (this.isInputValid()) {
                 this.callBackendDiffService();
             }
@@ -66,6 +72,7 @@ module.exports = Diff = React.createClass({
     },
 
     getEnvironments: function () {
+
         if (this.state.baseEnvironment && this.state.environmentsToCompare) {
             return [this.state.baseEnvironment].concat(this.state.environmentsToCompare);
         }
@@ -80,6 +87,10 @@ module.exports = Diff = React.createClass({
         this.setState({envsToCompareInput: _.map(newInput.target.value.split(','), _.trim)})
     },
 
+    setAppFilter: function(newInput) {
+        this.setState({appFilterInput: _.map(newInput.target.value.split(','), _.trim)})
+    },
+
     getQueryParam: function (paramName) {
         var queryParam = this.getQuery()[paramName];
         return queryParam || '';
@@ -88,15 +99,19 @@ module.exports = Diff = React.createClass({
     setEnvironmentsToDiff: function() {
         this.setState({
             baseEnvironment: this.state.baseEnvInput,
-            environmentsToCompare: this.state.envsToCompareInput
+            environmentsToCompare: this.state.envsToCompareInput,
+            appFilter: this.state.appFilterInput
         });
-        this.replaceWith('diff', {}, {base: this.state.baseEnvInput, comparewith: this.state.envsToCompareInput})
+        this.replaceWith('diff', {}, {
+            base: this.state.baseEnvInput,
+            comparewith: [].concat(this.state.envsToCompareInput).join(','),
+            appFilter: [].concat(this.state.appFilterInput).join(',')})
     },
 
     isInputValid: function () {
         var errors = [];
         if (!this.state.baseEnvironment) {
-            errors.push("Base environment you to compare other environments with is required")
+            errors.push("Base environment to compare other environments with is required")
         }
         if (this.state.baseEnvironment && this.state.baseEnvironment.split(',').length > 1) {
             errors.push("Only one environment can be base environment, please don't use comma separated calues here");
@@ -135,6 +150,7 @@ module.exports = Diff = React.createClass({
                                 <div className="form-group">
                                     {this.createInputFilter('base environment', this.state.baseEnvInput, this.setBaseEnvInput, 'base')}&nbsp;
                                     {this.createInputFilter('compare with', this.state.envsToCompareInput, this.setEnvsToCompareInput, 'compare')}
+                                    {this.createInputFilter('app filter', this.state.appFilterInput, this.setAppFilter, 'appfilter')}
 
                                     <Button bsSize="small" onClick={this.setEnvironmentsToDiff}>
                                         <i className="fa fa-code-fork"></i>&nbsp;diff
@@ -144,9 +160,7 @@ module.exports = Diff = React.createClass({
                                     <i className="fa fa-info-circle fa-lg logo"></i>&nbsp;< a href="http://confluence.adeo.no/x/Ljk9Cg" target="_blank">vera's take on version numbers</a>
                                 </div>
                             </div>
-
                         </form>
-
                         <div className={this.feedbackClasses()}>
                             {this.state.errors.map(function(error) {
                                 return (<p><i
@@ -156,10 +170,12 @@ module.exports = Diff = React.createClass({
                         </div>
                     </div>
                 </div>
-                <DiffTable environments={this.getEnvironments()} diffResult={this.state.diffResult} baseEnvironment={this.state.baseEnvironment}/>
+                <DiffTable environments={this.getEnvironments()} diffResult={this.state.diffResult} baseEnvironment={this.state.baseEnvironment} appFilter={this.state.appFilter}/>
                 <h3><i className={this.spinnerClasses()}></i></h3>
             </div >
         )
+
+
     },
 
     createInputFilter: function (labelText, value, onChangeHandler, ref) {

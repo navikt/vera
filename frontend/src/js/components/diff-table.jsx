@@ -16,8 +16,29 @@ var sortOrder = [BEHIND, MISSING, UNKNOWN, AHEAD, EQUAL, BASE];
 
 module.exports = DiffTable = React.createClass({
 
+    getInitialState: function () {
+        if(this.props.appFilter.length > 0 ) {
+            return {appFilterRegExp: this.buildRegexpFromAppFilter(this.props.appFilter) }
+        }
+        return {}
+    },
+
     shouldComponentUpdate: function (nextProps) {
-        return nextProps.diffResult !== this.props.diffResult;
+        return nextProps.diffResult !== this.props.diffResult || nextProps.appFilter !== this.props.appFilter;
+    },
+
+    componentWillReceiveProps: function(nextProps) {
+        if(nextProps.appFilter.length > 0 ) {
+            this.setState({appFilterRegExp: this.buildRegexpFromAppFilter(nextProps.appFilter) })
+        }
+    },
+
+    buildRegexpFromAppFilter: function (appFilter) {
+        var regexp = appFilter.map(function(elem) {
+            return elem.toLowerCase() + ".*"
+        }).join('|')
+
+        return new RegExp(regexp)
     },
 
     sortByDiffResult: function (elem) {
@@ -32,6 +53,7 @@ module.exports = DiffTable = React.createClass({
 
     buildTableBody: function () {
         return _.chain(this.props.diffResult).
+            filter(this.applyAppFilter).
             sortByOrder([this.sortByDiffResult, 'application'], ['asc', 'asc'])
             .map(function (elem) {
                 return <tr key={uuid.v1()} className={this.noDiff(elem)}>
@@ -41,6 +63,14 @@ module.exports = DiffTable = React.createClass({
             }.bind(this)).
             value()
     },
+
+    applyAppFilter: function (diffResult) {
+       if(this.state.appFilterRegExp ) {
+           return this.state.appFilterRegExp.test(diffResult.application)
+       }
+
+       return true;
+   },
 
     noDiff: function (eventsForApp) {
         function allEqual(results) {
@@ -71,6 +101,7 @@ module.exports = DiffTable = React.createClass({
             var event = _.chain(eventsForApp.environments).filter(function (e) {
                 return e.environment === env
             }).head().value();
+
             var version = (event.event) ? event.event.version : "-"
             return (
                 <OverlayTrigger key={uuid.v1()} placement="left" overlay={generateTooltip(event)}>
@@ -86,6 +117,7 @@ module.exports = DiffTable = React.createClass({
     },
 
     buildTable: function () {
+
         if (this.props.diffResult.length > 0) {
             return (
 
@@ -103,6 +135,7 @@ module.exports = DiffTable = React.createClass({
                 </table>
             )
         }
+
     },
 
     render: function () {
