@@ -24,7 +24,8 @@ module.exports = DiffTable = React.createClass({
     },
 
     shouldComponentUpdate: function (nextProps) {
-        return nextProps.diffResult !== this.props.diffResult || nextProps.appFilter !== this.props.appFilter;
+        return nextProps.diffResult !== this.props.diffResult ||
+            !_.isEqual(nextProps.appFilter.sort(), this.props.appFilter.sort())
     },
 
     componentWillReceiveProps: function(nextProps) {

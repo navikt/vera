@@ -28,6 +28,7 @@ module.exports = Diff = React.createClass({
             envsToCompareInput: envsToCompare,
             appFilterInput: appFilter,
             loading: false,
+
             diffResult: [],
             errors: []
         }
@@ -74,7 +75,9 @@ module.exports = Diff = React.createClass({
     getEnvironments: function () {
 
         if (this.state.baseEnvironment && this.state.environmentsToCompare) {
-            return [this.state.baseEnvironment].concat(this.state.environmentsToCompare);
+            return [this.state.baseEnvironment].concat(this.state.environmentsToCompare).map(function(elem) {
+                return elem.toLowerCase();
+            });
         }
         return [];
     },
@@ -170,7 +173,7 @@ module.exports = Diff = React.createClass({
                         </div>
                     </div>
                 </div>
-                <DiffTable environments={this.getEnvironments()} diffResult={this.state.diffResult} baseEnvironment={this.state.baseEnvironment} appFilter={this.state.appFilter}/>
+                <DiffTable environments={this.getEnvironments()} diffResult={this.state.diffResult} baseEnvironment={this.state.baseEnvironment.toLowerCase()} appFilter={this.state.appFilter}/>
                 <h3><i className={this.spinnerClasses()}></i></h3>
             </div >
         )
