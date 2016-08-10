@@ -3,8 +3,7 @@ var bodyParser = require('body-parser');
 var morgan = require('morgan');
 var config = require('./backend/config/config');
 var mongoose = require('mongoose');
-//var https = require('https');
-var http = require('http');
+var https = require('https');
 var fs = require('fs');
 var validation = require('express-validation');
 var app = express();
@@ -58,11 +57,13 @@ app.use(errorHandler);
 
 app.use(express.static(__dirname + "/frontend/build"));
 
-//var httpsServer = https.createServer({key: fs.readFileSync(config.tlsPrivateKey), cert: fs.readFileSync(config.tlsCert)}, app);
-var httpServer = http.createServer(app);
+var httpsServer = https.createServer({
+    key: fs.readFileSync(config.tlsPrivateKey),
+    cert: fs.readFileSync(config.tlsCert)
+}, app);
 
-httpServer.listen(config.port, function () {
-    logger.log("Ready for e-business on port " + config.port)
+httpsServer.listen(config.port, function () {
+    logger.log("Running on port " + config.port)
 });
 
 module.exports = app;

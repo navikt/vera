@@ -7,8 +7,8 @@ var config = {
     dbUrl: process.env['veraDb_url'] || "mongodb://localhost/deploy_log",
     dbUser: process.env['veraDb_username'] || "vera",
     dbPassword: process.env['veraDb_password'] || "<hemmelig>",
-    tlsPrivateKey: process.env['TLS_PRIVATE_KEY'] || "private.key",
-    tlsCert: process.env['TLS_CERT'] || "cacert.pem",
+    tlsPrivateKey: process.env['TLS_PRIVATE_KEY'] || "localhost.key",
+    tlsCert: process.env['TLS_CERT'] || "localhost.crt",
     plasterUrl: process.env['plasterUrl_url'] || ""
 }
 

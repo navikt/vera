@@ -11,7 +11,7 @@ exports.testmyself = function (req, res, next) {
         "application": "vera",
         "version": packageJson.version,
         "timestamp": moment(),
-        "aggregate_result": 0,
+        "aggregateResult": 0,
         "checks": []
     }
 
