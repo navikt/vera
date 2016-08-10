@@ -44,3 +44,5 @@ dist
 
 frontend/build
 
+localhost.crt
+openssl.cnf
