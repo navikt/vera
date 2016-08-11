@@ -16,7 +16,7 @@ exports.testmyself = function (req, res, next) {
     }
 
     Event.findOne().exec(function (err, event) {
-        var endTime =  Date.now();
+        var endTime = Date.now();
         var checkResult = {
             "endpoint": config.dbUrl,
             "description": "Check mongodb connectivity",
@@ -24,12 +24,12 @@ exports.testmyself = function (req, res, next) {
             "responseTime": (endTime - startTime) + " ms"
         }
 
-        if(err || !event) {
+        if (err) {
             checkResult.result = 1;
-            checkResult.errorMessage = (err) ? "mongodb problems" : "no data in db?"
+            checkResult.errorMessage = "mongodb problems"
 
-            if(err) {
-                checkResult.stackTrace= JSON.stringify(err)
+            if (err) {
+                checkResult.stackTrace = JSON.stringify(err)
             }
             res.statusCode = 500;
         }
