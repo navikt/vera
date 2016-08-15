@@ -118,11 +118,7 @@ exports.config = function (req, res, next) {
         res.json(environmentCfg);
     }
 
-exports.isAlive = function(){
-    return function (req, res, next) {
-        res.status(200).send()
-    }
-}
+
 
 exports.registerEvent =  function (req, res, next) {
     function logErrorHandler(err) {

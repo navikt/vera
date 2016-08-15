@@ -3,8 +3,11 @@ var Event = require('../models/event');
 var packageJson = require('../../package.json')
 var moment = require('moment');
 
+exports.isalive = function (req, res, next) {
+    res.status(200).send()
+}
 
-exports.testmyself = function (req, res, next) {
+exports.selftest = function (req, res, next) {
     var startTime = Date.now();
 
     var selftestResult = {
