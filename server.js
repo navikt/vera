@@ -59,11 +59,11 @@ app.use(errorHandler);
 
 app.use(express.static(__dirname + "/frontend/build"));
 
-app.get("/isready", (req, res) => {
+app.get("/isReady", (req, res) => {
     res.sendStatus(200)
 });
 
-app.get("/isalive", (req, res) => {
+app.get("/isAlive", (req, res) => {
     res.sendStatus(200)
 });
 
