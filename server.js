@@ -3,11 +3,13 @@ var bodyParser = require('body-parser');
 var morgan = require('morgan');
 var config = require('./backend/config/config');
 var mongoose = require('mongoose');
-var https = require('https');
+var http = require('http');
 var fs = require('fs');
 var validation = require('express-validation');
 var app = express();
 var logger = require('./backend/config/syslog');
+const prometheus = require('prom-client')
+prometheus.collectDefaultMetrics()
 
 var cors = function (req, res, next) {
     res.setHeader("Access-Control-Allow-Origin", "*");
@@ -57,12 +59,20 @@ app.use(errorHandler);
 
 app.use(express.static(__dirname + "/frontend/build"));
 
-var httpsServer = https.createServer({
-    key: fs.readFileSync(config.tlsPrivateKey),
-    cert: fs.readFileSync(config.tlsCert)
-}, app);
+app.get("/isready", (req, res) => {
+    res.sendStatus(200)
+});
 
-httpsServer.listen(config.port, function () {
+app.get("/isalive", (req, res) => {
+    res.sendStatus(200)
+});
+
+app.get('/metrics', (req, res) => {
+    res.set('Content-Type', prometheus.register.contentType);
+    res.end(prometheus.register.metrics());
+});
+
+app.listen(config.port, function () {
     logger.log("Running on port " + config.port)
 });
 

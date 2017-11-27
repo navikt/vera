@@ -1,0 +1,17 @@
+name: vera
+replicas:
+    min: 1
+    max: 2
+    cpuThresholdPercentage: 50
+port: 80
+prometheus:
+  enabled: true
+  path: /metrics
+fasitResources:
+  used:
+  - alias: veraDb
+    resourceType: DataSource
+  exposed:
+  - alias: deployLog_v1
+  - description: "Tjeneste for å se tidligere og registrere nye deploy events"
+  - path: /api/v1/deploylog

@@ -4,5 +4,5 @@ MAINTAINER Johnny Horvi <johnny.horvi@nav.no>
 WORKDIR /src
 ADD ./dist .
 
-EXPOSE 8443
+EXPOSE 80
 CMD ["node", "server.js"]
