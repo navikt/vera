@@ -13,4 +13,5 @@ fasitResources:
     resourceType: DataSource
   exposed:
   - alias: deployLog_v1
+    resourceType: restservice
     path: /api/v1/deploylog
