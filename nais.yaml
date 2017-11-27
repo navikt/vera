@@ -13,5 +13,5 @@ fasitResources:
     resourceType: DataSource
   exposed:
   - alias: deployLog_v1
-  - description: "Tjeneste for å se tidligere og registrere nye deploy events"
-  - path: /api/v1/deploylog
+    description: "Tjeneste for å se tidligere og registrere nye deploy events"
+    path: /api/v1/deploylog
