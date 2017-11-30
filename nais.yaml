@@ -11,7 +11,8 @@ fasitResources:
   used:
   - alias: veraDb
     resourceType: DataSource
-  exposed:
+  - alias: loadbalancer:vera
+    resourceType: LoadBalancerConfig
   - alias: deployLog_v1
     resourceType: restservice
     path: /api/v1/deploylog
