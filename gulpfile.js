@@ -11,6 +11,8 @@ var minifyCSS = require('gulp-minify-css');
 var concat = require('gulp-concat');
 var del = require('del');
 var runSequence = require('run-sequence');
+var tape = require('gulp-tape');
+var tapspec = require('tap-spec');
 
 var paths = {
     js: ['./frontend/src/js/**/*.jsx', './app.jsx', './frontend/src/js/vera-parser.js'],
@@ -36,7 +38,7 @@ gulp.task('compile-js', function () {
         .on('error', handleError)
         .pipe(source('vera.js'))
         .pipe(buffer())
-        .pipe(gulpif(env === 'production', uglify()))
+        .pipe(gulpif(env === 'production', uglify().on('error', e => {console.log("error from uglify", e)})))
         .pipe(size())
         .pipe(gulp.dest(paths.jsBuild));
 });
@@ -59,6 +61,7 @@ gulp.task('copy-indexhtml', function () {
         .pipe(gulp.dest(paths.buildDir));
 });
 
+
 gulp.task('copy-favicon', function() {
     return gulp.src(paths.favicon).pipe(gulp.dest(paths.buildDir));
 })
@@ -80,6 +83,7 @@ gulp.task('handle-dist-files', function () {
     })
 });
 
+
 gulp.task('clean', function (cb) {
     return del(paths.buildDir, cb);
 });
@@ -95,6 +99,11 @@ gulp.task('build', ['compile-js', 'bundle-css', 'copy-fonts', 'copy-indexhtml', 
 gulp.task('dist', function () {
     env = 'production';
     runSequence('clean', 'build', 'handle-dist-files');
+});
+
+gulp.task('test', function () {
+    return gulp.src('test/*.js')
+    .pipe(tape({reporter: tapspec()}));
 });
 
 var handleError = function(err){

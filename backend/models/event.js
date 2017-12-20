@@ -28,7 +28,7 @@ function getEnvClassFromEnv(environment) {
     return "u";
 }
 
-eventSchema.statics.createFromObject = function (obj) {
+eventSchema.statics.createFromObject = obj => {
     return new Event({
         application: obj.application,
         environment: obj.environment,
@@ -38,6 +38,10 @@ eventSchema.statics.createFromObject = function (obj) {
         replaced_timestamp: null,
         environmentClass: (obj.environmentClass) ? obj.environmentClass : getEnvClassFromEnv(obj.environment)
     });
+}
+
+eventSchema.statics.getLatestDeployedApplicationsFor = function(predicate, callback) {
+    return this.find({replaced_timestamp: null, version: {$ne: null}}).or(predicate).exec(callback);
 }
 
 module.exports = Event = mongoose.model('Event', eventSchema);
