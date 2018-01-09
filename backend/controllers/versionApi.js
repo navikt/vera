@@ -8,6 +8,9 @@ var moment = require('moment');
 exports.deployLog = function (req, res, next) {
     var predicate = {}
 
+
+    const start = Date.now().getUnixTime();
+
     _.forOwn(req.query, function (value, key) {
         if (_.has(parameterDefinition, key)) {
             var keyToUse = parameterDefinition[key].mapToKey ? parameterDefinition[key].mapToKey : key;
@@ -27,12 +30,20 @@ exports.deployLog = function (req, res, next) {
         }
     });
 
+
+
     Event.find(predicate).sort([['deployed_timestamp', 'descending']]).exec(function (err, events) {
         if (req.query.csv === 'true') {
             returnCSVPayload(res, events);
         } else {
             res.header("Content-Type", "application/json; charset=utf-8");
+            const aftermongo = Date.now().getUnixTime();
+            const mongotime = aftermongo - start
+            console.log("Got data from momngo for " + req.query + " starting json parsing. Took " + mongotime)
             res.json(events);
+            const done = Date.now().getUnixTime();
+            const afterjson = done - mongotime
+            console.log("Done transforming json " + afterjson)
 
         }
     });
