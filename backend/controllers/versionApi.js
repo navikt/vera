@@ -39,11 +39,11 @@ exports.deployLog = function (req, res, next) {
             res.header("Content-Type", "application/json; charset=utf-8");
             const aftermongo = Date.now();
             const mongotime = aftermongo - start
-            console.log("Got data from momngo for " + req.query + " starting json parsing. Took " + mongotime)
+            console.log("Got data from momngo for ", req.query , " starting json parsing. Took ", mongotime)
             res.json(events);
             const done = Date.now();
             const afterjson = done - aftermongo
-            console.log("Done transforming json " + afterjson)
+            console.log("Done transforming json for ", req.query, mongotime, afterjson)
 
         }
     });
