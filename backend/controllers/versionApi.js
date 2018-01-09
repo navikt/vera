@@ -9,7 +9,7 @@ exports.deployLog = function (req, res, next) {
     var predicate = {}
 
 
-    const start = Date.now();
+   // const start = Date.now();
 
     _.forOwn(req.query, function (value, key) {
         if (_.has(parameterDefinition, key)) {
@@ -37,13 +37,13 @@ exports.deployLog = function (req, res, next) {
             returnCSVPayload(res, events);
         } else {
             res.header("Content-Type", "application/json; charset=utf-8");
-            const aftermongo = Date.now();
-            const mongotime = aftermongo - start
-            console.log("Got data from momngo for ", req.query , " starting json parsing. Took ", mongotime)
+            //const aftermongo = Date.now();
+            //const mongotime = aftermongo - start
+            //console.log("Got data from momngo for ", req.query , " starting json parsing. Took ", mongotime)
             res.json(events);
-            const done = Date.now();
-            const afterjson = done - aftermongo
-            console.log("Done transforming json for ", req.query, mongotime, afterjson)
+            //const done = Date.now();
+            //const afterjson = done - aftermongo
+            //console.log("Done transforming json for ", req.query, mongotime, afterjson)
 
         }
     });
