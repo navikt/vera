@@ -42,7 +42,7 @@ exports.deployLog = function (req, res, next) {
             console.log("Got data from momngo for " + req.query + " starting json parsing. Took " + mongotime)
             res.json(events);
             const done = Date.now();
-            const afterjson = done - mongotime
+            const afterjson = done - aftermongo
             console.log("Done transforming json " + afterjson)
 
         }
