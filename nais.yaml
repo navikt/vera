@@ -7,6 +7,9 @@ port: 80
 prometheus:
   enabled: true
   path: /metrics
+resources:
+  limits:
+    memory: 1024Mi
 fasitResources:
   used:
   - alias: veraDb
