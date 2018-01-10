@@ -9,7 +9,10 @@ prometheus:
   path: /metrics
 resources:
   limits:
+    cpu: 800m
     memory: 1024Mi
+requests:
+  cpu: 800m
 fasitResources:
   used:
   - alias: veraDb
