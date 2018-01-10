@@ -9,7 +9,7 @@ prometheus:
   path: /metrics
 resources:
   limits:
-    cpu: 3
+    cpu: 1
     memory: 1024Mi
 fasitResources:
   used:
