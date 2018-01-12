@@ -29,7 +29,7 @@ node {
 
         stage("run unit tests") {
                 withEnv(['HTTP_PROXY=http://webproxy-utvikler.nav.no:8088', 'NO_PROXY=adeo.no']) {
-                        sh "npm install"
+                        sh "gulp test"
                 }
         }
 
