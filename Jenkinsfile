@@ -29,7 +29,7 @@ node {
 
         stage("run unit tests") {
                 withEnv(['HTTP_PROXY=http://webproxy-utvikler.nav.no:8088', 'NO_PROXY=adeo.no']) {
-                        sh "gulp test"
+                    sh "npm install && ${node} ./node_modules/gulp/bin/gulp.js test || exit 1"
                 }
         }
 
@@ -70,8 +70,8 @@ node {
 				sleep 5
                 httpRequest consoleLogResponseBody: true,
                             ignoreSslErrors: true,
-                            responseHandle: 'NONE',
-                            url: 'https://vera.nais.preprod.local/isalive',
+                        responseHandle: 'NONE',
+                        url: 'https://vera.nais.preprod.local/isalive',
                             validResponseCodes: '200'
 			}
         }
