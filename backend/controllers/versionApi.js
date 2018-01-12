@@ -11,6 +11,8 @@ exports.deployLog = function (req, res, next) {
 
    // const start = Date.now();
 
+    
+
     _.forOwn(req.query, function (value, key) {
         if (_.has(parameterDefinition, key)) {
             var keyToUse = parameterDefinition[key].mapToKey ? parameterDefinition[key].mapToKey : key;
