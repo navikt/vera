@@ -1,4 +1,4 @@
-FROM centos:7
+FROM docker.adeo.no:5000/alpine-node:base-6.3.1
 MAINTAINER Johnny Horvi <johnny.horvi@nav.no>
 
 WORKDIR /src
