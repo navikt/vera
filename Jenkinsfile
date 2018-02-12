@@ -10,20 +10,28 @@ node {
 
     try {
         stage("checkout") {
-            git url: "ssh://git@stash.devillo.no:7999/aura/${application}.git"
+	    git url: "https://github.com/navikt/${application}.git"
+        }
+
+	stage("check for release commit") {
+            lastCommitMessage = sh(script: "git --no-pager log -1 --pretty=%B", returnStdout: true).trim()
+            if (lastCommitMessage != null &&
+                lastCommitMessage.toString().contains('Releasing ')) {
+                currentBuild.result = 'ABORTED'
+                error("Stopping build, it was triggered by version bump")
+            }
         }
 
         stage("initialize") {
-            npm = "/usr/bin/npm"
-            node = "/usr/bin/node"
-	    changelog = sh(script: 'git log `git describe --tags --abbrev=0`..HEAD --oneline', returnStdout: true)
-            releaseVersion = sh(script: 'npm version major | cut -d"v" -f2', returnStdout: true).trim()
-            sh "git push origin master"
-
-            // aborts pipeline if releaseVersion already is released
-            sh "if [ \$(curl -s -o /dev/null -I -w \"%{http_code}\" http://maven.adeo.no/m2internal/no/nav/aura/${application}/${application}/${releaseVersion}) != 404 ]; then echo \"this version is somehow already released, manually update to a unreleased SNAPSHOT version\"; exit 1; fi"
+	    sh(script: 'npm version major -m "Releasing %s"')
+            withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'navikt-ci', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
+                withEnv(['HTTPS_PROXY=http://webproxy-utvikler.nav.no:8088', 'NO_PROXY=adeo.no']) {
+                    sh(script: "git push https://${USERNAME}:${PASSWORD}@github.com/navikt/${application}.git --tags")
+                    sh(script: "git push https://${USERNAME}:${PASSWORD}@github.com/navikt/${application}.git master")
+                }
+            }
             committer = sh(script: 'git log -1 --pretty=format:"%ae (%an)"', returnStdout: true).trim()
-            committerEmail = sh(script: 'git log -1 --pretty=format:"%ae"', returnStdout: true).trim()
+            releaseVersion = sh(script: 'node -p "require(\'./package.json\').version"', returnStdout: true).trim()
         }
 
         stage("run unit tests") {
@@ -86,10 +94,10 @@ node {
         }
 
     } catch(e) {
-        if (currentBuild.result == null) {
+        if (currentBuild.result == null || currentBuild.result == "FAILURE") {
             currentBuild.result = "FAILURE"
+            slackSend channel: '#nais-internal', message: ":shit: Failed deploying ${application}:${releaseVersion}: ${e.getMessage()}. See log for more info ${env.BUILD_URL}", teamDomain: 'nav-it', tokenCredentialId: 'slack_fasit_frontend'
         }
-        slackSend channel: '#nais-internal', message: ":shit: Failed deploying ${application}:${releaseVersion}: ${e.getMessage()}. See log for more info ${env.BUILD_URL}", teamDomain: 'nav-it', tokenCredentialId: 'slack_fasit_frontend'
         throw e
     } finally {
         step([$class       : 'InfluxDbPublisher',
