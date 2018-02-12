@@ -1,5 +1,4 @@
-FROM centos:7
-MAINTAINER Johnny Horvi <johnny.horvi@nav.no>
+FROM node:9-alpine
 
 WORKDIR /src
 ADD ./dist .
