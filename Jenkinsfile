@@ -46,7 +46,7 @@ node {
                 sh "cp -r server.js backend ${distDir}"
                 sh "cd ${distDir} && cp ../../package.json . && npm install --production && cd -"
                 //    getting required node_modules for production
-                sh "npm install && ${node} ./node_modules/gulp/bin/gulp.js dist || exit 1" // Creating frontend bundle
+                sh "npm install && node ./node_modules/gulp/bin/gulp.js dist || exit 1" // Creating frontend bundle
                 sh "cp -r --parents frontend/build ${distDir}" // Copying frontend bundle
                 sh "cp Dockerfile ${dockerDir}"
             }
