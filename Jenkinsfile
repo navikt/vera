@@ -12,14 +12,12 @@ node {
 	git url: "https://github.com/navikt/${application}.git"
     }
 
-    stage("check for release commit") {
-        lastCommitMessage = sh(script: "git --no-pager log -1 --pretty=%B", returnStdout: true).trim()
-        if (lastCommitMessage != null &&
-            lastCommitMessage.toString().contains('Releasing ')) {
-	    return
-        }
+    lastCommitMessage = sh(script: "git --no-pager log -1 --pretty=%B", returnStdout: true).trim()
+    if (lastCommitMessage != null &&
+        lastCommitMessage.toString().contains('Releasing ')) {
+	return
     }
-
+    
     try {
         stage("initialize") {
 	    sh(script: 'npm version major -m "Releasing %s"')
