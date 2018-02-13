@@ -17,7 +17,7 @@ node {
             lastCommitMessage = sh(script: "git --no-pager log -1 --pretty=%B", returnStdout: true).trim()
             if (lastCommitMessage != null &&
                 lastCommitMessage.toString().contains('Releasing ')) {
-                currentBuild.result = 'ABORTED'
+                currentBuild.result = 'SUCCESS'
                 error("Stopping build, it was triggered by version bump")
             }
         }
