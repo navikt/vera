@@ -8,20 +8,19 @@ node {
     def dockerDir = "./docker"
     def distDir = "${dockerDir}/dist"
 
+    stage("checkout") {
+	git url: "https://github.com/navikt/${application}.git"
+    }
+
+    stage("check for release commit") {
+        lastCommitMessage = sh(script: "git --no-pager log -1 --pretty=%B", returnStdout: true).trim()
+        if (lastCommitMessage != null &&
+            lastCommitMessage.toString().contains('Releasing ')) {
+	    return
+        }
+    }
+
     try {
-        stage("checkout") {
-	    git url: "https://github.com/navikt/${application}.git"
-        }
-
-	stage("check for release commit") {
-            lastCommitMessage = sh(script: "git --no-pager log -1 --pretty=%B", returnStdout: true).trim()
-            if (lastCommitMessage != null &&
-                lastCommitMessage.toString().contains('Releasing ')) {
-                currentBuild.result = 'SUCCESS'
-                error("Stopping build, it was triggered by version bump")
-            }
-        }
-
         stage("initialize") {
 	    sh(script: 'npm version major -m "Releasing %s"')
             withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'navikt-ci', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
