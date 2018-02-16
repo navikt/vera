@@ -48,3 +48,4 @@ frontend/build
 
 localhost.crt
 openssl.cnf
+yarn.lock

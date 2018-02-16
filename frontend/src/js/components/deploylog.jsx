@@ -248,7 +248,7 @@ module.exports = DeployLog = React.createClass({
     },
 
     getDeployEvents: function () {
-        return $.getJSON(this.DEPLOYLOG_SERVICE + this.getBackendParams()).success(function (data) {
+        return $.getJSON(this.DEPLOYLOG_SERVICE + this.getBackendParams()).done(function (data) {
             this.setState({loaded: true, items: this.mapToViewFormat(data)})
         }.bind(this));
     },
