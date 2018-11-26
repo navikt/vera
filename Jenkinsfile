@@ -7,32 +7,12 @@ node {
     def application = "vera"
     def dockerDir = "./docker"
     def distDir = "${dockerDir}/dist"
-    def githubAppId = "21324"
 
-    withEnv(['HTTPS_PROXY=http://webproxy-utvikler.nav.no:8088']) {
-        sh "git clone https://github.com/navikt/github-apps-support.git || (cd github-apps-support && git pull)"
+
+stage("checkout") {
+	git credentialsId: 'vera-deploy-key',
+            url: "git@github.com:navikt/vera.git"
     }
-
-    def cwd = sh(script: 'pwd', returnStdout: true).trim()
-
-    withEnv(["PATH+GITHUB_APPS_SUPPORT=${cwd}/github-apps-support/bin"]) {
-        stage("checkout") {
-
-        def token
-        withCredentials([file(credentialsId: 'AuraCiGithubApp', variable: 'privateKey')]) {
-            def jwt = sh(script: "generate-jwt.sh ${privateKey} ${githubAppId}", returnStdout: true).trim()
-
-            withEnv(['HTTPS_PROXY=http://webproxy-utvikler.nav.no:8088', "JWT=${jwt}"]) {
-                token = sh(script: 'generate-installation-token.sh $JWT', returnStdout: true).trim()
-                sh "git clone https://x-access-token:${token}@github.com/navikt/vera.git"
-            }
-        }
-
-        
-        //checkout([$class: 'GitSCM', branches: [[name: '*/master']], userRemoteConfigs: [[url: "https://x-access-token:${token}@github.com/navikt/vera.git"]]])
-    }
-	
-
     lastCommitMessage = sh(script: "git --no-pager log -1 --pretty=%B", returnStdout: true).trim()
     if (lastCommitMessage != null &&
         lastCommitMessage.toString().contains('Releasing ')) {
@@ -42,12 +22,12 @@ node {
     try {
         stage("initialize") {
 	    sh(script: 'npm version major -m "Releasing %s"')
-            withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'AuraCiGithubApp', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
+            //withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'vera-deploy-key', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
                 withEnv(['HTTPS_PROXY=http://webproxy-utvikler.nav.no:8088', 'NO_PROXY=adeo.no']) {
-                    sh(script: "git push https://${PASSWORD}@github.com/navikt/${application}.git --tags")
-                    sh(script: "git push https://${PASSWORD}@github.com/navikt/${application}.git master")
+                    sh(script: "git push git@github.com:navikt/vera.git --tags")
+                    sh(script: "git push git@github.com:navikt/vera.git master")
                 }
-            }
+            //}
             committer = sh(script: 'git log -1 --pretty=format:"%ae (%an)"', returnStdout: true).trim()
             releaseVersion = sh(script: 'node -p "require(\'./package.json\').version"', returnStdout: true).trim()
         }
@@ -124,5 +104,5 @@ node {
               customPrefix : null,
               target       : 'influxDB'])
     }
-}
+
 }
