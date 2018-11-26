@@ -14,6 +14,7 @@ stage("checkout") {
 	git credentialsId: 'vera-deploy-key',
             url: "git@github.com:navikt/vera.git"
     }
+
     lastCommitMessage = sh(script: "git --no-pager log -1 --pretty=%B", returnStdout: true).trim()
     if (lastCommitMessage != null &&
         lastCommitMessage.toString().contains('Releasing ')) {
@@ -24,11 +25,11 @@ stage("checkout") {
         stage("initialize") {
 	    sh(script: 'npm version major -m "Releasing %s"')
             //withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'vera-deploy-key', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
-                withEnv(['HTTPS_PROXY=http://webproxy-utvikler.nav.no:8088', 'NO_PROXY=adeo.no']) {
+                //withEnv(['HTTPS_PROXY=http://webproxy-utvikler.nav.no:8088', 'NO_PROXY=adeo.no']) {
                     //sh(script: "git remote add origin git@github.com:navikt/vera.git")
-                    sh(script: "git push --tags")
+                    //sh(script: "git push --tags")
                     sh(script: "git push origin master")
-                }
+               // }
             //}
             committer = sh(script: 'git log -1 --pretty=format:"%ae (%an)"', returnStdout: true).trim()
             releaseVersion = sh(script: 'node -p "require(\'./package.json\').version"', returnStdout: true).trim()
