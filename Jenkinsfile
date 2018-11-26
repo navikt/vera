@@ -24,8 +24,9 @@ stage("checkout") {
 	    sh(script: 'npm version major -m "Releasing %s"')
             //withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'vera-deploy-key', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
                 withEnv(['HTTPS_PROXY=http://webproxy-utvikler.nav.no:8088', 'NO_PROXY=adeo.no']) {
-                    sh(script: "git push git@github.com:navikt/vera.git --tags")
-                    sh(script: "git push git@github.com:navikt/vera.git master")
+                    sh(script: "git remote add origin git@github.com:navikt/vera.git")
+                    sh(script: "git push origin --tags")
+                    sh(script: "git push origin master")
                 }
             //}
             committer = sh(script: 'git log -1 --pretty=format:"%ae (%an)"', returnStdout: true).trim()
