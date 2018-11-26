@@ -24,7 +24,10 @@ stage("checkout") {
     try {
         stage("initialize") {
 	    sh(script: 'npm version major -m "Releasing %s"')
-            //withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'vera-deploy-key', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
+            withCredentials([[$class: 'sshUserPrivateKey', credentialsId: 'vera-deploy-key']]) {
+                sshagent(['vera-deploy-key']) {
+                    sh(script: "git push origin master")
+                }
                 //withEnv(['HTTPS_PROXY=http://webproxy-utvikler.nav.no:8088', 'NO_PROXY=adeo.no']) {
                     //sh(script: "git remote add origin git@github.com:navikt/vera.git")
                     //sh(script: "git push --tags")
