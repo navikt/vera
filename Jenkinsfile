@@ -8,6 +8,7 @@ node {
     def dockerDir = "./docker"
     def distDir = "${dockerDir}/dist"
 
+deleteDir()
 
 stage("checkout") {
 	git credentialsId: 'vera-deploy-key',
