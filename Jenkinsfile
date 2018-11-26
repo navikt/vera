@@ -9,9 +9,12 @@ node {
     def distDir = "${dockerDir}/dist"
 
     stage("checkout") {
-	git credentialsId: 'AuraCiGithubApp',
-            url: "https://github.com/navikt/${application}.git"
+
+withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'AuraCiGithubApp', passwordVariable: 'TOKEN']]){
+ sh(git clone "https://${TOKEN}github.com/navikt/${application}.git")
     }
+}
+	
 
     lastCommitMessage = sh(script: "git --no-pager log -1 --pretty=%B", returnStdout: true).trim()
     if (lastCommitMessage != null &&
