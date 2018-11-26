@@ -98,12 +98,5 @@ stage("checkout") {
             slackSend channel: '#nais-ci', message: ":shit: Failed deploying ${application}:${releaseVersion}: ${e.getMessage()}. See log for more info ${env.BUILD_URL}", teamDomain: 'nav-it', tokenCredentialId: 'slack_fasit_frontend'
         }
         throw e
-    } finally {
-        step([$class       : 'InfluxDbPublisher',
-              customData   : null,
-              customDataMap: null,
-              customPrefix : null,
-              target       : 'influxDB'])
-    }
-
+    } 
 }
