@@ -8,7 +8,9 @@ node {
     def dockerDir = "./docker"
     def distDir = "${dockerDir}/dist"
 
-    sh "git clone https://github.com/navikt/github-apps-support.git || (cd github-apps-support && git pull)"
+    withEnv(['HTTPS_PROXY=http://webproxy-utvikler.nav.no:8088']) {
+        sh "git clone https://github.com/navikt/github-apps-support.git || (cd github-apps-support && git pull)"
+    }
 
     withEnv(["PATH+GITHUB_APPS_SUPPORT=${cwd}/github-apps-support/bin"]) {
         stage("checkout") {
