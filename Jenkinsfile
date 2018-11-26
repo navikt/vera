@@ -24,10 +24,11 @@ node {
 
             withEnv(['HTTPS_PROXY=http://webproxy-utvikler.nav.no:8088', "JWT=${jwt}"]) {
                 token = sh(script: 'generate-installation-token.sh $JWT', returnStdout: true).trim()
+                sh "git clone https://x-access-token:${token}@github.com/navikt/vera.git"
             }
         }
 
-        sh "git clone https://x-access-token:${token}@github.com/navikt/vera.git"
+        
         //checkout([$class: 'GitSCM', branches: [[name: '*/master']], userRemoteConfigs: [[url: "https://x-access-token:${token}@github.com/navikt/vera.git"]]])
     }
 	
