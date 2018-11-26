@@ -27,7 +27,7 @@ node {
             }
         }
 
-        checkout([$class: 'GitSCM', branches: [[name: 'name: */master']], userRemoteConfigs: [[url: "https://${token}:github.com/navikt/vera.git"]]])
+        checkout([$class: 'GitSCM', branches: [[name: '*/master']], userRemoteConfigs: [[url: "https://${token}:github.com/navikt/vera.git"]]])
     }
 	
 
