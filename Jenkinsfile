@@ -27,7 +27,7 @@ node {
             }
         }
 
-        git "https://x-access-token:${token}@github.com/navikt/vera.git"
+        sh "git clone https://x-access-token:${token}@github.com/navikt/vera.git"
         //checkout([$class: 'GitSCM', branches: [[name: '*/master']], userRemoteConfigs: [[url: "https://x-access-token:${token}@github.com/navikt/vera.git"]]])
     }
 	
