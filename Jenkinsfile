@@ -12,6 +12,8 @@ node {
         sh "git clone https://github.com/navikt/github-apps-support.git || (cd github-apps-support && git pull)"
     }
 
+    def cwd = sh(script: 'pwd', returnStdout: true).trim()
+
     withEnv(["PATH+GITHUB_APPS_SUPPORT=${cwd}/github-apps-support/bin"]) {
         stage("checkout") {
 
