@@ -9,7 +9,7 @@ node {
     def distDir = "${dockerDir}/dist"
 
     stage("checkout") {
-	git credentialsId: 'navikt-ci',
+	git credentialsId: 'AuraCiGithubApp',
             url: "https://github.com/navikt/${application}.git"
     }
 
@@ -22,10 +22,10 @@ node {
     try {
         stage("initialize") {
 	    sh(script: 'npm version major -m "Releasing %s"')
-            withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'navikt-ci', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
+            withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'AuraCiGithubApp', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
                 withEnv(['HTTPS_PROXY=http://webproxy-utvikler.nav.no:8088', 'NO_PROXY=adeo.no']) {
-                    sh(script: "git push https://${USERNAME}:${PASSWORD}@github.com/navikt/${application}.git --tags")
-                    sh(script: "git push https://${USERNAME}:${PASSWORD}@github.com/navikt/${application}.git master")
+                    sh(script: "git push https://${PASSWORD}@github.com/navikt/${application}.git --tags")
+                    sh(script: "git push https://${PASSWORD}@github.com/navikt/${application}.git master")
                 }
             }
             committer = sh(script: 'git log -1 --pretty=format:"%ae (%an)"', returnStdout: true).trim()
