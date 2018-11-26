@@ -8,12 +8,22 @@ node {
     def dockerDir = "./docker"
     def distDir = "${dockerDir}/dist"
 
-    stage("checkout") {
+    sh "git clone https://github.com/navikt/github-apps-support.git || (cd github-apps-support && git pull)"
 
-withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'AuraCiGithubApp', passwordVariable: 'TOKEN']]){
- sh(script: "git clone https://${TOKEN}github.com/navikt/${application}.git")
+    withEnv(["PATH+GITHUB_APPS_SUPPORT=${cwd}/github-apps-support/bin"]) {
+        stage("checkout") {
+
+        def token
+        withCredentials([file(credentialsId: 'AuraCiGithubApp', variable: 'privateKey')]) {
+            def jwt = sh(script: "generate-jwt.sh ${privateKey} 19726", returnStdout: true).trim()
+
+            withEnv(['HTTPS_PROXY=http://webproxy-utvikler.nav.no:8088', "JWT=${jwt}"]) {
+                token = sh(script: 'generate-installation-token.sh $JWT', returnStdout: true).trim()
+            }
+        }
+
+        checkout([$class: 'GitSCM', branches: [[name: 'name: */master']], userRemoteConfigs: [[url: "https://${token}:github.com/navikt/vera.git"]]])
     }
-}
 	
 
     lastCommitMessage = sh(script: "git --no-pager log -1 --pretty=%B", returnStdout: true).trim()
@@ -107,4 +117,5 @@ withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'AuraCi
               customPrefix : null,
               target       : 'influxDB'])
     }
+}
 }
