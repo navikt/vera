@@ -26,7 +26,7 @@ node {
                 token = sh(script: 'generate-installation-token.sh $JWT', returnStdout: true).trim()
             }
         }
-        checkout([$class: 'GitSCM', branches: [[name: '*/master']], userRemoteConfigs: [[url: "https://${token}@github.com/navikt/vera.git"]]])
+        checkout([$class: 'GitSCM', branches: [[name: '*/master']], userRemoteConfigs: [[url: "https://x-access-token:${token}@github.com/navikt/vera.git"]]])
     }
 	
 
