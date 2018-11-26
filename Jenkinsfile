@@ -11,7 +11,7 @@ node {
     stage("checkout") {
 
 withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'AuraCiGithubApp', passwordVariable: 'TOKEN']]){
- sh(git clone "https://${TOKEN}github.com/navikt/${application}.git")
+ sh(script: "git clone https://${TOKEN}github.com/navikt/${application}.git")
     }
 }
 	
