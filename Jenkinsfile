@@ -7,6 +7,7 @@ node {
     def application = "vera"
     def dockerDir = "./docker"
     def distDir = "${dockerDir}/dist"
+    def githubAppId = "21324"
 
     withEnv(['HTTPS_PROXY=http://webproxy-utvikler.nav.no:8088']) {
         sh "git clone https://github.com/navikt/github-apps-support.git || (cd github-apps-support && git pull)"
@@ -19,7 +20,7 @@ node {
 
         def token
         withCredentials([file(credentialsId: 'AuraCiGithubApp', variable: 'privateKey')]) {
-            def jwt = sh(script: "generate-jwt.sh ${privateKey} 19726", returnStdout: true).trim()
+            def jwt = sh(script: "generate-jwt.sh ${privateKey} ${githubAppId}", returnStdout: true).trim()
 
             withEnv(['HTTPS_PROXY=http://webproxy-utvikler.nav.no:8088', "JWT=${jwt}"]) {
                 token = sh(script: 'generate-installation-token.sh $JWT', returnStdout: true).trim()
