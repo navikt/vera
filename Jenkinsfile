@@ -14,25 +14,8 @@ stage("checkout") {
 	git url: "git@github.com:navikt/vera.git"
     }
 
-   // lastCommitMessage = sh(script: "git --no-pager log -1 --pretty=%B", returnStdout: true).trim()
-    //if (lastCommitMessage != null &&
-      //  lastCommitMessage.toString().contains('Releasing ')) {
-	//return
-    //}
-    
     try {
         stage("initialize") {
-            //sh(script: 'npm version major -m "Releasing %s"')
-                //withCredentials([[$class: 'sshUserPrivateKey', credentialsId: 'vera-deploy-key']]) {
-           // sshagent(['vera-deploy-key']) {
-               // sh(script: "git push origin master")
-            //}
-                //withEnv(['HTTPS_PROXY=http://webproxy-utvikler.nav.no:8088', 'NO_PROXY=adeo.no']) {
-                    //sh(script: "git remote add origin git@github.com:navikt/vera.git")
-                    //sh(script: "git push --tags")
-                   // sh(script: "git push origin master")
-               // }
-            //}
             committer = sh(script: 'git log -1 --pretty=format:"%ae (%an)"', returnStdout: true).trim()
             releaseVersion = sh(script: 'echo $(date "+%Y-%m-%d")-$(git --no-pager log -1 --pretty=%h)', returnStdout: true).trim()
         }
