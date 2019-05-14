@@ -8,33 +8,22 @@ node {
     def dockerDir = "./docker"
     def distDir = "${dockerDir}/dist"
 
-    stage("checkout") {
-	git credentialsId: 'navikt-ci',
-            url: "https://github.com/navikt/${application}.git"
+deleteDir()
+
+stage("checkout") {
+  git url: "https://github.com/navikt/${application}.git"
     }
 
-    lastCommitMessage = sh(script: "git --no-pager log -1 --pretty=%B", returnStdout: true).trim()
-    if (lastCommitMessage != null &&
-        lastCommitMessage.toString().contains('Releasing ')) {
-	return
-    }
-    
     try {
         stage("initialize") {
-	    sh(script: 'npm version major -m "Releasing %s"')
-            withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'navikt-ci', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
-                withEnv(['HTTPS_PROXY=http://webproxy-utvikler.nav.no:8088', 'NO_PROXY=adeo.no']) {
-                    sh(script: "git push https://${USERNAME}:${PASSWORD}@github.com/navikt/${application}.git --tags")
-                    sh(script: "git push https://${USERNAME}:${PASSWORD}@github.com/navikt/${application}.git master")
-                }
-            }
             committer = sh(script: 'git log -1 --pretty=format:"%ae (%an)"', returnStdout: true).trim()
-            releaseVersion = sh(script: 'node -p "require(\'./package.json\').version"', returnStdout: true).trim()
+            releaseVersion = sh(script: 'echo $(date "+%Y-%m-%d")-$(git --no-pager log -1 --pretty=%h)', returnStdout: true).trim()
         }
 
         stage("run unit tests") {
             withEnv(['HTTP_PROXY=http://webproxy-utvikler.nav.no:8088', 'NO_PROXY=adeo.no']) {
                 sh "npm install"
+                sh "npm test"
             }
         }
 
@@ -61,12 +50,15 @@ node {
             withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'nexusUser', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
 		sh "curl -s -F r=m2internal -F hasPom=false -F e=yaml -F g=${groupId} -F a=${application} -F v=${releaseVersion} -F p=yaml -F file=@${appConfig} -u ${env.USERNAME}:${env.PASSWORD} http://maven.adeo.no/nexus/service/local/artifact/maven/content"
             }
+            withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'repo.adeo.no', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
+               sh "curl --fail -v -u ${env.USERNAME}:${env.PASSWORD} --upload-file ${appConfig} https://repo.adeo.no/repository/raw/${groupId}/${application}/${releaseVersion}/nais.yaml"
+            }
         }
 
 
         stage("deploy to !prod") {
             withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'srvauraautodeploy', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
-                sh "curl -k -d \'{\"application\": \"${application}\", \"version\": \"${releaseVersion}\", \"environment\": \"cd-u1\", \"zone\": \"fss\", \"namespace\": \"default\", \"username\": \"${env.USERNAME}\", \"password\": \"${env.PASSWORD}\"}\' https://daemon.nais.preprod.local/deploy"
+                sh "curl -k -d \'{\"application\": \"${application}\", \"version\": \"${releaseVersion}\", \"fasitEnvironment\": \"cd-u1\", \"zone\": \"sbs\", \"namespace\": \"default\", \"fasitUsername\": \"${env.USERNAME}\", \"fasitPassword\": \"${env.PASSWORD}\"}\' https://daemon.nais.oera-q.local/deploy"
             }
         }
 
@@ -81,12 +73,12 @@ node {
 	    }
         }
 
-        stage("deploy to prod") {
-            withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'srvauraautodeploy', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
-                sh "curl -k -d \'{\"application\": \"${application}\", \"version\": \"${releaseVersion}\", \"environment\": \"p\", \"zone\": \"fss\", \"namespace\": \"default\", \"username\": \"${env.USERNAME}\", \"password\": \"${env.PASSWORD}\"}\' https://daemon.nais.adeo.no/deploy"
-            }
-        }
-        slackSend channel: '#nais-internal', message: ":nais: Successfully deployed ${application}:${releaseVersion} to prod :partyparrot: \nhttps://${application}.nais.adeo.no\nLast commit by ${committer}.", teamDomain: 'nav-it', tokenCredentialId: 'slack_fasit_frontend'
+        //stage("deploy to prod") {
+        //    withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'srvauraautodeploy', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
+        //        sh "curl -k -d \'{\"application\": \"${application}\", \"version\": \"${releaseVersion}\", \"environment\": \"p\", \"zone\": \"fss\", \"namespace\": \"default\", \"username\": \"${env.USERNAME}\", \"password\": \"${env.PASSWORD}\"}\' https://daemon.nais.adeo.no/deploy"
+        //    }
+        //}
+        slackSend channel: '#nais-ci', message: ":nais: Successfully deployed ${application}:${releaseVersion} to prod :partyparrot: \nhttps://${application}.nais.adeo.no\nLast commit by ${committer}.", teamDomain: 'nav-it', tokenCredentialId: 'slack_fasit_frontend'
         if (currentBuild.result == null) {
             currentBuild.result = "SUCCESS"
         }
@@ -94,14 +86,8 @@ node {
     } catch(e) {
         if (currentBuild.result == null || currentBuild.result == "FAILURE") {
             currentBuild.result = "FAILURE"
-            slackSend channel: '#nais-internal', message: ":shit: Failed deploying ${application}:${releaseVersion}: ${e.getMessage()}. See log for more info ${env.BUILD_URL}", teamDomain: 'nav-it', tokenCredentialId: 'slack_fasit_frontend'
+            slackSend channel: '#nais-ci', message: ":shit: Failed deploying ${application}:${releaseVersion}: ${e.getMessage()}. See log for more info ${env.BUILD_URL}", teamDomain: 'nav-it', tokenCredentialId: 'slack_fasit_frontend'
         }
         throw e
-    } finally {
-        step([$class       : 'InfluxDbPublisher',
-              customData   : null,
-              customDataMap: null,
-              customPrefix : null,
-              target       : 'influxDB'])
-    }
+    } 
 }
