@@ -24,6 +24,7 @@
   },
   "dependencies": {
     "ain2": "2.0.0",
+    "bluebird": "3.5.4",
     "body-parser": "1.14.1",
     "express": "4.13.3",
     "express-validation": "~0.4.5",
