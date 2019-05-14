@@ -17,7 +17,7 @@ stage("checkout") {
     try {
         stage("initialize") {
             committer = sh(script: 'git log -1 --pretty=format:"%ae (%an)"', returnStdout: true).trim()
-            releaseVersion = sh(script: 'echo $(date "+%Y-%m-%d")-$(git --no-pager log -1 --pretty=%h)', returnStdout: true).trim()
+            releaseVersion = sh(script: 'echo $(date "+%Y%m%d%H%M")-$(git --no-pager log -1 --pretty=%h)', returnStdout: true).trim()
         }
 
         stage("run unit tests") {
