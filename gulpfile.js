@@ -38,7 +38,7 @@ gulp.task('compile-js', function () {
         .on('error', handleError)
         .pipe(source('vera.js'))
         .pipe(buffer())
-        .pipe(gulpif(env === 'production', uglify().on('error', e => {console.log("error from uglify", e)})))
+        //.pipe(gulpif(env === 'production', uglify().on('error', e => {console.log("error from uglify", e)})))
         .pipe(size())
         .pipe(gulp.dest(paths.jsBuild));
 });
