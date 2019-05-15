@@ -1,6 +1,7 @@
 import groovy.json.JsonSlurper;
 node {
-    def npm, node // tools
+    //def npm, node // tools
+    env.NODEJS_HOME = "${tool 'nodejs-11.14.0'}"
     def groupId = "nais"
     def appConfig = "nais.yaml"
     def committer, committerEmail, changelog // metadata
