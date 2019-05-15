@@ -1,6 +1,6 @@
 var _ = require('lodash');
 var React = require('react');
-var uuid = require('node-uuid');
+var uuid = require('uuid');
 var classString = require('react-classset');
 var OverlayTrigger = require('react-bootstrap').OverlayTrigger;
 var Tooltip = require('react-bootstrap').Tooltip;

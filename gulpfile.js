@@ -7,7 +7,7 @@ var uglify = require('gulp-uglify');
 var rename = require('gulp-rename');
 var gulpif = require('gulp-if');
 var size = require('gulp-size');
-var minifyCSS = require('gulp-minify-css');
+var minifyCSS = require('gulp-clean-css');
 var concat = require('gulp-concat');
 var del = require('del');
 var runSequence = require('run-sequence');
@@ -38,7 +38,7 @@ gulp.task('compile-js', function () {
         .on('error', handleError)
         .pipe(source('vera.js'))
         .pipe(buffer())
-        //.pipe(gulpif(env === 'production', uglify().on('error', e => {console.log("error from uglify", e)})))
+        .pipe(gulpif(env === 'production', uglify().on('error', e => {console.log("error from uglify", e)})))
         .pipe(size())
         .pipe(gulp.dest(paths.jsBuild));
 });
