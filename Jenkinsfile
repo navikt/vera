@@ -69,20 +69,20 @@ stage("checkout") {
                 httpRequest consoleLogResponseBody: true,
                 ignoreSslErrors: true,
                 responseHandle: 'NONE',
-                url: 'https://vera.nais.preprod.local/isalive',
+                url: 'https://vera.nais.oera-q.local/isalive',
                 validResponseCodes: '200'
 	    }
         }
 
-        //stage("deploy to prod") {
-        //    withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'srvauraautodeploy', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
-        //        sh "curl -k -d \'{\"application\": \"${application}\", \"version\": \"${releaseVersion}\", \"environment\": \"p\", \"zone\": \"fss\", \"namespace\": \"default\", \"username\": \"${env.USERNAME}\", \"password\": \"${env.PASSWORD}\"}\' https://daemon.nais.adeo.no/deploy"
-        //    }
-        //}
-        //slackSend channel: '#nais-ci', message: ":nais: Successfully deployed ${application}:${releaseVersion} to prod :partyparrot: \nhttps://${application}.nais.adeo.no\nLast commit by ${committer}.", teamDomain: 'nav-it', tokenCredentialId: 'slack_fasit_frontend'
-        //if (currentBuild.result == null) {
-        //    currentBuild.result = "SUCCESS"
-        //}
+        stage("deploy to prod") {
+            withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'srvauraautodeploy', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
+                sh "curl -k -d \'{\"application\": \"${application}\", \"version\": \"${releaseVersion}\", \"fasitEnvironment\": \"p\", \"zone\": \"sbs\", \"namespace\": \"default\", \"fasitUsername\": \"${env.USERNAME}\", \"fasitPassword\": \"${env.PASSWORD}\"}\' https://daemon.nais.oera.no/deploy"
+            }
+        }
+        slackSend channel: '#nais-ci', message: ":nais: Successfully deployed ${application}:${releaseVersion} to prod-sbs :partyparrot: \nhttps://${application}.nais.oera.no\nLast commit by ${committer}.", teamDomain: 'nav-it', tokenCredentialId: 'slack_fasit_frontend'
+            if (currentBuild.result == null) {
+                currentBuild.result = "SUCCESS"
+        }
 
     } catch(e) {
         if (currentBuild.result == null || currentBuild.result == "FAILURE") {
