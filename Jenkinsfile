@@ -12,7 +12,7 @@ node {
 deleteDir()
 
 stage("checkout") {
-  git url: "https://github.com/navikt/${application}.git"
+  git branch: "sbs-migration", url: "https://github.com/navikt/${application}.git"
     }
 
     try {
