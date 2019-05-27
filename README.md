@@ -2,6 +2,7 @@
 
 Vera er en oversikt over hvilke versjoner som kjører i hvert miljø. Vera har også et api for registering av deploy events.
 
+
 ## Utvikling lokalt
 
 Kjør
@@ -21,6 +22,5 @@ For eksterne kontakt en av følgende:
 
 - Mats Byfuglien (mats.byfuglien@nav.no)
 - Johnny Horvi (johnny.horvi@nav.no)
-- Even Haasted (even.haasted@nav.no)
-
+- Roger Bjørnstad (roger.bjornstad@nav.no)
 For NAV-ansatte kan henvendelser sendes via slack i kanalen #aura
