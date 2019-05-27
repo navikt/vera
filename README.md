@@ -14,6 +14,7 @@ gulp
 
 Det kreves at du har en lokal mongodb installasjon som applikasjonen kan koble seg til. 
 
+
 ## Henvendelser
 
 Spørsmål knyttet til koden eller prosjektet kan rettes til Team Aura.
