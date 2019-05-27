@@ -19,6 +19,8 @@ Det kreves at du har en lokal mongodb installasjon som applikasjonen kan koble s
 
 Spørsmål knyttet til koden eller prosjektet kan rettes til Team Aura.
 
+
+
 For eksterne kontakt en av følgende:
 
 - Mats Byfuglien (mats.byfuglien@nav.no)
