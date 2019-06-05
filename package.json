@@ -31,6 +31,7 @@
     "express-validation": "^1.0.2",
     "joi": "~6.9.1",
     "json-csv": "^2.0.3",
+    "lodash": "3.10.1",
     "moment": "2.20.1",
     "mongoose": "^4.7.3",
     "morgan": "^1.9.1",
