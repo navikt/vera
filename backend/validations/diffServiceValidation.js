@@ -1,4 +1,4 @@
-var Joi = require('@hapi/joi');
+var Joi = require('joi');
 
 module.exports = {
     options: {flatten: true},
