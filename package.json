@@ -11,7 +11,9 @@
     "email": "mats.byfuglien@nav.no"
   },
   "scripts": {
-    "test": "tape test/*.js | tap-spec"
+    "test": "tape test/*.js | tap-spec",
+    "snyk-protect": "snyk protect",
+    "prepublish": "npm run snyk-protect"
   },
   "contributors": [
     {
@@ -32,7 +34,8 @@
     "moment": "2.20.1",
     "mongoose": "^5.3.15",
     "morgan": "^1.9.1",
-    "prom-client": "^10.2.2"
+    "prom-client": "^10.2.2",
+    "snyk": "^1.189.0"
   },
   "devDependencies": {
     "bootstrap": "3.3.4",
@@ -71,5 +74,6 @@
     "vinyl-buffer": "1.0.0",
     "vinyl-source-stream": "1.0.0"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "snyk": true
 }
