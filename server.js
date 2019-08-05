@@ -48,7 +48,10 @@ var errorHandler = function (err, req, res, next) {
     });
 };
 
-mongoose.connect(config.dbUrl);
+mongoose.connect(config.dbUrl, {
+    useMongoClient: true,
+});
+mongoose.Promise = require('bluebird');
 logger.log("Using MongoDB URL", config.dbUrl);
 
 var db = mongoose.connection;

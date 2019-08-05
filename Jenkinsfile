@@ -1,23 +1,24 @@
 import groovy.json.JsonSlurper;
 node {
-    def npm, node // tools
+    //def npm, node // tools
+    env.NODEJS_HOME = "${tool 'nodejs-11.14.0'}"
     def groupId = "nais"
     def appConfig = "nais.yaml"
     def committer, committerEmail, changelog // metadata
-    def application = "vera"
+    def application = "vera
     def dockerDir = "./docker"
     def distDir = "${dockerDir}/dist"
 
 deleteDir()
 
 stage("checkout") {
-  git url: "https://github.com/navikt/${application}.git"
+        git url: "https://github.com/navikt/${application}.git"
     }
 
     try {
         stage("initialize") {
             committer = sh(script: 'git log -1 --pretty=format:"%ae (%an)"', returnStdout: true).trim()
-            releaseVersion = sh(script: 'echo $(date "+%Y-%m-%d")-$(git --no-pager log -1 --pretty=%h)', returnStdout: true).trim()
+            releaseVersion = sh(script: 'echo $(date "+%Y%m%d%H%M")-$(git --no-pager log -1 --pretty=%h)', returnStdout: true).trim()
         }
 
         stage("run unit tests") {
@@ -64,23 +65,23 @@ stage("checkout") {
 
         stage("verify resources") {
 	    retry(15) {
-		sleep 5
+		        sleep 5
                 httpRequest consoleLogResponseBody: true,
                 ignoreSslErrors: true,
                 responseHandle: 'NONE',
-                url: 'https://vera.nais.preprod.local/isalive',
+                url: 'https://vera.nais.oera-q.local/isalive',
                 validResponseCodes: '200'
-	    }
+	        }
         }
 
-        //stage("deploy to prod") {
-        //    withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'srvauraautodeploy', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
-        //        sh "curl -k -d \'{\"application\": \"${application}\", \"version\": \"${releaseVersion}\", \"environment\": \"p\", \"zone\": \"fss\", \"namespace\": \"default\", \"username\": \"${env.USERNAME}\", \"password\": \"${env.PASSWORD}\"}\' https://daemon.nais.adeo.no/deploy"
-        //    }
-        //}
-        slackSend channel: '#nais-ci', message: ":nais: Successfully deployed ${application}:${releaseVersion} to prod :partyparrot: \nhttps://${application}.nais.adeo.no\nLast commit by ${committer}.", teamDomain: 'nav-it', tokenCredentialId: 'slack_fasit_frontend'
-        if (currentBuild.result == null) {
-            currentBuild.result = "SUCCESS"
+        stage("deploy to prod") {
+            withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'srvauraautodeploy', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
+                sh "curl -k -d \'{\"application\": \"${application}\", \"version\": \"${releaseVersion}\", \"fasitEnvironment\": \"p\", \"zone\": \"sbs\", \"namespace\": \"default\", \"fasitUsername\": \"${env.USERNAME}\", \"fasitPassword\": \"${env.PASSWORD}\"}\' https://daemon.nais.oera.no/deploy"
+            }
+        }
+        slackSend channel: '#nais-ci', message: ":nais: Successfully deployed ${application}:${releaseVersion} to prod-sbs :partyparrot: \nhttps://${application}.nais.oera.no\nLast commit by ${committer}.", teamDomain: 'nav-it', tokenCredentialId: 'slack_fasit_frontend'
+            if (currentBuild.result == null) {
+                currentBuild.result = "SUCCESS"
         }
 
     } catch(e) {
