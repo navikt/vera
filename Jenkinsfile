@@ -5,7 +5,7 @@ node {
     def groupId = "nais"
     def appConfig = "nais.yaml"
     def committer, committerEmail, changelog // metadata
-    def application = "vera
+    def application = "vera"
     def dockerDir = "./docker"
     def distDir = "${dockerDir}/dist"
 
