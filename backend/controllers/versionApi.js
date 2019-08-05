@@ -126,7 +126,6 @@ var parameterDefinition = {
 
 exports.config = function (req, res, next) {
         var environmentCfg = {
-            plasterUrl: config.plasterUrl,
             dbUrl: config.dbUrl,
             dbUser: config.dbUser
         }
