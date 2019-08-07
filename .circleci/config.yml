@@ -59,31 +59,12 @@ jobs:
                   npm install
                   npm test  
                   mkdir -p /tmp/docker/dist
-                  #cp production_server.js config.js selftest.js package.json package-lock.json /tmp/docker/dist
-                  #cd /tmp/docker/dist && npm ci --production && cd -
-                  #npm ci && npm run test && npm run build || exit 1 # Creating frontend bundle
-                  #cp -r dist /tmp/docker/dist
-                  #cp Dockerfile /tmp/docker
-
-
-        # stage("run unit tests") {
-        #    withEnv(['HTTP_PROXY=http://webproxy-utvikler.nav.no:8088', 'NO_PROXY=adeo.no']) {
-        #        sh "npm install"
-        #        sh "npm test"
-        #    }
-        #}
-
-        #stage("build frontend bundle") {
-        #    withEnv(['HTTP_PROXY=http://webproxy-utvikler.nav.no:8088', 'NO_PROXY=adeo.no']) {
-        #        sh "mkdir -p ${distDir}"
-        #        sh "cp -r server.js backend ${distDir}"
-        #        sh "cd ${distDir} && cp ../../package.json . && npm install --production && cd -"
-        #        //    getting required node_modules for production
-        #        sh "npm install && node ./node_modules/gulp/bin/gulp.js dist || exit 1" // Creating frontend bundle
-        #        sh "cp -r --parents frontend/build ${distDir}" // Copying frontend bundle
-        #        sh "cp Dockerfile ${dockerDir}"
-        #    }
-        #}
+                  cp -r server.js backend /tmp/docker/dist
+                  cd /tmp/docker/dist && cp ../../package.json . && npm install --production && cd -
+                  # getting required node_modules for production
+                  npm install && node ./node_modules/gulp/bin/gulp.js dist || exit 1
+                  cp -r --parents frontend/build ${distDir}
+                  cp Dockerfile /tmp/docker/dist
 
         #stage("build and publish docker image") {
         #    def imageName = "docker.adeo.no:5000/${application}:${releaseVersion}"
