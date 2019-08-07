@@ -56,13 +56,13 @@ jobs:
             - run:
                 name: 'Test and bundle'
                 command: |
-                  pwd
+                  checkout_dir=$(pwd)
                   ls -la 
                   npm install
                   npm test  
                   mkdir -p /tmp/docker/dist
                   cp -r server.js backend /tmp/docker/dist
-                  cd /tmp/docker/dist && cp ../../../package.json . && npm install --production && cd -
+                  cd /tmp/docker/dist && cp ${checkout_dir}/package.json . && npm install --production && cd -
                   # getting required node_modules for production
                   npm install && node ./node_modules/gulp/bin/gulp.js dist || exit 1
                   cp -r --parents frontend/build /tmp/docker/dist
