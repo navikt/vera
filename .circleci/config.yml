@@ -67,6 +67,7 @@ jobs:
                   npm install && node ./node_modules/gulp/bin/gulp.js dist || exit 1
                   cp -r --parents frontend/build /tmp/docker/dist
                   cp Dockerfile /tmp/docker/dist
+                  ls -la /tmp/docker/dist
 
         #stage("build and publish docker image") {
         #    def imageName = "docker.adeo.no:5000/${application}:${releaseVersion}"
@@ -195,12 +196,12 @@ workflows:
             - build_and_test:
                 requires:
                     - checkout_code
-            #- generate_version_number:
-            #    filters:
-            #        branches:
-            #            only: master
-            #    requires:
-            #        - checkout_code
+            - generate_version_number:
+                filters:
+                    branches:
+                        only: master
+                requires:
+                    - checkout_code
             #- release:
             #    filters:
             #        branches:
