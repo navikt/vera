@@ -58,8 +58,7 @@ jobs:
                 command: | 
                   npm install
                   npm test  
-                
-                  #mkdir -p /tmp/docker/dist
+                  mkdir -p /tmp/docker/dist
                   #cp production_server.js config.js selftest.js package.json package-lock.json /tmp/docker/dist
                   #cd /tmp/docker/dist && npm ci --production && cd -
                   #npm ci && npm run test && npm run build || exit 1 # Creating frontend bundle
