@@ -40,7 +40,7 @@ stage("checkout") {
             }
         }
 
-        stage("build and publish docker image") {
+        /*stage("build and publish docker image") {
             def imageName = "docker.adeo.no:5000/${application}:${releaseVersion}"
             sh "sudo docker build -t ${imageName} ./docker"
             sh "sudo docker push ${imageName}"
@@ -82,7 +82,7 @@ stage("checkout") {
         slackSend channel: '#nais-ci', message: ":nais: Successfully deployed ${application}:${releaseVersion} to prod-sbs :partyparrot: \nhttps://${application}.nais.oera.no\nLast commit by ${committer}.", teamDomain: 'nav-it', tokenCredentialId: 'slack_fasit_frontend'
             if (currentBuild.result == null) {
                 currentBuild.result = "SUCCESS"
-        }
+        }*/
 
     } catch(e) {
         if (currentBuild.result == null || currentBuild.result == "FAILURE") {
