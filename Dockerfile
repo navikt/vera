@@ -1,7 +1,7 @@
 FROM node:12-alpine
 
 WORKDIR /src
-ADD ./dist .
+ADD /tmp/docker/dist .
 
 EXPOSE 80
 ENV NODE_ENV=production

@@ -136,6 +136,7 @@ jobs:
             - run:
                 name: Build and push docker image
                 command: |
+                    ls -la /tmp/docker/dist
                     docker build -t docker.pkg.github.com/navikt/vera/vera:${VERSION} /tmp/docker/dist
                     docker push docker.pkg.github.com/navikt/vera/vera:${VERSION}
     
