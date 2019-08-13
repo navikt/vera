@@ -174,7 +174,7 @@ commands:
                 name: deploy to << parameters.environment >> 
                 command: deployment-cli deploy create 
                     --cluster=<< parameters.environment >>  
-                    --repository=navikt/basta-frontend 
+                    --repository=navikt/vera
                     --team aura 
                     --resource=aura-infra/templates/vera.yaml 
                     --var version=${VERSION} 
