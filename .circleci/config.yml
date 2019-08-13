@@ -116,11 +116,11 @@ jobs:
             root: *workspace_root
             paths:
                 - properties.env
-        - run:
-            name: 'ls'
-            command: |
-                ls -la /tmp/workspace
-                cat /tmp/workspace/properties.env
+        #- run:
+        #    name: 'ls'
+        #    command: |
+        #        ls -la /tmp/workspace
+        #        cat /tmp/workspace/properties.env
 
     release:
         <<: *container_config
@@ -204,13 +204,13 @@ workflows:
                         only: master
                 requires:
                     - checkout_code
-            #- release:
-            #    filters:
-            #        branches:
-            #            only: master
-            #    requires:
-            #        - build_and_test
-            #        - generate_version_number
+            - release:
+                filters:
+                    branches:
+                        only: master
+                requires:
+                    - build_and_test
+                    - generate_version_number
             #- deploy_to_dev:
             #    filters:
             #        branches:
