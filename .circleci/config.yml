@@ -212,12 +212,12 @@ workflows:
                 requires:
                     - build_and_test
                     - generate_version_number
-            #- deploy_to_dev:
-            #    filters:
-            #        branches:
-            #            only: master
-            #    requires:
-            #        - release
+            - deploy_to_dev:
+                filters:
+                    branches:
+                        only: master
+                requires:
+                    - release
             #- deploy_to_prod:
             #    filters:
             #        branches: 
