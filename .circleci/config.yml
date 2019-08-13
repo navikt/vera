@@ -120,7 +120,7 @@ jobs:
             name: 'ls'
             command: |
                 ls -la /tmp/workspace
-                cat properties.env
+                cat /tmp/workspace/properties.env
 
     release:
         <<: *container_config
