@@ -146,7 +146,7 @@ jobs:
         steps:
             - deploy-to-nais:
                 environment: dev-sbs
-                placeholder-values: aura-infra/vars/vera-preprod-sbs.json
+                placeholder-values: aura-infra/vars/vera-dev-sbs.json
 
     deploy_to_prod:
         executor: deployment-cli
@@ -160,6 +160,8 @@ jobs:
 commands:
     deploy-to-nais:
         parameters:
+            placeholder-values:
+                type: string
             environment:
                 type: string
         steps:
