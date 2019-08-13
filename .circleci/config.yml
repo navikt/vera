@@ -182,7 +182,8 @@ commands:
                     --cluster=<< parameters.environment >>  
                     --repository=navikt/vera
                     --team aura 
-                    --resource=aura-infra/templates/vera.yaml 
+                    --resource=aura-infra/templates/vera.yaml
+                    --vars=<< parameters.placeholder-values >>
                     --var version=${VERSION} 
                     --appid=21324 
                     --key=github.key.pem
