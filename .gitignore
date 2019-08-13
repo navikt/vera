@@ -49,3 +49,5 @@ frontend/build
 localhost.crt
 openssl.cnf
 yarn.lock
+circleci_vera_rw_id_rsa
+circleci_vera_rw_id_rsa.pub
