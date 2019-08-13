@@ -164,7 +164,7 @@ commands:
             - checkout
             - add_ssh_keys:
                 fingerprints: 
-                    - '01:47:91:7b:1c:26:c3:bb:de:ac:1f:3b:78:94:c6:55'
+                    - '4d:b4:76:1a:3d:51:39:6f:50:e9:f6:70:14:16:88:8a'
             - run:
                 name: 'Checkout aura-infra repo'
                 command: git clone git@github.com:navikt/aura-infra.git
