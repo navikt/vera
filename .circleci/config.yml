@@ -118,7 +118,9 @@ jobs:
                 - properties.env
         - run:
             name: 'ls'
-            command: ls -la /tmp/workspace
+            command: |
+                ls -la /tmp/workspace
+                cat properties.env
 
     release:
         <<: *container_config
