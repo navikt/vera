@@ -225,9 +225,9 @@ workflows:
                         only: master
                 requires:
                     - release
-            #- deploy_to_prod:
-            #    filters:
-            #        branches: 
-            #            only: master
-            #    requires:
-            #        - deploy_to_dev
+            - deploy_to_prod:
+                filters:
+                    branches: 
+                        only: master
+                requires:
+                    - deploy_to_dev
