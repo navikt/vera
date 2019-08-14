@@ -6,7 +6,7 @@ node {
             println(env.JENKINS_HOME)
             sh '''
                 printenv | grep JENKINS"
-                echo '--------------- sdf ------'
+                echo "--------------- sdf ------"
                 echo $backup_dir
             '''
         }
