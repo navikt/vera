@@ -22,7 +22,7 @@ node {
                 export KUBECONFIG=./nsync/preprod-sbs/config
                 vera_mongo=$(kubectl get pods -n tpa -l app=tpa-vera-mongodb --output=jsonpath={.items..metadata.name})
                 kubectl exec -n tpa ${vera_mongo} -- mongodump -d deploy_log
-                kubectl cp -n tpa ${vera_moango}:/dump .
+                kubectl cp -n tpa ${vera_mongo}:/dump .
                 backupfile=${backup_dir}/vera_mongodb_backup.$(date +%Y%m%d-%H%M%S).tgz
                 echo "Backupfile is set to ${backupfile}"
                 tar -czvf ${backupfile} deploy_log/.
