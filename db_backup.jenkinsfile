@@ -5,7 +5,7 @@ node {
         stage("Echo") {
             println(env.JENKINS_HOME)
             sh("printenv | grep JENKINS")
-            sh("backupfile=\"${backup_dir}/vera_mongodb_backup.$(date +%Y%m%d-%H%M%S).tgz\" && echo $backupfile")
+            sh("backupfile=\"${backup_dir}/vera_mongodb_backup.tgz\" && echo $backupfile")
 
 
 
