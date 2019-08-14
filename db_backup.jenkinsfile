@@ -2,6 +2,14 @@ node {
     def cluster="preprod-sbs"
     def backup_dir=env.JENKINS_HOME+"/vera_mongodb_backup"
     try {
+        stage("Echo") {
+            println(env.JENKINS_HOME)
+            sh("printenv | grep JENKINS")
+            sh("backupfile=\"${backup_dir}/vera_mongodb_backup.$(date +%Y%m%d-%H%M%S).tgz\" && echo $backupfile")
+
+
+
+        }
         stage("Checkout")  {
             echo "Checkout"
             dir("nais-inventory") {
