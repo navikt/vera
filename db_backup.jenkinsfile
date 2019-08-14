@@ -5,7 +5,7 @@ node {
         stage("Echo") {
             println(env.JENKINS_HOME)
             sh '''
-                printenv | grep JENKINS"
+                printenv | grep JENKINS
                 echo "--------------- sdf ------"
                 echo $backup_dir
             '''
