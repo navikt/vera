@@ -1,6 +1,6 @@
 node {
     def cluster="preprod-sbs"
-    def backup_dir="${env.JENKINS_HOME}\\vera_mongodb_backup"
+    def backup_dir=env.JENKINS_HOME+"/vera_mongodb_backup"
     try {
         stage("Checkout")  {
             echo "Checkout"
