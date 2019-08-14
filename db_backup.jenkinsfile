@@ -19,7 +19,7 @@ node {
         stage("run mongodump on tpa-vera-mongodb") {
             sh '''
                 backup_file="${JENKINS_HOME}/vera_mongodb_backup/vera_mongodb_backup.${cluster}.$(date +%Y%m%d-%H%M%S).tgz"
-                export KUBECONFIG="./nsync/${cluster}/config"
+                export KUBECONFIG="./nsync/prod-sbs/config"
                 vera_mongo=$(kubectl get pods -n tpa -l app=tpa-vera-mongodb --output=jsonpath={.items..metadata.name})
                 kubectl exec -n tpa ${vera_mongo} -- mongodump -d deploy_log
                 kubectl cp -n tpa ${vera_mongo}:/dump .
