@@ -1,16 +1,7 @@
 node {
     def cluster="preprod-sbs"
-    def backup_dir=env.JENKINS_HOME+"/vera_mongodb_backup"
     try {
-        stage("Echo") {
-            println(env.JENKINS_HOME)
-            sh '''
-                printenv | grep JENKINS
-                echo "--------------- sdf ------"
-                echo $backup_dir
-            '''
-        }
-        stage("Checkout")  {
+       stage("Checkout")  {
             echo "Checkout"
             dir("nais-inventory") {
                 git(credentialsId: 'nais-inventory', url: "git@github.com:navikt/nais-inventory.git")
@@ -27,13 +18,13 @@ node {
         
         stage("run mongodump on tpa-vera-mongodb") {
             sh '''
+                backup_file="${JENKINS_HOME}/vera_mongodb_backup/vera_mongodb_backup.$(date +%Y%m%d-%H%M%S).tgz"
                 export KUBECONFIG=./nsync/preprod-sbs/config
                 vera_mongo=$(kubectl get pods -n tpa -l app=tpa-vera-mongodb --output=jsonpath={.items..metadata.name})
                 kubectl exec -n tpa ${vera_mongo} -- mongodump -d deploy_log
                 kubectl cp -n tpa ${vera_mongo}:/dump .
-                backupfile="${backup_dir}/vera_mongodb_backup.$(date +%Y%m%d-%H%M%S).tgz"
-                echo "Backupfile is set to ${backupfile}"
-                tar -czvf ${backupfile} deploy_log/.
+                echo "Backupfile is set to ${backup_file}"
+                tar -czvf ${backup_file} deploy_log/.
             '''
         }
         
