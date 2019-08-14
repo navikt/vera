@@ -4,11 +4,11 @@ node {
     try {
         stage("Echo") {
             println(env.JENKINS_HOME)
-            sh("printenv | grep JENKINS")
-            sh("backupfile=\"${backup_dir}/vera_mongodb_backup.tgz\" && echo $backupfile")
-
-
-
+            sh '''
+                printenv | grep JENKINS"
+                echo '--------------- sdf ------'
+                echo $backup_dir
+            '''
         }
         stage("Checkout")  {
             echo "Checkout"
