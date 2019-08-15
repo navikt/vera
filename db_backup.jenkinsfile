@@ -17,7 +17,7 @@ node {
         }
         
         stage("run mongodump on tpa-vera-mongodb") {
-            sh '''
+            sh """
                 echo "Running tpa-vera-mongodb backup in ${cluster}"
                 backup_file="${JENKINS_HOME}/vera_mongodb_backup/vera_mongodb_backup.${cluster}.$(date +%Y%m%d-%H%M%S).tgz"
                 export KUBECONFIG="./nsync/prod-sbs/config"
@@ -26,7 +26,7 @@ node {
                 kubectl cp -n tpa ${vera_mongo}:/dump .
                 echo "Backupfile is set to ${backup_file}"
                 tar -czvf ${backup_file} deploy_log/.
-            '''
+            """
         }
         
         stage("Removing ${cluster} kubeconfig") {
