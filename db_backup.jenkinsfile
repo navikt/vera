@@ -33,7 +33,7 @@ pipeline {
                     kubectl cp -n tpa ${vera_mongo}:/dump .
                     echo "Backupfile is set to ${BACKUP}"
                     tar -czvf ${BACKUP} deploy_log/*
-                    find ${JENKINS_HOME}/vera_mongodb_backup/ -mtime +3 -exec ls -la {} \\;
+                    find ${JENKINS_HOME}/vera_mongodb_backup/ -mtime +3 -exec rm {} \\;
                     '''
                 }
         }
