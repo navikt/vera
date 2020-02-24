@@ -35,19 +35,15 @@ exports.deployLog = function (req, res, next) {
 
 
     Event.find(predicate).sort([['deployed_timestamp', 'descending']]).exec(function (err, events) {
-        console.log("PREDICATE")
-        console.log(predicate)
         if (req.query.csv === 'true') {
             returnCSVPayload(res, events);
         } else {
             res.header("Content-Type", "application/json; charset=utf-8");
             const aftermongo = Date.now();
             const mongotime = aftermongo - start
-            console.log("Got data from momngo for ", req.query , " starting json parsing. Took ", mongotime)
             res.json(events);
             const done = Date.now();
             const afterjson = done - aftermongo
-            console.log("Done transforming json for ", req.query, mongotime, afterjson)
 
         }
     });
