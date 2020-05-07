@@ -38,7 +38,7 @@
     "prom-client": "^10.2.2"
   },
   "devDependencies": {
-    "bootstrap": "3.3.4",
+    "bootstrap": "3.4.1",
     "browserify": "^16.2.3",
     "console-shim": "1.0.3",
     "del": "4.1.1",
