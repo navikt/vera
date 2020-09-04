@@ -59,7 +59,7 @@
     "moxpress": "0.0.3",
     "nodemon": "^1.19.1",
     "proxyquire": "~1.7.3",
-    "react": "0.13.3",
+    "react": "16.13.1",
     "react-bootstrap": "0.23.7",
     "react-classset": "0.0.2",
     "react-router": "0.13.3",
