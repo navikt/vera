@@ -1,0 +1,69 @@
+name: Test, build, push, and deploy
+
+on: [push]
+
+env:
+  docker_image: docker.pkg.github.com/${{ github.repository }}/vera
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v1
+        with:
+          node-version: '10.9'
+      - name: Cache NPM dependencies
+        uses: actions/cache@v1
+        with:
+          path: node_modules
+          key: ${{ runner.OS }}-npm-cache-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: ${{ runner.os }}-node-cache-
+      - run: npm install
+      - run: npm test
+
+  
+  
+  build:
+    name: Build and push Docker container
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/master'
+    steps:
+    - uses: actions/checkout@v2
+    - name: Build and publish Docker image
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        export DOCKER_IMAGE_TAG=${docker_image}:$(date "+%Y-%m-%d")-$(git --no-pager log -1 --pretty=%h)
+        docker build --tag $DOCKER_IMAGE_TAG .
+        echo $GITHUB_TOKEN | docker login docker.pkg.github.com -u ${GITHUB_REPOSITORY} --password-stdin
+        docker push $DOCKER_IMAGE_TAG
+
+  deploy-dev:
+    needs: build
+    if: github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - uses: nais/deploy/actions/deploy@v1
+      env:
+        APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
+        CLUSTER: dev-sbs
+        RESOURCE: nais/vera.yaml
+        VARS: nais/dev.yaml
+        VAR: image=${{ env.docker_image }}
+
+  deploy-prod:
+    needs: deploy-dev
+    if: github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - uses: nais/deploy/actions/deploy@v1
+      env:
+        APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
+        CLUSTER: prod-sbs
+        RESOURCE: nais/vera.yaml
+        VARS: nais/prod.yaml
+        VAR: version="$(date "+%Y-%m-%d")-$(git --no-pager log -1 --pretty=%h)"
