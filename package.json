@@ -11,7 +11,9 @@
     "email": "mats.byfuglien@nav.no"
   },
   "scripts": {
-    "test": "tape test/*.js | tap-spec"
+    "test": "tape test/*.js | tap-spec",
+    "snyk-protect": "snyk protect",
+    "prepublish": "npm run snyk-protect"
   },
   "contributors": [
     {
@@ -23,7 +25,7 @@
     "node": ">= 9.5.0"
   },
   "dependencies": {
-    "@hapi/joi": "15.0.3",
+    "@hapi/joi": "15.1.1",
     "ain2": "2.0.0",
     "bluebird": "3.5.4",
     "body-parser": "1.19.0",
@@ -35,10 +37,11 @@
     "moment": "2.20.1",
     "mongoose": "^4.7.3",
     "morgan": "^1.9.1",
-    "prom-client": "^10.2.2"
+    "prom-client": "^10.2.2",
+    "snyk": "^1.189.0"
   },
   "devDependencies": {
-    "bootstrap": "3.3.4",
+    "bootstrap": "3.4.1",
     "browserify": "^16.2.3",
     "console-shim": "1.0.3",
     "del": "4.1.1",
@@ -52,7 +55,7 @@
     "gulp-tape": "0.0.4",
     "gulp-uglify": "1.5.3",
     "immutable": "3.7.6",
-    "jquery": "3.4.1",
+    "jquery": "3.5.0",
     "lodash": "4.17.12",
     "mocha": "6.1.4",
     "moment": "2.20.1",
@@ -74,5 +77,6 @@
     "vinyl-buffer": "1.0.0",
     "vinyl-source-stream": "1.0.0"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "snyk": true
 }

@@ -53,14 +53,6 @@ var Vera = React.createClass({
                                     &nbsp;diff</Link>
                             </li>
                         </ul>
-                        <ul className="nav navbar-nav pull-right">
-                            <li>
-                                <a href={(this.state.plasterUrl) ? this.state.plasterUrl : '#'} target="_blank">
-                                    <i className="fa fa-medkit"></i>
-                                &nbsp;plaster
-                                </a>
-                            </li>
-                        </ul>
                     </div>
                 </nav>
                 <RouteHandler />

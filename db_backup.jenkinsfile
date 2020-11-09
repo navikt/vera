@@ -1,0 +1,47 @@
+pipeline {
+    agent { label 'master' }
+    environment {
+        CLUSTER="prod-sbs"
+    }
+    stages {
+        stage("checkout")  {
+            steps {
+                dir("nais-inventory") {
+                    git(credentialsId: 'nais-inventory', url: "git@github.com:navikt/nais-inventory.git")
+                }
+                dir("nsync") {
+                    git(url: "https://github.com/navikt/nsync.git")
+                }
+            }
+        }
+        
+        stage("fetch kubeconfig for cluster") {
+            steps {
+                sh("ansible-playbook -i ./nais-inventory/${CLUSTER} -e @nais-inventory/${CLUSTER}-vars.yaml ./nsync/fetch-kube-config.yaml")
+            }
+        }
+        
+        stage("run mongodump on tpa-vera-mongodb") {
+            environment {
+                BACKUP="${JENKINS_HOME}/vera_mongodb_backup/vera_mongodb_backup_${CLUSTER}_${currentBuild.startTimeInMillis}.tgz"              
+                KUBECONFIG="./nsync/${CLUSTER}/config"
+            }
+            steps {
+                sh script: '''
+                    vera_mongo=$(kubectl get po -n tpa -l release=tpa-vera-bjornstad --output=jsonpath={.items..metadata.name})
+                    kubectl exec -n tpa ${vera_mongo} -- mongodump -d deploy_log
+                    kubectl cp -n tpa ${vera_mongo}:/dump .
+                    echo "Backupfile is set to ${BACKUP}"
+                    tar -czvf ${BACKUP} deploy_log/*
+                    find ${JENKINS_HOME}/vera_mongodb_backup/ -mtime +3 -exec rm {} \\;
+                    '''
+                }
+        }
+        
+        stage("Removing kubeconfig") {
+            steps {
+                sh("rm -r ./nsync/${CLUSTER}")
+            }
+        }
+    }
+}
