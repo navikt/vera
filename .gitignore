@@ -48,3 +48,15 @@ localhost.crt
 openssl.cnf
 circleci_vera_rw_id_rsa
 circleci_vera_rw_id_rsa.pub
+
+# vim swap files
+[._]*.s[a-v][a-z]
+!*.svg  # comment out if you don't need vector files
+[._]*.sw[a-p]
+[._]s[a-rt-v][a-z]
+[._]ss[a-gi-z]
+[._]sw[a-p]
+
+# docker-compose mongodb
+db/
+
