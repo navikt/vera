@@ -10,10 +10,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-
       - uses: actions/setup-node@v1
         with:
-          node-version: '10.9'
+          node-version: '12'
       - name: Cache NPM dependencies
         uses: actions/cache@v1
         with:
@@ -21,7 +20,7 @@ jobs:
           key: ${{ runner.OS }}-npm-cache-${{ hashFiles('**/package-lock.json') }}
           restore-keys: ${{ runner.os }}-node-cache-
       - run: npm install
-      #- run: npm test
+      - run: npm test
 
   build:
     name: Build and push Docker container
@@ -50,9 +49,6 @@ jobs:
     - name: Generate version tags
       run: |
         echo "tag=${image}:$(./version.sh)" >> $GITHUB_ENV
-    - name: Echooooo
-      run: |
-        echo ${{ env.tag }}
     - uses: nais/deploy/actions/deploy@v1
       env:
         APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
