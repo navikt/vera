@@ -10,6 +10,14 @@ Vera er en oversikt over hvilke versjoner som kjører i hvert miljø. Vera har o
 Kjør
 
 ```console
+docker-compose up -d
+kubectl exec --context dev-gcp --namespace aura vera-mongo-0 -c mongod-container -- mongodump --archive > vera.dump
+docker-compose exec -T mongo-db sh -c 'mongorestore --archive' < vera.dump
+```
+
+### Kjør (uten docker)
+
+```console
 npm install
 gulp
 ```

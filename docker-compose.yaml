@@ -7,3 +7,10 @@ services:
     container_name: mongo-db
     volumes:
       - ./db/:/data/db
+  vera:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: vera
+    ports:
+      - "8080:80"
