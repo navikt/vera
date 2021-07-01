@@ -15,6 +15,8 @@ kubectl exec --context dev-gcp --namespace aura vera-mongo-0 -c mongod-container
 docker-compose exec -T mongo-db sh -c 'mongorestore --archive' < vera.dump
 ```
 
+OBS!!! La mongodb starte opp i 20-120 sekunder før du prøver å starte `docker-compose start vera`
+
 ### Kjør (uten docker)
 
 ```console

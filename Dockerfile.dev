@@ -30,9 +30,11 @@ WORKDIR /src
 COPY --from=frontend_builder /app/static/frontend/build /src/frontend/build
 COPY --from=base_dependencies node_modules package.json ./
 
-COPY server.js /src/
+COPY server.js ./
 COPY backend /src/backend
+COPY docker_vera_startup.sh ./
 
 EXPOSE 80
 ENV NODE_ENV=production
-CMD ["node", "server.js"]
+RUN apk add --no-cache bash
+CMD ["/src/docker_vera_startup.sh"]

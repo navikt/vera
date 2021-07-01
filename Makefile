@@ -4,7 +4,7 @@ IMAGE_NAME=local_vera
 
 .PHONY: docker-compose
 docker-compose:
-	docker-compose up --detach
+	docker-compose up --detach --build
 
 .PHONY: docker-build
 docker-build:
