@@ -21,6 +21,9 @@
       "email": "johnny.horvi@nav.no"
     }
   ],
+  "resolutions": {
+    "graceful-fs": "^4.2.4"
+  },
   "engines": {
     "node": ">= 9.5.0"
   },
