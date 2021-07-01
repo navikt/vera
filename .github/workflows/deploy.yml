@@ -48,7 +48,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
-    - uses: Echooooo
+    - name: Echooooo
       run:
         echo $GITHUB_ENV
   #  - uses: nais/deploy/actions/deploy@v1
