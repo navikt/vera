@@ -48,7 +48,9 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Generate version tags
-      run: echo "version=$(./version.sh)" >> $GITHUB_ENV
+      run: |
+        echo "version=$(./version.sh)" >> $GITHUB_ENV
+        echo "tag=${image}:${version}" >> $GITHUB_ENV
     - name: Echooooo
       run:
         echo ${image}:${version}
@@ -58,4 +60,4 @@ jobs:
         CLUSTER: dev-gcp
         RESOURCE: nais/vera.yaml
         VARS: nais/dev.yaml
-        VAR: image=${{ image }}
+        VAR: image=${{ env.tag }}
