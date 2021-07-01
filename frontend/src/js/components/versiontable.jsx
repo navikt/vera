@@ -41,7 +41,7 @@ module.exports = VersionTable = React.createClass({
                     <thead>
                     <tr>
                         <th />
-                        {_.rest(headerToRender).map(function (header) {
+                        {_.tail(headerToRender).map(function (header) {
                             return (
                                 <th key={header.columnTitle} className='text-nowrap'>
                                     <Link to="log" query={header.queryParams}>{header.columnTitle.toUpperCase()}</Link>
@@ -60,8 +60,8 @@ module.exports = VersionTable = React.createClass({
     },
 
     buildTableRow: function (row) {
-        var firstColumn = _.first(row);
-        var dataColumns = _.rest(row);
+        var firstColumn = _.head(row);
+        var dataColumns = _.tail(row);
 
         var labelLinkQuery = {};
         var queryElement = this.props.inverseTable ? 'environment' : 'application';

@@ -68,7 +68,7 @@ function generateRow(columns, firstColumnTitle, applicationInstances, elementKey
         });
 
         if (filtered.length === 1) {
-            rowData[i] = _.first(filtered);
+            rowData[i] = _.head(filtered);
         }
     }
     return rowData;
