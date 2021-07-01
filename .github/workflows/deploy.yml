@@ -50,7 +50,7 @@ jobs:
     - name: Generate version tags
       run: |
         echo "version=$(./version.sh)" >> $GITHUB_ENV
-        echo "tag=${image}:${version}" >> $GITHUB_ENV
+        echo "tag=${image}:${{ env.version }}" >> $GITHUB_ENV
     - name: Echooooo
       run: |
         echo ${{ env.tag }}
