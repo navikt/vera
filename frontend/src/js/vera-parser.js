@@ -50,7 +50,7 @@ function getTableHeader(versionData, key) {
         return {'columnTitle': element, 'queryParams': queryParams}
     };
 
-    var headerData = _.chain(versionData).pluck(key).uniq(function (element) {
+    var headerData = _.chain(versionData).map(key).uniq(function (element) {
         return element.toLowerCase();
     }).sortBy(String).map(toHeaderObject).value();
 
