@@ -43,7 +43,7 @@
   "devDependencies": {
     "bootstrap": "3.4.1",
     "browserify": "^16.2.3",
-    "console-shim": "1.0.3",
+    "console-shim2": "0.1.0",
     "del": "4.1.1",
     "font-awesome": "4.5.0",
     "gulp": "3.9.0",
