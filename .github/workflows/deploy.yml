@@ -52,4 +52,4 @@ jobs:
         CLUSTER: dev-gcp
         RESOURCE: nais/vera.yaml
         VARS: nais/dev.yaml
-        VAR: image=${{ env.docker_image }}
+        VAR: image=${{ env.DOCKER_IMAGE_TAG }}
