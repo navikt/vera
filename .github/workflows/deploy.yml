@@ -40,14 +40,17 @@ jobs:
         echo $GITHUB_TOKEN | docker login docker.pkg.github.com -u ${GITHUB_REPOSITORY} --password-stdin
         docker push $DOCKER_IMAGE_TAG
         echo "image=${DOCKER_IMAGE_TAG}" >> $GITHUB_ENV
-        eccho $GITHUB_ENV
+        echo $GITHUB_ENV
 
-  #deploy-dev:
-  #  needs: build
-  #  if: github.ref == 'refs/heads/master'
-  #  runs-on: ubuntu-latest
-  #  steps:
-  #  - uses: actions/checkout@v2
+  deploy-dev:
+    needs: build
+    if: github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - uses: Echooooo
+      run:
+        echo $GITHUB_ENV
   #  - uses: nais/deploy/actions/deploy@v1
   #    env:
   #      APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
