@@ -1,5 +1,5 @@
-# mongodb dumps
-vera.dump
+# docker run-time mounts
+/docker-mounts/
 
 # Logs
 logs

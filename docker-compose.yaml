@@ -2,15 +2,17 @@ version: '3.7'
 services:
   mongo-db:
     image: mongo
-    ports:
-      - "27017:27017"
     container_name: mongo-db
     volumes:
-      - ./db/:/data/db
+      - ./docker-mounts/mongo/db/:/data/db
   vera:
     build:
       context: .
       dockerfile: Dockerfile
     container_name: vera
+    depends_on:
+      - mongo-db
+    environment:
+      VERADB_URL: mongodb://mongo-db:27017/deploy_log
     ports:
       - "8080:80"

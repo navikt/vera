@@ -31,7 +31,7 @@ FROM base_dependencies as server
 
 WORKDIR /src
 COPY --from=frontend_builder /app/static/frontend/build /src/frontend/build
-COPY --from=base_dependencies node_modules .
+COPY --from=base_dependencies node_modules package.json ./
 
 COPY package.json ./
 COPY server.js /src/
