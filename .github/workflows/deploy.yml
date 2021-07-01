@@ -21,7 +21,7 @@ jobs:
           key: ${{ runner.OS }}-npm-cache-${{ hashFiles('**/package-lock.json') }}
           restore-keys: ${{ runner.os }}-node-cache-
       - run: npm install
-      - run: npm test
+      #- run: npm test
 
   build:
     name: Build and push Docker container
