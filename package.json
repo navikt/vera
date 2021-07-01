@@ -12,8 +12,8 @@
   },
   "scripts": {
     "test": "tape test/*.js | tap-spec",
-    "snyk-protect": "snyk protect",
-    "prepublish": "npm run snyk-protect"
+    "snyk-protect": "yarn snyk protect",
+    "prepublish": "yarn run snyk-protect"
   },
   "contributors": [
     {
