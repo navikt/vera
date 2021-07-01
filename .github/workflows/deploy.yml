@@ -3,13 +3,14 @@ name: Test, build, push, and deploy
 on: [push]
 
 env:
-  docker_image: docker.pkg.github.com/${{ github.repository }}/vera
+  image: docker.pkg.github.com/${{ github.repository }}/vera
 
 jobs:
   test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+
       - uses: actions/setup-node@v1
         with:
           node-version: '10.9'
@@ -22,8 +23,6 @@ jobs:
       - run: npm install
       - run: npm test
 
-  
-  
   build:
     name: Build and push Docker container
     needs: test
@@ -31,15 +30,16 @@ jobs:
     if: github.ref == 'refs/heads/master'
     steps:
     - uses: actions/checkout@v2
+    - name: Generate version tags
+      run: echo "version=$(./version.sh)" >> $GITHUB_ENV
     - name: Build and publish Docker image
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
-        export DOCKER_IMAGE_TAG=${docker_image}:$(date "+%Y-%m-%d")-$(git --no-pager log -1 --pretty=%h)
-        docker build --tag $DOCKER_IMAGE_TAG .
-        echo $GITHUB_TOKEN | docker login docker.pkg.github.com -u ${GITHUB_REPOSITORY} --password-stdin
-        docker push $DOCKER_IMAGE_TAG
-        echo "image=${DOCKER_IMAGE_TAG}" >> $GITHUB_ENV
+        docker build --tag ${image}:${version} --tag ${image}:latest --tag ${image}:${version} .
+        docker login docker.pkg.github.com -u ${GITHUB_REPOSITORY} -p ${GITHUB_TOKEN}
+        docker push ${image}:${version}
+        docker push ${image}:latest
 
   deploy-dev:
     needs: build
@@ -47,13 +47,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
+    - name: Generate version tags
+      run: echo "version=$(./version.sh)" >> $GITHUB_ENV
     - name: Echooooo
       run:
-        echo ${image}
-  #  - uses: nais/deploy/actions/deploy@v1
-  #    env:
-  #      APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
-  #      CLUSTER: dev-gcp
-  #      RESOURCE: nais/vera.yaml
-  #      VARS: nais/dev.yaml
-  #      VAR: $image
+        echo ${image}:${version}
+    - uses: nais/deploy/actions/deploy@v1
+      env:
+        APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
+        CLUSTER: dev-gcp
+        RESOURCE: nais/vera.yaml
+        VARS: nais/dev.yaml
+        VAR: image=$image
