@@ -58,4 +58,4 @@ jobs:
         CLUSTER: dev-gcp
         RESOURCE: nais/vera.yaml
         VARS: nais/dev.yaml
-        VAR: image=$image
+        VAR: image=${{ image }}
