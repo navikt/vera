@@ -52,8 +52,8 @@ jobs:
         echo "version=$(./version.sh)" >> $GITHUB_ENV
         echo "tag=${image}:${version}" >> $GITHUB_ENV
     - name: Echooooo
-      run:
-        echo ${image}:${version}
+      run: |
+        echo ${{ env.tag }}
     - uses: nais/deploy/actions/deploy@v1
       env:
         APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
