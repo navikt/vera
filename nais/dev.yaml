@@ -1,0 +1,2 @@
+ingress: https://vera.dev.intern.nav.no
+db: mongodb://vera-mongo:27017/deploy_log
