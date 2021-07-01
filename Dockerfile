@@ -33,6 +33,7 @@ WORKDIR /src
 COPY --from=frontend_builder /app/static/frontend/build /src/frontend/build
 COPY --from=base_dependencies node_modules .
 
+COPY package.json ./
 COPY server.js /src/
 COPY backend /src/backend
 
