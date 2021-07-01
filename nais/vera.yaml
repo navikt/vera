@@ -8,7 +8,7 @@ metadata:
 spec:
   image: {{ image }}
   port: 80
-  accesspolicy:
+  accessPolicy:
     outbound:
       rules:
       - application: vera-mongo
