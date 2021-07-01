@@ -1,4 +1,4 @@
 {
-    "ingress": "https://vera.nais.oera-q.local",
-    "db": "mongodb://tpa-vera-mongodb.tpa:27017/deploy_log"
+    "ingress": "https://vera.dev.intern.nav.no",
+    "db": "mongodb://vera-mongo:27017/deploy_log"
 }

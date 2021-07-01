@@ -49,21 +49,7 @@ jobs:
     - uses: nais/deploy/actions/deploy@v1
       env:
         APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
-        CLUSTER: dev-sbs
+        CLUSTER: dev-gcp
         RESOURCE: nais/vera.yaml
         VARS: nais/dev.yaml
         VAR: image=${{ env.docker_image }}
-
-  deploy-prod:
-    needs: deploy-dev
-    if: github.ref == 'refs/heads/master'
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v2
-    - uses: nais/deploy/actions/deploy@v1
-      env:
-        APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
-        CLUSTER: prod-sbs
-        RESOURCE: nais/vera.yaml
-        VARS: nais/prod.yaml
-        VAR: version="$(date "+%Y-%m-%d")-$(git --no-pager log -1 --pretty=%h)"
