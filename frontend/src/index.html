@@ -16,7 +16,10 @@
             as.onload = function () {
                 if (window.amplitude.runQueuedFunctions) {
                     window.amplitude.runQueuedFunctions();
-                    amplitude.getInstance().logEvent('pageview', {'pathname': window.location.toString()})
+                    var loc = window.location.toString();
+                    setTimeout(function() {
+                        window.amplitude.getInstance().logEvent('pageview', {'pathname': loc});
+                    }, 500);
                 } else {
                     console.log('[Amplitude] Error: could not load SDK');
                 }
