@@ -2,7 +2,7 @@
 
 Vera er en oversikt over hvilke versjoner som kjører i hvert miljø. Vera har også et api for registering av deploy events.
 
-
+Denne applikasjonen avhenger av en mongo-db instans som er opprettet i [navikt/nais-yaml](https://github.com/navikt/nais-yaml/tree/a319a942ba61b65fe04c0054562845a4d4d1c5a3/templates/dev-gcp).
 
 
 ## Utvikling lokalt
