@@ -1,4 +1,0 @@
-{
-    "ingress": "https://vera.adeo.no",
-    "db": "mongodb://tpa-vera-bjornstad-mongodb.tpa:27017/deploy_log"
-}

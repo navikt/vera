@@ -15,7 +15,7 @@ env:
 jobs:
   build:
     name: Build and push Docker container
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     if: github.ref == 'refs/heads/master'
     steps:
     - uses: actions/checkout@v2
@@ -35,7 +35,7 @@ jobs:
   deploy-dev:
     needs: build
     if: github.ref == 'refs/heads/master'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     steps:
     - uses: actions/checkout@v2
     - name: Generate version tags
@@ -47,4 +47,23 @@ jobs:
         CLUSTER: dev-gcp
         RESOURCE: nais/vera.yaml
         VARS: nais/dev.yaml
+        VAR: image=${{ env.tag }}
+
+  deploy-prod:
+    needs:
+      - deploy-dev
+      - build
+    if: github.ref == 'refs/heads/master'
+    runs-on: ubuntu-20.04
+    steps:
+    - uses: actions/checkout@v2
+    - name: Generate version tags
+      run: |
+        echo "tag=${image}:$(./version.sh)" >> $GITHUB_ENV
+    - uses: nais/deploy/actions/deploy@v1
+      env:
+        APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
+        CLUSTER: prod-gcp
+        RESOURCE: nais/vera.yaml
+        VARS: nais/prod.yaml
         VAR: image=${{ env.tag }}
