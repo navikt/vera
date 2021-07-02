@@ -1,30 +1,20 @@
 name: Test, build, push, and deploy
 
-on: [push]
+on:
+  push:
+    paths-ignore:
+      - README.md
+      - docker-compose.yaml
+      - '*.jenkinsfile'
+      - Makefile
+      - CODEOWNERS
 
 env:
   image: ghcr.io/${{ github.repository }}/vera
 
 jobs:
-  test:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v1
-        with:
-          node-version: '12'
-      - name: Cache NPM dependencies
-        uses: actions/cache@v1
-        with:
-          path: node_modules
-          key: ${{ runner.OS }}-npm-cache-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: ${{ runner.os }}-node-cache-
-      - run: yarn install
-      - run: yarn test
-
   build:
     name: Build and push Docker container
-    needs: test
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/master'
     steps:
