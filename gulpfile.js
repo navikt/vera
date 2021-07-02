@@ -26,6 +26,7 @@ var paths = {
     fontsBuild: './frontend/build/fonts',
     distDir: './dist',
     indexHtml: './frontend/src/index.html',
+    amplitudeMinifiedJs: './frontend/src/js/amplitude.min.js',
     favicon: './frontend/src/favicon.png'
 }
 
@@ -38,7 +39,7 @@ gulp.task('compile-js', function () {
         .on('error', handleError)
         .pipe(source('vera.js'))
         .pipe(buffer())
-        //.pipe(gulpif(env === 'production', uglify().on('error', e => {console.log("error from uglify", e)})))
+        .pipe(gulpif(env === 'production', uglify().on('error', e => {console.log("error from uglify", e)})))
         .pipe(size())
         .pipe(gulp.dest(paths.jsBuild));
 });
@@ -61,6 +62,10 @@ gulp.task('copy-indexhtml', function () {
         .pipe(gulp.dest(paths.buildDir));
 });
 
+gulp.task('copy-amplitude', function () {
+    return gulp.src(paths.amplitudeMinifiedJs)
+        .pipe(gulp.dest(paths.buildDir));
+});
 
 gulp.task('copy-favicon', function() {
     return gulp.src(paths.favicon).pipe(gulp.dest(paths.buildDir));
@@ -94,7 +99,7 @@ gulp.task('clean-build', function () {
     runSequence('clean', 'build');
 });
 
-gulp.task('build', ['compile-js', 'bundle-css', 'copy-fonts', 'copy-indexhtml', 'copy-favicon']);
+gulp.task('build', ['compile-js', 'bundle-css', 'copy-fonts', 'copy-indexhtml', 'copy-amplitude', 'copy-favicon']);
 
 gulp.task('dist', function () {
     env = 'production';
