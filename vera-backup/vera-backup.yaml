@@ -1,52 +1,32 @@
-apiVersion: apps/v1
-kind: Deployment
+apiVersion: nais.io/v1
+kind: Naisjob
 metadata:
   labels:
-    app: vera-backup
     team: aura
   name: vera-backup
   namespace: aura
 spec:
-  selector:
-    matchLabels:
-      app: vera-backup
-  template:
-    metadata:
-      labels:
-        app: vera-backup
-      name: vera-backup
-      namespace: aura
-    spec:
-      containers:
-      - image: ghcr.io/nais/mongo-backup:0.1
-        command: ["sleep","infinity"]
+  activeDeadlineSeconds: 6000
+  backoffLimit: 5
+  failedJobsHistoryLimit: 2
+  gcp:
+    buckets:
+      - cascadingDelete: false
         name: vera-backup
-        resources:
-          limits:
-            cpu: 100m
-            memory: 128Mi
-          requests:
-            cpu: 50m
-            memory: 64Mi
-      dnsPolicy: ClusterFirst
-      imagePullSecrets:
-      - name: gpr-credentials
-      - name: ghcr-credentials
-      serviceAccountName: vera-backup
-#---
-#apiVersion: v1
-#kind: Pod
-#metadata:
-#  labels:
-#    app: vera-backup
-#  name: vera-backup
-#  namespace: aura
-#spec:
-#  serviceAccountName: vera-backup
-#  containers:
-#  - image: ghcr.io/nais/mongo-backup:0.1
-#    name: vera-backup
-#    command: ["sleep","infinity"]
+        retentionPeriodDays: 30
+  image: ghcr.io/nais/mongo-backup:0.5
+  resources:
+    limits:
+      cpu: 200m
+      memory: 128Mi
+    requests:
+      cpu: 100m
+      memory: 64Mi
+  restartPolicy: Never
+  schedule: '0 */6 * * *'
+  skipCaBundle: true
+  successfulJobsHistoryLimit: 2
+  ttlSecondsAfterFinished: 60
 ---
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
@@ -54,79 +34,38 @@ metadata:
   labels:
     app: vera-backup
     team: aura
-  name: vera-backup
+  name: vera-backup-apiserver
   namespace: aura
 spec:
   egress:
   - to:
-    - namespaceSelector:
-        matchLabels:
-          linkerd.io/is-control-plane: "true"
-    - namespaceSelector: {}
-      podSelector:
-        matchLabels:
-          k8s-app: kube-dns
-    - ipBlock:
-        cidr: 0.0.0.0/0
-        except:
-        - 10.6.0.0/15
-        - 172.16.0.0/12
-        - 192.168.0.0/16
-  - to:
-    - podSelector:
-        matchLabels:
-          app: vera
-  - to:
     - ipBlock:
         cidr: 172.16.0.2/32
-  ingress:
-  - from:
-    - namespaceSelector:
-        matchLabels:
-          name: nais
-      podSelector:
-        matchLabels:
-          app: prometheus
-  - from:
-    - namespaceSelector:
-        matchLabels:
-          linkerd.io/is-control-plane: "true"
-  - from:
-    - namespaceSelector:
-        matchLabels:
-          linkerd.io/extension: viz
-      podSelector:
-        matchLabels:
-          component: tap
-  - from:
-    - namespaceSelector:
-        matchLabels:
-          linkerd.io/extension: viz
-      podSelector:
-        matchLabels:
-          component: prometheus
   podSelector:
     matchLabels:
       app: vera-backup
   policyTypes:
-  - Ingress
   - Egress
 ---
-apiVersion: v1
-kind: ServiceAccount
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
 metadata:
   name: vera-backup
   namespace: aura
+rules:
+  - apiGroups: [ "" ]
+    resources: [ "pods/exec" ]
+    verbs: [ "create" ]
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
-  name: verabackupbinding
+  name: vera-backup
   namespace: aura
 roleRef:
   apiGroup: rbac.authorization.k8s.io
-  kind: ClusterRole
-  name: admin
+  kind: Role
+  name: vera-backup
 subjects:
 - namespace: aura
   kind: ServiceAccount

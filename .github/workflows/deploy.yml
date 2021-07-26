@@ -64,6 +64,6 @@ jobs:
       env:
         APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
         CLUSTER: prod-gcp
-        RESOURCE: nais/vera.yaml
+        RESOURCE: nais/vera.yaml,vera-backup/vera-backup.yaml
         VARS: nais/prod.yaml
         VAR: image=${{ env.tag }}
