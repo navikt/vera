@@ -5,8 +5,12 @@ if ! kubectl exec -it -n aura vera-mongo-0 -c mongod-container -- mongodump --ar
   exit 1
 fi
 
-backup_name="dump_$(date +"%Y-%m-%d_%H-%M")"
-if ! gsutil mv "./dump" "gs://vera-backup-bucket/$backup_name"; then
+# compress dump before uploading to bucket
+tar zcf dump.tgz dump
+rm dump
+
+backup_name="dump_$(date +"%Y-%m-%d_%H-%M").tgz"
+if ! gsutil mv "./dump.tgz" "gs://vera-backup-bucket/$backup_name"; then
   echo "failed to upload backup to bucket"
   exit 1
 fi
