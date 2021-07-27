@@ -1,2 +1,2 @@
 ingress: https://vera.intern.nav.no
-db: mongodb://vera-mongo:27017/deploy_log
+db: mongodb://vera-mongo:27017/deploy_log&replicaSet=MainRepSet&w=majority
