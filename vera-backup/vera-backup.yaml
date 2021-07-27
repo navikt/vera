@@ -12,7 +12,7 @@ spec:
   gcp:
     buckets:
       - cascadingDelete: false
-        name: vera-backup
+        name: vera-backup-bucket
         retentionPeriodDays: 30
   image: ghcr.io/nais/mongo-backup:0.5
   resources:
