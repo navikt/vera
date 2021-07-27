@@ -1,4 +1,4 @@
-version := 0.5
+version := 0.6
 
 build:
 	docker build -t ghcr.io/nais/mongo-backup:${version} .
