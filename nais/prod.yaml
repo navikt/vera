@@ -1,2 +1,4 @@
-ingress: https://vera.intern.nav.no
-db: mongodb://vera-mongo-0.vera-mongo:27017,vera-mongo-1.vera-mongo:27017,vera-mongo-2.vera-mongo:27017/deploy_log?replicaSet=MainRepSet
+ingress:
+  - https://vera.intern.nav.no
+  - https://vera.adeo.no
+mongoimage: mongo:4
