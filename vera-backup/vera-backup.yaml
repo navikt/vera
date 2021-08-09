@@ -14,7 +14,7 @@ spec:
       - cascadingDelete: false
         name: vera-backup-bucket
         retentionPeriodDays: 30
-  image: ghcr.io/nais/mongo-backup:0.7
+  image: ghcr.io/nais/mongo-backup:0.8
   resources:
     limits:
       cpu: 200m

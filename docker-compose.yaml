@@ -1,7 +1,7 @@
 version: '3.7'
 services:
   mongo-db:
-    image: mongo
+    image: mongo:4
     container_name: mongo-db
     volumes:
       - ./docker-mounts/mongo/db/:/data/db
