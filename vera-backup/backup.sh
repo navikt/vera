@@ -7,11 +7,8 @@ fi
 
 # compress dump before uploading to bucket
 
-backup_name="dump_$(date +"%Y-%m-%d_%H-%M").tgz"
+backup_name="dump_$(date +"%Y-%m-%d_%H-%M").gz"
 if ! gsutil mv "./dump.gz" "gs://vera-backup-bucket/$backup_name"; then
   echo "failed to upload backup to bucket"
   exit 1
 fi
-
-rm dump.gz
-
