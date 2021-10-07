@@ -1,4 +1,4 @@
-# Basta frontend
+# Vera
 
 Vera er en oversikt over hvilke versjoner som kjører i hvert miljø. Vera har også et api for registering av deploy events.
 
