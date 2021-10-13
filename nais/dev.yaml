@@ -1,4 +1,3 @@
 ingress:
   - https://vera.dev.intern.nav.no
 mongoimage: mongo:5
-alerts: false

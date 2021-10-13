@@ -2,4 +2,3 @@ ingress:
   - https://vera.intern.nav.no
   - https://vera.adeo.no
 mongoimage: mongo:4
-alerts: true
