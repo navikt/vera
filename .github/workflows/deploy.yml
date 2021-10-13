@@ -22,13 +22,9 @@ jobs:
     - name: Generate version tags
       run: echo "version=$(./version.sh)" >> $GITHUB_ENV
     - name: Build and publish Docker image
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        GHCR_PUSH_TOKEN: ${{ secrets.GHCR_PUSH_TOKEN }}
-        GHCR_PUSH_USERNAME: ${{ secrets.GHCR_PUSH_USERNAME }}
       run: |
         docker build --tag ${image}:${version} --tag ${image}:latest --tag ${image}:${version} .
-        echo ${GHCR_PUSH_TOKEN} | docker login ghcr.io -u ${GHCR_PUSH_USERNAME} --password-stdin
+        echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.repository }} --password-stdin
         docker push ${image}:${version}
         docker push ${image}:latest
 
