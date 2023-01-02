@@ -4,6 +4,8 @@ RUN curl -sSLo /tmp/linkerd-await https://github.com/linkerd/linkerd-await/relea
     chmod 755 /tmp/linkerd-await
 
 FROM google/cloud-sdk:slim
+ENV CLOUDSDK_CONFIG=/tmp/config
+ENV HOME=/tmp
 RUN apt-get update && apt-get -y install \
   kubectl \
   && rm -rf /var/lib/apt/lists/*
