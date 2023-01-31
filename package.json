@@ -38,7 +38,7 @@
     "json-csv": "^2.0.3",
     "lodash": "4.17.20",
     "moment": "2.20.1",
-    "mongoose": "^4.7.3",
+    "mongoose": "^5.13.15",
     "morgan": "^1.9.1",
     "prom-client": "^10.2.2",
     "snyk": "^1.189.0"
