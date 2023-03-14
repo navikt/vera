@@ -13,58 +13,82 @@ env:
   image: ghcr.io/${{ github.repository }}/vera
 
 jobs:
-  build:
-    name: Build and push Docker container
-    runs-on: ubuntu-20.04
-    if: github.ref == 'refs/heads/master'
-    steps:
-    - uses: actions/checkout@v2
-    - name: Generate version tags
-      run: echo "version=$(./version.sh)" >> $GITHUB_ENV
-    - name: Login to GitHub Container Registry
-      uses: docker/login-action@v1
-      with:
-        registry: ghcr.io
-        username: ${{ github.actor }}
-        password: ${{ secrets.GITHUB_TOKEN }}
-    - name: Build and publish Docker image
-      run: |
-        docker build --tag ${image}:${version} --tag ${image}:latest --tag ${image}:${version} .
-        docker push ${image}:${version}
-        docker push ${image}:latest
+  #build:
+  #  name: Build and push Docker container
+  #  runs-on: ubuntu-20.04
+  #  if: github.ref == 'refs/heads/master'
+  #  steps:
+  #  - uses: actions/checkout@v3
+  #  - name: Generate version tags
+  #    run: echo "version=$(./version.sh)" >> $GITHUB_ENV
+  #  - name: Login to GitHub Container Registry
+  #    uses: docker/login-action@v1
+  #    with:
+  #      registry: ghcr.io
+  #      username: ${{ github.actor }}
+  #      password: ${{ secrets.GITHUB_TOKEN }}
+  #  - name: Build and publish Docker image
+  #    run: |
+  #      docker build --tag ${image}:${version} --tag ${image}:latest --tag ${image}:${version} .
+  #      docker push ${image}:${version}
+  #      docker push ${image}:latest
 
-  deploy-dev:
-    needs: build
-    if: github.ref == 'refs/heads/master'
-    runs-on: ubuntu-20.04
+  build_and_push:
+    permissions:
+      contents: "read"
+      id-token: "write"
+    runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
-    - name: Generate version tags
-      run: |
-        echo "tag=${image}:$(./version.sh)" >> $GITHUB_ENV
-    - uses: nais/deploy/actions/deploy@v1
-      env:
-        APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
-        CLUSTER: dev-gcp
-        RESOURCE: nais/vera.yaml
-        VARS: nais/dev.yaml
-        VAR: image=${{ env.tag }}
+      - name: Checkout
+        uses: actions/checkout@v3
+      - uses: nais/docker-build-push@v0
+        id: docker-push
+        with:
+          team: aura #
+          docker_context: . # optional, default .
+          project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }} # required, but is defined as an organization variable
+          identity_provider: ${{ secrets.NAIS_WORKLOAD_IDENTITY_PROVIDER }} # required, but is defined as an organization secret
+      - name: Deploy
+        uses: nais/deploy/actions/deploy@v1
+        env:
+          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
+          CLUSTER: dev-gcp
+          RESOURCE: nais/vera.yaml
+          VARS: nais/dev.yaml
+          VAR: image=${{ steps.docker-push.outputs.image }}
 
-  deploy-prod:
-    needs:
-      - deploy-dev
-      - build
-    if: github.ref == 'refs/heads/master'
-    runs-on: ubuntu-20.04
-    steps:
-    - uses: actions/checkout@v2
-    - name: Generate version tags
-      run: |
-        echo "tag=${image}:$(./version.sh)" >> $GITHUB_ENV
-    - uses: nais/deploy/actions/deploy@v1
-      env:
-        APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
-        CLUSTER: prod-gcp
-        RESOURCE: nais/vera.yaml,vera-backup/vera-backup.yaml,nais/alert.yaml
-        VARS: nais/prod.yaml
-        VAR: image=${{ env.tag }}
+  #deploy-dev:
+  #  needs: build
+  #  if: github.ref == 'refs/heads/master'
+  #  runs-on: ubuntu-20.04
+  #  steps:
+  #  - uses: actions/checkout@v2
+  #  - name: Generate version tags
+  #    run: |
+  #      echo "tag=${image}:$(./version.sh)" >> $GITHUB_ENV
+  #  - uses: nais/deploy/actions/deploy@v1
+  #    env:
+  #      APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
+  #      CLUSTER: dev-gcp
+  #      RESOURCE: nais/vera.yaml
+  #      VARS: nais/dev.yaml
+  #      VAR: image=${{ env.tag }}
+
+  #deploy-prod:
+  #  needs:
+  #    - deploy-dev
+  #    - build
+  #  if: github.ref == 'refs/heads/master'
+  #  runs-on: ubuntu-20.04
+  #  steps:
+  #  - uses: actions/checkout@v2
+  #  - name: Generate version tags
+  #    run: |
+  #      echo "tag=${image}:$(./version.sh)" >> $GITHUB_ENV
+  #  - uses: nais/deploy/actions/deploy@v1
+  #    env:
+  #      APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
+  #      CLUSTER: prod-gcp
+  #      RESOURCE: nais/vera.yaml,vera-backup/vera-backup.yaml,nais/alert.yaml
+  #      VARS: nais/prod.yaml
+  #      VAR: image=${{ env.tag }}
