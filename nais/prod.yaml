@@ -1,3 +1,7 @@
 ingress:
   - https://vera.intern.nav.no
+access_policy_inbound_rules:
+  - app: ezbrev-backend-q4
+    namespace: teamdokumenthandtering
+    cluster: dev-fss
 mongoimage: mongo:4

@@ -12,6 +12,13 @@ spec:
     outbound:
       rules:
       - application: vera-mongo
+    inbound:
+      rules:
+    {{#each access_policy_inbound_rules}}
+      - application: {{app}}
+        namespace: {{namespace}}
+        cluster: {{cluster}}
+    {{/each}}
   liveness:
     path: /selftest
   readiness:
