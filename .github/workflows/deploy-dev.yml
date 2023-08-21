@@ -2,12 +2,15 @@ name: Build, push and deploy
 
 on:
   push:
+    branches:
+      - dev
     paths-ignore:
       - README.md
       - docker-compose.yaml
       - '*.jenkinsfile'
       - Makefile
       - CODEOWNERS
+  workflow_dispatch:
 
 jobs:
   build_and_push:
@@ -32,12 +35,4 @@ jobs:
           CLUSTER: dev-gcp
           RESOURCE: nais/vera.yaml
           VARS: nais/dev.yaml
-          VAR: image=${{ steps.docker-push.outputs.image }}
-      - name: Deploy prod-gcp
-        uses: nais/deploy/actions/deploy@v1
-        env:
-          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
-          CLUSTER: prod-gcp
-          RESOURCE: nais/vera.yaml
-          VARS: nais/prod.yaml
           VAR: image=${{ steps.docker-push.outputs.image }}
