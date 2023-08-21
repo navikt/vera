@@ -1,13 +1,13 @@
-var express = require('express');
-var bodyParser = require('body-parser');
-var morgan = require('morgan');
-var config = require('./backend/config/config');
-var mongoose = require('mongoose');
-var http = require('http');
-var fs = require('fs');
-var validation = require('express-validation');
-var app = express();
-var logger = require('./backend/config/syslog');
+const express = require('express');
+const bodyParser = require('body-parser');
+const morgan = require('morgan');
+const config = require('./backend/config/config');
+const mongoose = require('mongoose');
+const http = require('http');
+const fs = require('fs');
+const validation = require('express-validation');
+const app = express();
+const logger = require('./backend/config/syslog');
 const prometheus = require('prom-client')
 prometheus.collectDefaultMetrics()
 
@@ -49,7 +49,7 @@ var errorHandler = function (err, req, res, next) {
 };
 
 mongoose.connect(config.dbUrl, {
-    useMongoClient: true,
+    useNewUrlParser: true,
 });
 mongoose.Promise = require('bluebird');
 logger.log("Using MongoDB URL", config.dbUrl);

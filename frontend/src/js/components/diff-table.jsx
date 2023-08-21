@@ -55,7 +55,7 @@ module.exports = DiffTable = React.createClass({
     buildTableBody: function () {
         return _.chain(this.props.diffResult).
             filter(this.applyAppFilter).
-            sortByOrder([this.sortByDiffResult, 'application'], ['asc', 'asc'])
+            sortBy([this.sortByDiffResult, 'application'], ['asc', 'asc'])
             .map(function (elem) {
                 return <tr key={uuid.v1()} className={this.noDiff(elem)}>
                     <td key={elem.application}>{elem.application}</td>
