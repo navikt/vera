@@ -19,9 +19,6 @@
       "email": "johnny.horvi@nav.no"
     }
   ],
-  "engines": {
-    "node": ">= 18"
-  },
   "dependencies": {
     "ain2": "3.0.0",
     "bluebird": "3.7.2",
