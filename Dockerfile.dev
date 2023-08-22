@@ -1,41 +1,37 @@
-FROM library/node:12-alpine AS base_dependencies
+FROM library/node:18 AS base_dependencies
 
-COPY package.json ./
-COPY yarn.lock ./
-COPY .snyk .
+WORKDIR /src
+COPY package.json yarn.lock ./
 
 # Install production requirements only
 RUN yarn install --frozen-lockfile --prod
 
-FROM base_dependencies AS frontend_builder
+FROM library/node:18 AS frontend_builder
 
 WORKDIR /app/static
 
-COPY --from=base_dependencies node_modules package.json .snyk yarn.lock ./
+COPY package.json yarn.lock ./
 
 # Install the dev dependencies, too
 RUN yarn install --frozen-lockfile
 
-COPY gulpfile.js /app/static/
-COPY frontend /app/static/frontend/
-COPY server.js app.jsx ./
+COPY gulpfile.mjs server.js app.jsx ./
+COPY frontend ./frontend
 
-RUN yarn gulp test
-RUN yarn gulp dist
+RUN yarn gulp test && yarn gulp dist
 
 
-FROM base_dependencies as server
+FROM library/node:18-alpine AS server
+RUN apk add --no-cache bash
 
 WORKDIR /src
+
+COPY --from=base_dependencies /src/node_modules /src/node_modules
 COPY --from=frontend_builder /app/static/frontend/build /src/frontend/build
-COPY --from=base_dependencies node_modules package.json ./
 
-RUN apk add --no-cache bash
-COPY docker_vera_startup.sh ./
+COPY package.json yarn.lock docker_vera_startup.sh server.js ./
+COPY backend ./backend
 
-COPY server.js ./
-COPY backend /src/backend
-
-EXPOSE 80
+EXPOSE 8080
 ENV NODE_ENV=production
 CMD ["/src/docker_vera_startup.sh"]

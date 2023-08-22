@@ -1,1 +1,2 @@
 *.js @navikt/nais
+*.js @navikt/team-atom

@@ -4,7 +4,7 @@ IMAGE_NAME=local_vera
 
 .PHONY: docker-compose
 docker-compose:
-	docker-compose up --detach --build
+	docker compose up --detach --build
 
 .PHONY: docker-build
 docker-build:
@@ -16,4 +16,4 @@ docker-kill:
 
 .PHONY: clean
 clean:
-	docker-compose down --remove-orphans --rmi all
+	docker compose down --remove-orphans --rmi all

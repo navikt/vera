@@ -8,7 +8,7 @@ var RouteHandler = Router.RouteHandler;
 var DefaultRoute = Router.DefaultRoute;
 var Route = Router.Route;
 var Link = Router.Link;
-require('console-shim2'); // IE9 FIX
+//require('console-shim2'); // IE9 FIX
 
 var Vera = React.createClass({
 
