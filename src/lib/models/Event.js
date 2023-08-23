@@ -1,9 +1,12 @@
-var mongoose = require('mongoose');
-var moment = require('moment');
+//const mongoose = require('mongoose');
+import mongoose from 'mongoose';
+
+//var moment = require('moment');
+const { Schema } = mongoose;
 
 mongoose.Error.messages.general.required = "Property {PATH} is required in JSON request";
 
-var eventSchema = mongoose.Schema({
+const eventSchema = new Schema({
     application: {type: String, lowercase: true, trim: true, required: true},
     environment: {type: String, lowercase: true, trim: true, required: true},
     environmentClass: String,
@@ -28,7 +31,7 @@ function getEnvClassFromEnv(environment) {
     return "u";
 }
 
-eventSchema.statics.createFromObject = obj => {
+eventSchema.statics.createFromObject = function(obj) {
     return new Event({
         application: obj.application,
         environment: obj.environment,
@@ -44,4 +47,4 @@ eventSchema.statics.getLatestDeployedApplicationsFor = function(predicate, callb
     return this.find({replaced_timestamp: null, version: {$ne: null}}).or(predicate).exec(callback);
 }
 
-module.exports = Event = mongoose.model('Event', eventSchema);
+module.exports = mongoose.model.Event || mongoose.model('Event', eventSchema);

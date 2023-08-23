@@ -1,5 +1,5 @@
 var path = require('path'),
-    rootPath = path.normalize(__dirname + '/..');
+rootPath = path.normalize(__dirname + '/..');
 
 var config = {
     root: rootPath,

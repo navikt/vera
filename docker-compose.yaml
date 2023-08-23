@@ -7,6 +7,10 @@ services:
       - ./docker-mounts/mongo/db/:/data/db
     ports:
       - 27017:27017
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=vera
+      - MONGO_INITDB_ROOT_PASSWORD=<hemmelig>
+      - MONGO_INITDB_DATABASE=deploy_log
 
   vera:
     build:

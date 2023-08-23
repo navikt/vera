@@ -1,13 +1,14 @@
-var Event = require('../models/event');
-var compareVersions = require('../modules/version-compare')
-var _ = require('lodash');
+//import { getLatestDeployedApplicationsFor } from '../models/Event';
+import Event from "../models/Event"
+import compareVersions from '../modules/version-compare';
+import { chain } from 'lodash';
 
-exports.diffEnvironments = function (req, res, next) {
+export async function diffEnvironments (req, res, next) {
     var requestParams = req.query;
     var baseEnv = requestParams.base;
     var environments = requestParams.comparewith.split(",").concat(baseEnv);
 
-    Event.getLatestDeployedApplicationsFor(environments.map(env => ({environment: env})), function (err, events) {
+    await Event.getLatestDeployedApplicationsFor(environments.map(env => ({environment: env})), function (err, events) {
             const baseEvents = getEventsForEnvironment(events, baseEnv);
             const comparedEvents = baseEvents.map(baseEvent =>
                 ({
@@ -43,7 +44,7 @@ const compareToBase = function (baseEvent, events, environments) {
 };
 
 const getEventFor = (events, application, environment) => {
-     return _.chain(events).filter(event => {
+     return chain(events).filter(event => {
         return event.environment.toLowerCase() === environment && event.application.toLowerCase() === application
     }).first().value();
 }

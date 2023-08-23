@@ -1,9 +1,9 @@
-var config = require("../config/config");
-var logger = require("../config/syslog");
-var Event = require('../models/event');
-var jsonToCSV = require('json-csv');
-var _ = require('lodash');
-var moment = require('moment');
+const config = require("../config/config");
+const logger = require("../config/syslog");
+import Event from "../models/Event";
+const jsonToCSV = require('json-csv');
+const _ = require('lodash');
+const moment = require('moment');
 
 exports.deployLog = function (req, res, next) {
     var predicate = {}
