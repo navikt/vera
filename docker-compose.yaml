@@ -8,8 +8,8 @@ services:
     ports:
       - 27017:27017
     environment:
-      - MONGO_INITDB_ROOT_USERNAME=vera
-      - MONGO_INITDB_ROOT_PASSWORD=<hemmelig>
+      #- MONGO_INITDB_ROOT_USERNAME=vera
+      #- MONGO_INITDB_ROOT_PASSWORD=hemmelig
       - MONGO_INITDB_DATABASE=deploy_log
 
   vera:
@@ -19,7 +19,7 @@ services:
    
     depends_on:
       - mongo-db
-    environment:
-      VERADB_URL: mongodb://mongo-db:27017/deploy_log
+    #environment:
+      #VERADB_URL: mongodb://mongo-db:27017/deploy_log
     ports:
       - "8080:8080"

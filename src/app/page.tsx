@@ -1,7 +1,11 @@
-import Image from 'next/image'
+import VeraTable from "./veraTable";
 
-export default function Home() {
+export default async function Page() {
+  
   return (
-    <h1>Hello, Next.js!</h1>
+    <>
+      <h1>Hello, VERA HOME TABLE!</h1>
+      <VeraTable/>
+    </>
   )
 }
