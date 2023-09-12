@@ -20,55 +20,30 @@ export default function LogTable({
     searchParams: {  }
 }) {
     const [data, setData] = useState<IEventResponse[]>([]);
-    const [filteredData, setfilteredData] = useState<IEventResponse[]>(data);
+    //const [filteredData, setfilteredData] = useState<IEventResponse[]>(data);
     const [isDataFetched, setIsDataFetched] = useState(false);
     const [page, setPage] = useState(1);
-    //const [filter, setFilter] = useState({});
+    
+    const [filters, setFilters] = useState<Record<string, string>>({});
 
-    const [filterObject, setFilterObject] = useState({
-        application: "",
-        environment: "",
-        deployer: "",
-        version: "",
-        deployed_timestamp: ""
-    })
-    console.log(filterObject)
-    const rowsPerPage = 4;
-  
-    //let sortData = data; // Go Fetch
-    //sortData = sortData.slice((page - 1) * rowsPerPage, page * rowsPerPage);
-
-    const handleFilter = (label:string, value:string) => {
-        //console.log(label, value)
-        //filterObject[label] = new RegExp("^" + value + "$");
-        let regex = "";
-        if (value != "") {
-            regex = "^" + value + "*";
-        }
-        
-        setfilteredData( 
-            data.filter(event => {
-            return Object.keys(filterObject).every((key) => {
-                console.log(event[key])
-              return new RegExp(filterObject[key]).test(String(event[key]));
-            });
-          })
-        )
-        //setFilterObject({...filterObject, [label]: regex} );
-    }
-
-
-/*     const filteredData = data.filter((event: any) => {
-        //console.log(event)
-        return Object.keys(filterObject).forEach((key) =>{
-            //console.log("objectkeys")
-            if (event[key] == null ) {
-                return
-            }
-            return event[key].toLowerCase().match(filterObject[key].toLowerCase())
-        });
+    const handleFilter = ( field: string, e: string) => {
+      setFilters({
+        ...filters,
+        [field]: e,
       });
-      console.log(filteredData) */
+    };
+
+    const filteredData = data.filter((row) => {
+      return Object.keys(filters).every((key) => {
+        try {
+          const regex = new RegExp(filters[key], 'i');
+          return regex.test(String(row[key as keyof IEventResponse]));
+        } catch (e) {
+          // Invalid regular expression
+          return true;
+        }
+      });
+    });
 
     const makeRequest = async () => {
         console.log("Fetching new status")
@@ -88,7 +63,8 @@ export default function LogTable({
     }, [isDataFetched]);
 
     return (
-        <div className="grid gap-4">
+      <div className="grid gap-4">
+        <h1> Event {isDataFetched ? data.length : ""}</h1>
           <Table size="medium" zebraStripes>
             <Table.Header>
               <Table.Row>
