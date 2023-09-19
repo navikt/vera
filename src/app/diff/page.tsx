@@ -1,7 +1,10 @@
-import Image from 'next/image'
-
-export default function DiffPage() {
+import DiffHeader from "./DiffHeader"
+export default async function DiffPage({
+  searchParams
+}: {
+  searchParams: {"base"?: string, "comparewith"?:string, "appFilter"?: string}
+}) {
   return (
-    <h1>Hello, Diff!</h1>
+    <DiffHeader searchParams={searchParams}/>
   )
 }

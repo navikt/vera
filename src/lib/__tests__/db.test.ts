@@ -8,7 +8,7 @@ describe('connectDB', () => {
     const config = {
       dbUrl: 'mongodb://localhost:27017/testdb',
       dbUser: 'username',
-      dbPassword: 'password',
+      dbPassword: 'password'
     };
 
     // Mock the global object

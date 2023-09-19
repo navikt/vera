@@ -7,22 +7,26 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "test": "jest"
+    "test": "jest",
+    "prettier-format": "prettier --config .prettierrc 'src/**/*.ts' --write"
   },
   "dependencies": {
     "@iwsio/json-csv-core": "^1.0.1",
     "@iwsio/json-csv-node": "6",
     "@navikt/ds-css": "^5.3.1",
     "@navikt/ds-react": "^5.3.1",
+    "@radix-ui/react-toggle-group": "^1.0.4",
     "@types/jest": "^29.5.4",
     "@types/uuid": "^9.0.3",
     "ain2": "^3.0.0",
     "axios": "^1.5.0",
     "bluebird": "^3.7.2",
+    "clsx": "^2.0.0",
     "lodash": "^4.17.21",
     "moment": "^2.29.4",
     "mongoose": "^7.0.2",
     "next": "13.4.19",
+    "prettier": "^3.0.3",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "uuid": "^9.0.0"
