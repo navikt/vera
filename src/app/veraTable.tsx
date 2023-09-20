@@ -160,8 +160,8 @@ export default function VeraTable({searchparams}:{searchparams: {"apps"?: string
     sortData = sortData.length>1 ? sortData.slice((page - 1) * rowsPerPage, page * rowsPerPage): sortData;
 
     const clearFilters = (): void => {
-        filters["application"] = ""
-        filters["environment"] = ""
+        filters["application"] = []
+        filters["environment"] = []
         setLastDeployedFilter("")
         setInverseTable(false)
         filters["environmentClass"] = defaultFilter.environmentClass
