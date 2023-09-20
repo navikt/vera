@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import axios from "axios";
 import { IEventResponse } from '@/interfaces/IFilteredJsonData';
 import DiffTable from './DiffTable';
+import { useSearchParams, useParams } from 'next/navigation'
 
 interface IDiffFilter {
     base: string;
@@ -13,55 +14,43 @@ interface IDiffFilter {
 }
 
 
-export default function DiffHeader({
-    searchParams
-}: {
-    searchParams: {"base"?: string, "comparewith"?:string, "appFilter"?: string}
-}) {
+
+export default function DiffHeader() {
+    const searchParams = useSearchParams();
+
+
     const [data, setData] = useState<IEventResponse[]>([]);
     const [loading, isLoading] = useState(false);
     const [filters, setFilters] = useState<IDiffFilter>()
-    const [baseEnvironment, setBaseEnvironment] = useState<string>("");
-    const [environmentsToCompare, setEnvironmentsToCompare] = useState<string[]>([]);
-    const [appFilter, setAppFilter] = useState<string[]>([]);
-
+    const [baseEnvironment, setBaseEnvironment] = useState<string>(searchParams.get("base") || "");
+    const [environmentsToCompare, setEnvironmentsToCompare] = useState<string[]>(searchParams.get("comparewith")?.split(',') || []);
+    const [appFilter, setAppFilter] = useState<string[]>(searchParams.get("appFilter")?.split(',') || []);
     const buildUrlQuery = "?base=" + baseEnvironment + "&comparewith=" + environmentsToCompare.join(',');
+
 
     const makeRequest = async () => {
         console.log("Fetching new status")
         console.log(baseEnvironment)
         console.log(environmentsToCompare)
-        console.log(appFilter)
-        if (baseEnvironment && environmentsToCompare) {
-            const query: string = buildUrlQuery
-/*             console.log("query")
-            console.log(query) */
-            await axios.get('/api/v1/diff'+query)
-                .then(({ data }) => {
-                    console.log(data)
-                    setData(data)
-                })
-        }
-    }
-    
-    const getQueryParam = (paramName: string): string => {
-        const queryParam = searchParams[paramName];
-        return queryParam || '';
+        appFilter.forEach((app) => console.log( "filter: ", app))
+
+        const query: string = buildUrlQuery
+        await axios.get('/api/v1/diff'+query)
+            .then(({ data }) => {
+                console.log(data)
+                setData(data)
+            })
     }
 
     useEffect(() => {
-        const setStates = () => {
-            setBaseEnvironment(getQueryParam("base"))
-            setEnvironmentsToCompare(getQueryParam("comparewith").split(','))
-            setAppFilter(getQueryParam("appFilter").split(","))
+        if (baseEnvironment && environmentsToCompare) {
+            makeRequest();
         }
+    }, [baseEnvironment, environmentsToCompare, appFilter]);
 
-        if ( baseEnvironment && environmentsToCompare) {
-          console.log("data is not fetched")
-          makeRequest();
-        }
-      }, []);
+    
 
+         
     const checkKeyboard = (e:string) => {
         if( e == "Enter" ) {
             makeRequest();

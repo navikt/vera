@@ -1,10 +1,7 @@
 import DiffHeader from "./DiffHeader"
-export default async function DiffPage({
-  searchParams
-}: {
-  searchParams: {"base"?: string, "comparewith"?:string, "appFilter"?: string}
-}) {
+
+export default async function DiffPage() {
   return (
-    <DiffHeader searchParams={searchParams}/>
+    <DiffHeader/>
   )
 }

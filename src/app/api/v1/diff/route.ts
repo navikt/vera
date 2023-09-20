@@ -17,9 +17,7 @@ export async function GET(request: NextRequest) {
         params[key] = value;
     } */
   const header = { 'Content-Type': 'application/json; charset=utf-8' };
-  const comparedEvents = await diffEnvironments(searchParams.get('base'), searchParams.get('comparewith'));
-  console.log('compatedEvent');
-  console.log(comparedEvents);
+  const comparedEvents = await diffEnvironments(searchParams.get('base') || '', searchParams.get('comparewith') || '');
   return NextResponse.json(comparedEvents, {
     headers: header
   });
