@@ -65,7 +65,7 @@ export default function LogTable({
         setRowsPerPage(defaultRowsPerPage);
     }
 
-    const setSearchParamsAsFilters = (searchParams): void => {
+    const setSearchParamsAsFilters = (searchParams: any): void => {
       console.log("searchParams")
       console.log(searchParams)
       //const params = Object.fromEntries(searchParams.entries());
@@ -142,11 +142,11 @@ export default function LogTable({
             </Table.Body>
           </Table>
           {
-            sortData && (
+            sortData.length > 0 && (
             <Pagination
               page={page}
               onPageChange={setPage}
-              count={Math.ceil(data.length / rowsPerPage)}
+              count={ data.length == 0 ? 1 : Math.ceil(data.length / rowsPerPage)}
               size="small"
             />
             )
