@@ -3,13 +3,8 @@ import { deployLog, registerEvent, returnCSVPayload } from '../../../../lib/cont
 import { IEvent } from '@/interfaces/IEvent';
 
 export async function GET(request: NextRequest) {
-  //const searchParams = new URL(request.url).searchParams;
   const searchParams = request.nextUrl.searchParams;
-  //const searchParams = new URLSearchParams(url.search);
-  console.log('Searchparams');
   const params = Object.fromEntries(searchParams.entries());
-  console.log(params);
-
   const result: IEvent[] = await deployLog(params);
   let header = {};
   if (searchParams.get('csv')) {
@@ -18,13 +13,13 @@ export async function GET(request: NextRequest) {
       'Content-Disposition': 'attachment; filename=exported-vera.csv'
     };
     const csvData = await returnCSVPayload(result);
-    //console.log(csvData);
-    return new Response(csvData, {
+
+    return NextResponse.json(csvData, {
       headers: header
     });
   } else {
     header = { 'Content-Type': 'application/json; charset=utf-8' };
-    //console.log(result)
+
     return NextResponse.json(result, {
       headers: header
     });

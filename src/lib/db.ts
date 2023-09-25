@@ -1,5 +1,13 @@
-import mongoose from 'mongoose';
+import mongoose, {Mongoose} from 'mongoose';
 import config from './config/config';
+
+declare global {
+  // eslint disabled for line under because of no support for let/const
+  var mongoose: { // eslint-disable-line
+    conn: null | Mongoose
+    promise: null | Promise<Mongoose>
+  };
+}
 
 let cached = global.mongoose;
 
@@ -8,7 +16,7 @@ if (!cached) {
 }
 
 async function connectDB() {
-  console.log(config.dbUrl);
+  //console.log(config.dbUrl);
   if (cached.conn) {
     return cached.conn;
   }
@@ -40,3 +48,6 @@ async function connectDB() {
 }
 
 export default connectDB;
+
+
+

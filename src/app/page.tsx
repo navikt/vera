@@ -1,14 +1,10 @@
 import VeraTable from "./veraTable";
 
-export default async function Page({
-  searchParams
-}: {
-  searchParams: {"apps"?: string, "envs"?:string}
-}) {
+export default async function Page() {
   
   return (
     <>
-      <VeraTable searchparams={searchParams}/>
+      <VeraTable/>
     </>
   )
 }

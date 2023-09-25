@@ -1,6 +1,6 @@
 import { range } from 'lodash';
 
-export default function (versionA: string, versionB: string): 0 | 1 | -1 | null {
+export default function versionCompare (versionA: string, versionB: string): 0 | 1 | -1 | null {
   if (versionA === versionB) {
     return 0;
   }
@@ -24,7 +24,7 @@ function vercmp(versionA: string, versionB: string): 0 | 1 | -1 {
     versionBSequence.push(0);
   });
 
-  for (var i = 0; i < versionASequence.length; i++) {
+  for (let i = 0; i < versionASequence.length; i++) {
     if (versionASequence[i] === versionBSequence[i]) {
       continue;
     }

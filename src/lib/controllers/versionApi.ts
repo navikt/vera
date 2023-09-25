@@ -2,23 +2,18 @@ import config from '../config/config';
 import connectDB from '../db';
 import Event from '../models/Event';
 import jsonToCSV from '@iwsio/json-csv-node';
-import _ from 'lodash';
-import moment from 'moment';
-import { IEvent } from '@/interfaces/IEvent';
+import moment,  { unitOfTime }  from 'moment';
+import { IEvent, IEventPost } from '@/interfaces/IEvent';
+import { IPredicateMongoDefinition, IQueryParameter } from '@/interfaces/querys';
 
-/* interface IParameterDefinition {
-    application?: RegExp;
-    environment?: RegExp;
-    deployer?: RegExp;
-    version?: RegExp;
-    last?: string;
-    onlyLatest?: boolean;
-    filterUndeployed?: string;
-} */
-function predicateSearchParam(query) {
-  const predicate = {};
+interface IPredicateDefinition {
+  [key: string]: (RegExp| { $exists: boolean; } | { $gte: string; } | { $ne: null; } | null);
+}
 
-  const parameterDefinition = {
+function predicateSearchParam(query: IQueryParameter): IPredicateDefinition {
+  const predicate: IPredicateDefinition = {};
+
+/*   const parameterDefinition = {
     application: { mongoTransformation: caseInsensitiveRegexMatch },
     environment: { mongoTransformation: caseInsensitiveRegexMatch },
     deployer: { mongoTransformation: caseInsensitiveRegexMatch },
@@ -39,9 +34,29 @@ function predicateSearchParam(query) {
       mapToKey: 'version'
     },
     csv: {}
+  }; */
+  const parameterDefinition: IPredicateMongoDefinition = {
+    application: { mongoTransformation: caseInsensitiveRegexMatch },
+    environment: { mongoTransformation: caseInsensitiveRegexMatch },
+    deployer: { mongoTransformation: caseInsensitiveRegexMatch },
+    environmentClass: { mongoTransformation: caseInsensitiveRegexMatch },
+    version: { mongoTransformation: caseInsensitiveRegexMatch },
+    last: {
+      mongoTransformation: fromMomentFormatToActualDate,
+      mapToKey: 'deployed_timestamp'
+    },
+    onlyLatest: {
+      mongoTransformation: emptyOrAll,
+      mapToKey: 'replaced_timestamp'
+    },
+    filterUndeployed: {
+      mongoTransformation: emptyOrNotExist,
+      mapToKey: 'version'
+    }/* ,
+    csv: {} */
   };
 
-  _.forOwn(query, function (value, key) {
+/*   _.forOwn(query, function (value, key) {
     //console.log("key: " + key + " value: " + value)
     if (_.has(parameterDefinition, key)) {
       const keyToUse = parameterDefinition[key].mapToKey ? parameterDefinition[key].mapToKey : key;
@@ -58,27 +73,40 @@ function predicateSearchParam(query) {
         `Unknown parameter provided: ${key}. Valid parameters are:  ${_.keys(parameterDefinition).join(', ')}`
       );
     }
-  });
-  console.log('predicate');
-  console.log(predicate);
+  }); */
+
+  for (const [key, value] of Object.entries(query)) {
+    const definition = parameterDefinition[key]
+    if (definition) {
+      const keyToUse = definition.mapToKey ? definition.mapToKey : key;
+      const transformFunction = definition.mongoTransformation;
+      try {
+        if (transformFunction) {
+          predicate[keyToUse] = transformFunction(value);
+        }
+      } catch (exception) {
+        console.log("Mongo transformation failed")
+        console.log(exception)
+        console.log(typeof exception)
+        throw new Error(""+exception);
+      }
+    } else {
+      throw new Error(
+        `Unknown parameter provided: ${key}. Valid parameters are: ${Object.keys(parameterDefinition).join(', ')}`
+      );
+    }
+  }
+  //console.log("predicate", predicate)
   return predicate;
 }
 
-export async function deployLog(query) {
-  //const start = Date.now();
-  //console.log(query)
+export async function deployLog(query: IQueryParameter): Promise<IEvent[]> {
   const predicate = predicateSearchParam(query);
-  console.log(predicate);
   await connectDB();
 
   const result: IEvent[] = await Event.find(predicate).sort([['deployed_timestamp', 'descending']]);
 
-  //const aftermongo = Date.now();
-  //const mongotime = aftermongo - start
-  //const data = events;
-  //const done = Date.now();
-  //const afterjson = done - aftermongo
-  console.log(result);
+  //console.log(result);
   return result;
 }
 
@@ -116,34 +144,46 @@ function caseInsensitiveRegexMatch(val: string): RegExp {
   return new RegExp('^' + val + '$', 'i');
 }
 
-function fromMomentFormatToActualDate(momentValue): { $gte: string } | Error {
+function fromMomentFormatToActualDate(momentValue: string): { $gte: string } {
   const timespanPattern = /(^[0-9]+)([a-zA-Z]+$)/;
   if (timespanPattern.test(momentValue)) {
     const matches = momentValue.match(timespanPattern);
-    const quantity = matches[1];
-    const timeUnit = matches[2];
-    return { $gte: moment().subtract(quantity, timeUnit).format() };
+    if (matches) {
+      const quantity: number = Number(matches[1]);
+      const timeUnit: unitOfTime.DurationConstructor = matches[2] as unitOfTime.DurationConstructor;
+      return { $gte: moment().subtract(quantity, timeUnit).format() };
+    } else {
+      throw new Error(
+        "Parameter last does not match pattern " + timespanPattern
+      )
+    }
   } else {
     throw new Error(
       "Invalid format for parameter 'last'. Format should be <number><period>, e.g. '7days'. See http://momentjs.com/docs/#/manipulating for more info"
     );
   }
+
 }
 
-function emptyOrAll(boolean: boolean): { $exists: boolean } | null {
-  if (!boolean) {
+function emptyOrAll(boolean: string): { $exists: boolean } | null {
+  const toCheck: boolean = boolean.toLowerCase() === "true";
+  if (!toCheck) {
     return { $exists: true }; // matches all values as long as the key is present (null-value as well)
   } else {
     return null;
   }
 }
 
+function emptyOrNotExist(boolean: string): { $exists: boolean } | { $ne: null } {
+  const toCheck: boolean = boolean.toLowerCase() === "true";
+  if (!toCheck) {
+    return { $exists: true }; // matches all values as long as the key is present (null-value as well)
+  } else {
+    return { $ne: null };
+  }
+}
+
 export function getConfig() {
-  /* var environmentCfg = {
-            dbUrl: config.dbUrl,
-            dbUser: config.dbUser
-        }
-        res.json(environmentCfg); */
   return {
     dbUrl: config.dbUrl,
     dbUser: config.dbUser
@@ -158,7 +198,7 @@ function getEnvClassFromEnv(environment: string) {
   return 'u';
 }
 
-function createEventFromObject(obj) {
+function createEventFromObject(obj: IEventPost) {
   return new Event({
     application: obj.application,
     environment: obj.environment,

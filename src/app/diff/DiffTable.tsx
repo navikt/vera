@@ -1,30 +1,20 @@
 'use client'
 
-import { IEventResponse } from "@/interfaces/IFilteredJsonData"
 import { Table } from "@navikt/ds-react"
 import { useEffect, useState } from "react"
-import _ from "lodash";
 import { IEvent } from "@/interfaces/IEvent";
-import { IDiffEvent, environment } from "@/interfaces/IDiffEvent";
+import { IDiffEvent } from "@/interfaces/IDiffEvent";
 
+import { ChevronLeftCircleFillIcon, ChevronRightCircleFillIcon, CheckmarkCircleFillIcon, QuestionmarkDiamondFillIcon, XMarkOctagonFillIcon  } from '@navikt/aksel-icons';
 
-const BASE = "BASE";
+//const BASE = "BASE";
 const BEHIND = -1;
 const AHEAD = 1;
 const EQUAL = 0;
-const UNKNOWN = "UNKNOWN";
+const UNKNOWN = 100;
 const MISSING = 9;
 
-const version_emojii = {
-    [BEHIND]: '🔼',
-    [AHEAD]: '🔽',
-    [EQUAL]: '✅',
-    [UNKNOWN]: '❓',
-    [MISSING]: '❌',
-}
-
-
-const sortOrder = [BEHIND, MISSING, UNKNOWN, AHEAD, EQUAL, BASE];
+//const sortOrder = [BEHIND, MISSING, UNKNOWN, AHEAD, EQUAL, BASE];
 
 export default function DiffTable({
     environments,
@@ -33,7 +23,7 @@ export default function DiffTable({
     appFilter
 }:{
     environments: string[]
-    diffResult: any
+    diffResult: IEvent[]
     baseEnvironment: string
     appFilter: string[]
 })  {
@@ -47,41 +37,12 @@ export default function DiffTable({
     }, [appFilter])
 
     const buildRegexpFromAppFilter = (appFilter:string[]): void => {
-        var regexp = appFilter.map((elem) => {
+        const regexp = appFilter.map((elem) => {
             return elem.toLowerCase() + ".*"
         }).join('|')
 
         return setAppFilterRegExp(new RegExp(regexp))
     }
-
-    const applyAppFilter = (diffResult: IEventResponse): boolean => {
-        if(appFilterRegExp ) {
-            return appFilterRegExp.test(diffResult.application)
-        }
- 
-        return true;
-    }
-
-    const sortByDiffResult= (elem) => {
-        return _.reduce(elem.environments, function (result, value) {
-            var index = _.indexOf(sortOrder, getDiffResult(value))
-            result = index < result ? index : result;
-            return result;
-
-        }, sortOrder.length)
-    }
-
-    const getDiffResult = (something) => {
-        if (something.isBaseEnvironment) {
-            return BASE;
-        } else if (_.isNumber(something.diffToBase)) {
-            return something.diffToBase;
-        } else if (!something.event) {
-            return MISSING
-        }
-        return UNKNOWN;
-    }
-
 
     const filteredJsonData: IEvent[] = diffResult.filter((event: IEvent) => {
             if ( appFilterRegExp) {
@@ -89,14 +50,10 @@ export default function DiffTable({
             }
             return true
         })
-  /*       .sort((a: IEventResponse, b: IEventResponse) => {
-            const result = sortByDiffResult(a,b)
-            return result !== 0 ? result : a.application.localeCompare(b.application)
-        }) */
     
     const dataFormatter = (list: IEvent[]): IDiffEvent[] => {
 
-        var updatedList: IDiffEvent[] = []
+        const updatedList: IDiffEvent[] = []
 
         list.forEach((elem: IEvent) => {
             const existingElem = updatedList.find((e) => e.application == elem.application)
@@ -105,6 +62,7 @@ export default function DiffTable({
                 existingElem.environments.push({
                     environment: elem.environment,
                     version: elem.version,
+                    comparedToBase: UNKNOWN
                 })
 
             } else {
@@ -112,7 +70,8 @@ export default function DiffTable({
                     application: elem.application,
                     environments: [{
                         environment: elem.environment,
-                        version: elem.version
+                        version: elem.version,
+                        comparedToBase: UNKNOWN
                     }]
                 })
             }
@@ -130,7 +89,7 @@ export default function DiffTable({
             if (env.version) {
                 env.comparedToBase = compareVersions(baseVersion, env.version)
             } else {
-                env.comparedToBase = undefined
+                env.comparedToBase = UNKNOWN
             }
         })
         return elem
@@ -152,14 +111,26 @@ export default function DiffTable({
             if (strComparison !== 0) return strComparison;
           }
         }
-      
         return EQUAL;
       }
 
-    const createEnvDataCell = (elem: IDiffEvent, env: string) => {
-        let element = elem.environments.find((item) => item.environment === env)
+    const createDiffIcon = (comparedToBase: number ) => {
+        switch (comparedToBase) {
+            case AHEAD:
+                 return <ChevronLeftCircleFillIcon title="Versjon er nyere enn base" fontSize="1.5rem" />
+            case BEHIND:
+                return <ChevronRightCircleFillIcon title="Versjon er eldre enn base" fontSize="1.5rem" />
+            case EQUAL:
+                return <CheckmarkCircleFillIcon  title="Versjon er den samme som base" fontSize="1.5rem" />
+            case MISSING:
+                return <XMarkOctagonFillIcon title="Versjon er nyere enn base" fontSize="1.5rem" />
+            default:
+                return <QuestionmarkDiamondFillIcon  title="Klarte ikke å tolke versjonsnr" fontSize="1.5rem" />
+        }
+    }
 
-        
+    const createEnvDataCell = (elem: IDiffEvent, env: string) => {
+        const element = elem.environments.find((item) => item.environment === env)
         
         if (element) {
 
@@ -171,20 +142,18 @@ export default function DiffTable({
                 return element.version || '-'     
             }
 
-            element.comparedToBase = element.comparedToBase
             element.version = element.version || '-'
 
-           
-            return `${version_emojii[element.comparedToBase]} ${element.version}`
+            return ( 
+                <>
+                    {createDiffIcon(element.comparedToBase)} {element?.version}
+                </>
+                )
         }
 
         return '-'
         
     }
-
-   /*  const allObjectsHaveSameValue = (listOfObjects: IDiffEvent[]) => listOfObjects.every(
-        (obj) => obj. === listOfObjects[0].version
-    ); */
 
     return (
         <Table size="medium" zebraStripes>

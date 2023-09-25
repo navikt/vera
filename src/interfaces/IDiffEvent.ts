@@ -1,6 +1,3 @@
-import { IEvent } from "./IEvent";
-
-
 export interface IDiffEvent {
     application: string;
     environments: environment[];
@@ -9,7 +6,7 @@ export interface IDiffEvent {
  interface environment {
     environment: string;
     version?: string;
-     comparedToBase?: number;
+    comparedToBase: number;
 }
   
   

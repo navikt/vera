@@ -2,7 +2,8 @@ import { Moment } from 'moment';
 import { IEvent } from './IEvent';
 
 export interface IEventEnriched extends IEvent {
-  momentTimestamp?: Moment;
+  [key: string]: string | Date | Moment | boolean | undefined; 
+  momentTimestamp: Moment;
   newDeployment?: boolean;
 }
 
@@ -24,9 +25,10 @@ export interface IFilteredJsonData {
 }
 
 export interface IEventResponse {
+  [key: string]: string;
   application: string,
   environment: string,
   version: string,
   deployer: string,
   deployed_timestamp: string
-}
+} 

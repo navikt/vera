@@ -21,10 +21,10 @@ eventSchema.set('toJSON', {
   }
 });
 
-eventSchema.statics.getLatestDeployedApplicationsFor = function (predicate: Record<string, any>[]) {
+/* eventSchema.statics.getLatestDeployedApplicationsFor = function (predicate: Record<string, any>[]) {
   console.log('getLatestDeployedApplicationsFor');
   return this.find({ replaced_timestamp: null, version: { $ne: null } }).or(predicate);
-};
+}; */
 
 const Event: Model<IEvent> = mongoose.models.Event || mongoose.model<IEvent>('Event', eventSchema);
 

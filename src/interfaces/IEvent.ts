@@ -11,3 +11,8 @@ export interface IEvent {
 export interface IEnvironment {
   environment: string;
 }
+
+
+export interface IEventPost extends IEvent {
+  deployedBy?: string
+}

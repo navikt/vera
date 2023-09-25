@@ -1,11 +1,7 @@
 import LogTable from "./logTable"
 
-export default async function LogPage({
-    searchParams
-}: {
-    searchParams: { [key: string]: string | string[] | undefined }
-}) {
+export default async function LogPage() {
   return (
-    <LogTable searchParams={searchParams}/>
+    <LogTable/>
   )
 }

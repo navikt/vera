@@ -1,10 +1,12 @@
 'use client'
-import { Table, Tooltip, Link } from "@navikt/ds-react";
+import { Table, Link } from "@navikt/ds-react";
 import { StarFillIcon  } from '@navikt/aksel-icons';
 
 import { v4 as uuidv4 } from 'uuid';
 import { IEventEnriched, IFilteredJsonData, IFilteredJsonDataBody, IHeader } from "@/interfaces/IFilteredJsonData";
-import _ from "lodash";
+import * as HoverCard from '@radix-ui/react-hover-card';
+import hoverstyles from "./versionTable.module.css";
+
 
 
 export default function VersionTable ({
@@ -48,16 +50,16 @@ export default function VersionTable ({
             </Table.Row>
             </Table.Header>
             <Table.Body>
-                {bodyToRender.map((row) => {
-                    const firstColumn: (string | undefined) = _.head(row);
-                    const dataColumns: (undefined | IEventEnriched)[] = _.tail(row);
+                {bodyToRender.map((row:IFilteredJsonDataBody) => {
+                    const firstColumn: string = validateKeyString(row[0]) //_.head(row);
+                    const dataColumns: (string | undefined | IEventEnriched)[] = tail(row) // _.tail(row);
                     const queryElement = inverseTable ? 'environment' : 'application';
                      return (
                         <Table.Row key={uuidv4()}>
                             <Table.HeaderCell key={firstColumn}><Link href={"/log?"+queryElement+"="+firstColumn}>{firstColumn}</Link></Table.HeaderCell>
-                            {dataColumns.map((cell: IEventEnriched) => {
-                                    return (
-                                        <Table.DataCell key={(cell) ? cell.id : uuidv4()}><CellContent cell={cell}/></Table.DataCell>)
+                            {dataColumns.map((cell: (string | undefined | IEventEnriched)) => {
+                                return (
+                                    <Table.DataCell key={uuidv4()}><CellContent cell={cell}/></Table.DataCell>)
                                 })}
                         </Table.Row>
                     )
@@ -67,13 +69,29 @@ export default function VersionTable ({
     )
 }
 
+function validateKeyString(input: string | IEventEnriched | undefined): string {
+    if ( typeof input === 'string') {
+        return input
+    }
+    return uuidv4(); 
+
+}
+
+function tail(arr: IFilteredJsonDataBody): (string | undefined | IEventEnriched)[] {
+    const result = [];
+    for (let i = 1; i < Object.keys(arr).length; i++) {
+      result.push(arr[i]);
+    }
+    return result;
+  }
+
 function CellContent({
     cell
 }:{
-    cell: IEventEnriched
+    cell: (string | undefined | IEventEnriched)
 }) {
 
-    if (!cell) {
+    if (!cell || typeof cell === 'string') {
         return '-';
     }
 
@@ -82,7 +100,7 @@ function CellContent({
 
         return (
             <>
-                <div>{versionEntry.momentTimestamp.fromNow() + " by: " + versionEntry.deployer}</div>
+                <div style={{fontSize: "1.0rem"}}>{versionEntry.momentTimestamp.fromNow() + " by: " + versionEntry.deployer}</div>
                 {versionEntry.newDeployment ? newDeploymentLegend : null}
             </>
         )
@@ -100,11 +118,22 @@ function CellContent({
         );
     }
 
-    return (
+    /* return (
         <Tooltip content={buildTooltip(cell)}>
             <Link href={"log?"+ createLinkQuery(cell)}>{cell.version} {cell.newDeployment ? newDeploymentIcon() : null}</Link>
         </Tooltip>
-    );
+    ); */
+    return (
+        <HoverCard.Root openDelay={1}>
+        <HoverCard.Trigger asChild><Link href={"log?"+ createLinkQuery(cell)}>{cell.version} {cell.newDeployment ? newDeploymentIcon() : null}</Link></HoverCard.Trigger>
+        <HoverCard.Portal>
+          <HoverCard.Content className={hoverstyles.HoverCardContent} sideOffset={5}>
+            {buildTooltip(cell)}
+            <HoverCard.Arrow className={hoverstyles.HoverCardArrow} />
+          </HoverCard.Content>
+        </HoverCard.Portal>
+      </HoverCard.Root>
+    )
 }
 
 

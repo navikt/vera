@@ -1,26 +1,12 @@
-//import { getLatestDeployedApplicationsFor } from '../models/Event';
 import connectDB from '../db';
 import Event from '../models/Event';
-import _ from 'lodash';
-import { IEvent } from '@/interfaces/IEvent';
 
-interface IDiffService {
-  environment: string;
-  isBaseEnvironment: boolean;
-  event?: IEvent;
-  diffToBase?: 0 | 1 | -1 | null;
-  baseVersion?: string;
-}
-
-//export async function diffEnvironments (req, res) {
 export async function diffEnvironments(base: string, comparewith: string) {
   await connectDB();
 
-  console.log(base);
-  console.log(comparewith);
   const baseEnv: string = base;
   const environments = comparewith.split(',').concat(baseEnv);
-  console.log(environments)
+//  console.log(environments)
 
   const events = await Event.find({
     replaced_timestamp: { $eq: null },
