@@ -1,5 +1,3 @@
-import { range } from 'lodash';
-
 export default function versionCompare (versionA: string, versionB: string): 0 | 1 | -1 | null {
   if (versionA === versionB) {
     return 0;
@@ -17,12 +15,15 @@ function vercmp(versionA: string, versionB: string): 0 | 1 | -1 {
   const versionASequence = versionA.replace(EVERYTHING_AFTER_DASH, '').split('.').map(Number);
   const versionBSequence = versionB.replace(EVERYTHING_AFTER_DASH, '').split('.').map(Number);
 
-  range(versionASequence.length, versionBSequence.length).forEach(() => {
+  const diff1 = versionBSequence.length - versionASequence.length;
+  for (let i = 0; i < Math.max(diff1, 0); i++) {
     versionASequence.push(0);
-  });
-  range(versionBSequence.length, versionASequence.length).forEach(() => {
+  }
+
+  const diff2 = versionASequence.length - versionBSequence.length;
+  for (let i = 0; i < Math.max(diff2, 0); i++) {
     versionBSequence.push(0);
-  });
+  }
 
   for (let i = 0; i < versionASequence.length; i++) {
     if (versionASequence[i] === versionBSequence[i]) {

@@ -4,7 +4,6 @@ import { TrashIcon,CaretDownIcon } from '@navikt/aksel-icons';
 import { useState, useEffect } from "react";
 import axios from "axios";
 import moment from "moment";
-import _ from "lodash";
 import { lastDeployFilterMapping } from "../../interfaces/lastDeployFilterMapping";
 import { IEventResponse } from "@/interfaces/IFilteredJsonData";
 import { useSearchParams } from 'next/navigation'
@@ -81,9 +80,8 @@ export default function LogTable() {
     }
 
     const getLabelByDeployEventTimeLimit = (deployEventTimeLimit: string) => {
-      return _.chain(lastDeployFilterMapping).filter((element) => {
-        return element.momentValue === deployEventTimeLimit;
-      }).first().value().label
+      const filteredElement = lastDeployFilterMapping.find(element => element.momentValue === deployEventTimeLimit);
+      return filteredElement ? filteredElement.label : undefined;
     }
 
     useEffect(() => {

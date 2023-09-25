@@ -4,7 +4,6 @@ import axios from "axios";
 import { useState, useEffect } from "react";
 import { ArrowsSquarepathIcon, TrashIcon, CaretDownIcon } from '@navikt/aksel-icons';
 import VersionTable from "./versionTable";
-import _ from "lodash";
 import moment, { Moment } from "moment";
 import buildVersionMatrix from "../lib/vera-parser";
 import { IEventEnriched, IFilteredJsonData, IFilteredJsonDataBody } from "@/interfaces/IFilteredJsonData";
@@ -29,9 +28,8 @@ export default function VeraTable() {
     const [rowsPerPage, setRowsPerPage] = useState<number>(42);
 
     const getLabelByDeployEventTimeLimit = (deployEventTimeLimit: string) => {
-        return _.chain(lastDeployFilterMapping).filter((element) => {
-          return element.momentValue === deployEventTimeLimit;
-        }).first().value().label
+        const filteredElement = lastDeployFilterMapping.find(element => element.momentValue === deployEventTimeLimit);
+        return filteredElement ? filteredElement.label : undefined;
     }
 
     const changeInverseTable = () => {
@@ -86,7 +84,7 @@ export default function VeraTable() {
     }
 
     const applyFilters = (): IFilteredJsonData => {
-        let filteredJsonData: IEventEnriched[] = _.clone(data);
+        let filteredJsonData: IEventEnriched[] = [...data];
        if (filters) {
             Object.keys(filters).forEach((key) => {
                 const value = filters[key as keyof IFilter];

@@ -1,5 +1,4 @@
 import { IEventEnriched, IEventResponse } from "@/interfaces/IFilteredJsonData";
-import { isArray, isString } from "lodash";
 
 function doFiltersExist(filters: string[]| string): boolean {
     return !filters || filters.length === 0;
@@ -13,7 +12,7 @@ export function regexpMatchByValuesIEventResponse(collection: IEventResponse[], 
     return collection.filter((item: IEventResponse) => {
       let match = false;
 
-        if (isArray(filters)) {
+        if (Array.isArray(filters)) {
             for (let i = 0; i < filters.length; i++) {
                 const filterPattern = new RegExp(
                     '\\b' + filters[i].trim().replace(new RegExp('\\*', 'g'), '.*') + '\\b'
@@ -24,7 +23,7 @@ export function regexpMatchByValuesIEventResponse(collection: IEventResponse[], 
                 }
             }
         } 
-        if (isString(filters)) {
+        if (typeof filters === 'string') {
             console.log("stringfilter", filters)
             const filterPattern = new RegExp(
                 '\\b' + filters.trim().replace(new RegExp('\\*', 'g'), '.*') + '\\b'
@@ -46,7 +45,7 @@ export function regexpMatchByValuesIEvent(collection: IEventEnriched[], key: str
 
     return collection.filter((item: IEventEnriched) => {
         let match = false
-        if (isArray(filters)) {
+        if (Array.isArray(filters)) {
             for (let i = 0; i < filters.length; i++) {
                 const filterPattern = new RegExp(
                     '\\b' + filters[i].trim().replace(new RegExp('\\*', 'g'), '.*') + '\\b'
@@ -59,7 +58,7 @@ export function regexpMatchByValuesIEvent(collection: IEventEnriched[], key: str
             }
         }
 
-        if (isString(filters)) {
+        if (typeof filters === 'string') {
             const filterPattern = new RegExp(
                 '\\b' + filters.trim().replace(new RegExp('\\*', 'g'), '.*') + '\\b'
             );
