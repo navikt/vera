@@ -18,19 +18,17 @@ export function regexpMatchByValuesIEventResponse(collection: IEventResponse[], 
                     '\\b' + filters[i].trim().replace(new RegExp('\\*', 'g'), '.*') + '\\b'
                 );
                 
-                if (item[property].toLocaleLowerCase().search(filterPattern) > -1) {
+                if (filterPattern.test(item[property].toLocaleLowerCase())) {
                     match = true;
                 }
             }
         } 
         if (typeof filters === 'string') {
-            console.log("stringfilter", filters)
             const filterPattern = new RegExp(
                 '\\b' + filters.trim().replace(new RegExp('\\*', 'g'), '.*') + '\\b'
             );
-            console.log("filterpatterns", filterPattern)
-            console.log("itemproperty", item[property])
-            if (item[property].toLocaleLowerCase().search(filterPattern) > -1) {
+
+            if (filterPattern.test(item[property].toLocaleLowerCase())) {
                 match = true;
             }
         } 
@@ -47,25 +45,22 @@ export function regexpMatchByValuesIEvent(collection: IEventEnriched[], key: str
         let match = false
         if (Array.isArray(filters)) {
             for (let i = 0; i < filters.length; i++) {
-                const filterPattern = new RegExp(
-                    '\\b' + filters[i].trim().replace(new RegExp('\\*', 'g'), '.*') + '\\b'
-                );
+                const filterPattern = new RegExp('\\b' + filters[i].trim().replace(new RegExp('\\*', 'g'), '.*') + '\\b');
                 const itemproperty = item[key]
                 if (isValidProperty(item, key) && typeof itemproperty === 'string' &&
-                itemproperty.toLocaleLowerCase().search(filterPattern) > -1) {
+                    filterPattern.test(itemproperty.toLocaleLowerCase())) {
                     match = true;
                 }
             }
         }
 
         if (typeof filters === 'string') {
-            const filterPattern = new RegExp(
-                '\\b' + filters.trim().replace(new RegExp('\\*', 'g'), '.*') + '\\b'
-            );
+            console.log("filters", filters)
+            const filterPattern = new RegExp('\\b' + filters.trim().replace(new RegExp('\\*', 'g'), '.*') + '\\b');
 
             const itemproperty = item[key]
             if (isValidProperty(item, key) && typeof itemproperty === 'string' &&
-            itemproperty.toLocaleLowerCase().search(filterPattern) > -1) {
+                filterPattern.test(itemproperty.toLocaleLowerCase())) {
                 match = true;
             }
         }

@@ -16,6 +16,7 @@ const defaultFilter: IFilter = {application: [],
   environmentClass: ['u', 't', 'q', 'p'],
   version: ""}
 
+  const regexpTooltipsString = "rexep values '.' and '*' are allowed";
 export default function LogTable() {
   const searchParams = useSearchParams();
 
@@ -127,7 +128,7 @@ export default function LogTable() {
           <Table size="medium" zebraStripes>
             <Table.Header>
               <Table.Row>
-                <Table.HeaderCell scope="col"><TextField label="application" hideLabel placeholder="application" defaultValue={filters["application"]?.join(",")} onInput={(e) => handleFilter("application", e.currentTarget.value)}/></Table.HeaderCell>
+                <Table.HeaderCell scope="col"><Tooltip content={regexpTooltipsString}><TextField label="application" hideLabel placeholder="application" defaultValue={filters["application"]?.join(",")} onInput={(e) => handleFilter("application", e.currentTarget.value)}/></Tooltip></Table.HeaderCell>
                 <Table.HeaderCell scope="col"><TextField label="environment" hideLabel placeholder="environment" defaultValue={filters["environment"]?.join(",")} onInput={(e) => handleFilter("environment", e.currentTarget.value)}/></Table.HeaderCell>
                 <Table.HeaderCell scope="col"><TextField label="deployer" hideLabel placeholder="deployer" defaultValue={filters["deployer"]} onInput={(e) => handleFilter("deployer", e.currentTarget.value)}/></Table.HeaderCell>
                 <Table.HeaderCell scope="col"><TextField label="version" hideLabel placeholder="version" defaultValue={filters["version"]} onInput={(e) => handleFilter("version", e.currentTarget.value)}/></Table.HeaderCell>

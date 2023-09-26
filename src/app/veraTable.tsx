@@ -17,6 +17,8 @@ const defaultFilter: IFilter = {application: [],
     environment: [],
     environmentClass: ['t', 'q', 'p']}
 
+const regexpTooltipsString = "rexep values '.' and '*' are allowed";
+
 export default function VeraTable() {
     const searchParams = useSearchParams();
     const [data, setData] = useState<IEventEnriched[]>([]);
@@ -132,8 +134,12 @@ export default function VeraTable() {
     return (
         <div style={{marginRight: "auto", marginLeft: "auto", padding: "15px"}}>
         <div style={{display: "flex"}}>
+            <Tooltip content={regexpTooltipsString}>
             <TextField label="application" hideLabel placeholder="application" style={{width: 200, margin:4}} defaultValue={filters["application"]?.join(",")} onInput={(e) => handleFilter("application", e.currentTarget.value)}/>
+            </Tooltip>
+            <Tooltip content={regexpTooltipsString}>
             <TextField label="environment" hideLabel placeholder="environment" style={{width: 200, margin:4}} defaultValue={filters["environment"]?.join(",")} onInput={(e) => handleFilter("environment", e.currentTarget.value)}/>
+            </Tooltip>
             <Button variant="primary" size="small" style={{margin:4}} onClick={() => applyFiltersButton()} icon={<ArrowsSquarepathIcon title="Apply filters" fontSize="1.5rem" />}>apply</Button>
             <Button variant="primary" size="small" style={{margin:4}} onClick={() => clearFilters()} icon={<TrashIcon title="clear-filters"/>} >clear filter</Button>
             <Button variant="primary-neutral" size="small" style={{margin:4}} onClick={changeInverseTable} icon={<ArrowsSquarepathIcon title="invertere tabell" fontSize="1.5rem" />} >inverse</Button>
