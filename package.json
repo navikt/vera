@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "next lint",
     "test": "jest",
-    "prettier-format": "prettier --config .prettierrc 'src/**/*.ts' --write"
+    "prettier-format": "prettier 'src/**/*.ts' --write",
+    "prettier:check": "prettier -c src"
   },
   "dependencies": {
     "@iwsio/json-csv-core": "^1.0.1",
@@ -29,7 +30,6 @@
   },
   "devDependencies": {
     "@types/jest": "^29.5.4",
-    "@types/lodash": "^4.14.197",
     "@types/mongoose": "^5.11.97",
     "@types/node": "20.5.2",
     "@types/react": "18.2.20",

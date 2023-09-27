@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - dev
+      - nextjs
     paths-ignore:
       - README.md
       - docker-compose.yaml
