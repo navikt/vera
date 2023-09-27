@@ -1,20 +1,20 @@
-import connectDB from '../db';
-import Event from '../models/Event';
+import connectDB from "../db"
+import Event from "../models/Event"
 
 export async function diffEnvironments(base: string, comparewith: string) {
-  await connectDB();
+    await connectDB()
 
-  const baseEnv: string = base;
-  const environments = comparewith.split(',').concat(baseEnv);
-//  console.log(environments)
+    const baseEnv: string = base
+    const environments = comparewith.split(",").concat(baseEnv)
+    //  console.log(environments)
 
-  const events = await Event.find({
-    replaced_timestamp: { $eq: null },
-    version: { $ne: null },
-    environment: { $in: environments }
-  });
+    const events = await Event.find({
+        replaced_timestamp: { $eq: null },
+        version: { $ne: null },
+        environment: { $in: environments },
+    })
 
-  return events
+    return events
 }
 
 /* 
