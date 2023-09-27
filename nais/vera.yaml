@@ -13,9 +13,9 @@ spec:
       rules:
       - application: vera-mongo
   liveness:
-    path: /selftest
+    path: /api/isalive
   readiness:
-    path: /selftest
+    path: /api/selftest
   prometheus:
     path: /metrics
   replicas:
