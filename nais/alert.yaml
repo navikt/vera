@@ -3,9 +3,9 @@ apiVersion: nais.io/v1
 kind: Alert
 metadata:
   name: vera-alerts
-  namespace: aura
+  namespace: team-atom
   labels:
-    team: aura
+    team: team-atom
 spec:
   receivers:
     slack:

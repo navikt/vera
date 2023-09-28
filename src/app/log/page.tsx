@@ -6,7 +6,7 @@ import LogTable from "./logTable"
 // When the value is available during React hydration the fallback
 // will be replaced with the `<SearchBar>` component.
 function LogPageFallback() {
-  return <>placeholder</>
+  return <>Loading...</>
 }
 
 export default async function LogPage() {

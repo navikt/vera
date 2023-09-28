@@ -6,7 +6,7 @@ import VeraTable from "./veraTable";
 // When the value is available during React hydration the fallback
 // will be replaced with the `<SearchBar>` component.
 function VeraTableFallback() {
-  return <>placeholder</>
+  return <>Loading...</>
 }
 
 export default async function Page() {

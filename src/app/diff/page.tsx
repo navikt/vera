@@ -6,7 +6,7 @@ import DiffHeader from "./DiffHeader"
 // When the value is available during React hydration the fallback
 // will be replaced with the `<SearchBar>` component.
 function DiffHeaderFallback() {
-  return <>placeholder</>
+  return <>Loading...</>
 }
 
 export default async function DiffPage() {

@@ -2,9 +2,9 @@ apiVersion: "nais.io/v1alpha1"
 kind: "Application"
 metadata:
   name: vera
-  namespace: aura
+  namespace: team-atom
   labels:
-    team: aura
+    team: team-atom
 spec:
   image: {{ image }}
   port: 3000
