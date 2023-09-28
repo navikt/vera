@@ -13,13 +13,10 @@ services:
       - MONGO_INITDB_DATABASE=deploy_log
 
   vera:
-    build:
-      context: .
-      dockerfile: Dockerfile
-   
+    build: .
     depends_on:
       - mongo-db
     environment:
       VERADB_URL: mongodb://mongo-db:27017/deploy_log
     ports:
-      - "8080:8080"
+      - "3000:3000"
