@@ -15,11 +15,11 @@ services:
   vera:
     build:
       context: .
-      dockerfile: Dockerfile.dev
+      dockerfile: Dockerfile
    
     depends_on:
       - mongo-db
-    #environment:
-      #VERADB_URL: mongodb://mongo-db:27017/deploy_log
+    environment:
+      VERADB_URL: mongodb://mongo-db:27017/deploy_log
     ports:
       - "8080:8080"
