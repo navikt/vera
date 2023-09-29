@@ -11,15 +11,17 @@ import { IFilter } from "@/interfaces/IFilter";
 import { regexpMatchByValuesIEventResponse } from "@/lib/frontendlibs/utils";
 
 const defaultRowsPerPage = 42;
-const defaultFilter: IFilter = {application: [],
-  environment: [],
-  environmentClass: ['u', 't', 'q', 'p'],
-  version: ""}
+
 
   const regexpTooltipsString = "rexep values '.' and '*' are allowed";
 export default function LogTable() {
   const searchParams = useSearchParams();
-
+  const defaultFilter: IFilter = {
+    application: searchParams.get("application")?.split(',') || [],
+    environment: searchParams.get("environment")?.split(',') || [],
+    environmentClass: ['u', 't', 'q', 'p'],
+    version: ""
+  }
 
   const [data, setData] = useState<IEventResponse[]>([]);
   const [isDataFetched, setIsDataFetched] = useState(false);
@@ -61,19 +63,29 @@ export default function LogTable() {
     sortData = sortData.length >1 ? sortData.slice((page - 1) * rowsPerPage, page * rowsPerPage): sortData;
 
     const makeRequest = async (timespan: string) => {
-        //console.log("Fetching new status")
-        let urlQuery = ""
+        let params = {}
+
+        filters["application"].forEach((value:string) => {
+          params = {
+            ...params,
+            "application": value
+          }
+        })
+        filters["environment"].forEach((value:string) => {
+          params = {
+            ...params,
+            "environment": value
+          }
+        })
         if (timespan) {
-          urlQuery += "last="+timespan
+          params = {
+            ...params,
+            "last": timespan
+          }
         }
-        //console.log("filters + makeRequest", filters)
-        if (filters["application"]) {
-          urlQuery += "&application="+filters["application"]
-        }
-        if (filters["environment"]) {
-          urlQuery += "&environment="+filters["environment"]
-        }
-        await axios.get('/api/v1/deploylog?'+urlQuery)
+
+        console.log("params", params)
+        await axios.get('/api/v1/deploylog', {params: params})
           .then(({ data }) => {
             setData(data);
             setIsDataFetched(true);
@@ -93,18 +105,6 @@ export default function LogTable() {
     }
 
     useEffect(() => {
-      for (const [key, value] of searchParams.entries()) {
-        if (key in filters) {
-          setFilters(prevFilters => ({
-            ...prevFilters,
-            [key]: value.split(',')
-          }))
-          if (data.length == 0) {
-            setIsDataFetched(false)
-          }
-        }
-      }
-
       if ( !isDataFetched) {
         //console.log("data is not fetched")
         makeRequest(deployEventTimeLimit);

@@ -80,7 +80,7 @@ export default function DiffTable({
 
         updatedList.forEach((elem: IDiffEvent) => setCompareResult(elem))
 
-        return updatedList
+        return updatedList.sort((a, b) => a.application.localeCompare(b.application))
     }
     
     const setCompareResult = (elem: IDiffEvent): IDiffEvent => {

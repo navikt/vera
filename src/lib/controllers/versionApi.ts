@@ -11,31 +11,34 @@ interface IPredicateDefinition {
     [key: string]: RegExp | { $exists: boolean } | { $gte: string } | { $ne: null } | null
 }
 
+const parameterDefinition: IPredicateMongoDefinition = {
+    application: { mongoTransformation: caseInsensitiveRegexMatch },
+    environment: { mongoTransformation: caseInsensitiveRegexMatch },
+    deployer: { mongoTransformation: caseInsensitiveRegexMatch },
+    environmentClass: { mongoTransformation: caseInsensitiveRegexMatch },
+    version: { mongoTransformation: caseInsensitiveRegexMatch },
+    last: {
+        mongoTransformation: fromMomentFormatToActualDate,
+        mapToKey: "deployed_timestamp",
+    },
+    onlyLatest: {
+        mongoTransformation: emptyOrAll,
+        mapToKey: "replaced_timestamp",
+    },
+    filterUndeployed: {
+        mongoTransformation: emptyOrNotExist,
+        mapToKey: "version",
+    } /* ,
+csv: {} */,
+}
+
 function predicateSearchParam(query: IQueryParameter): IPredicateDefinition {
     const predicate: IPredicateDefinition = {}
 
-    const parameterDefinition: IPredicateMongoDefinition = {
-        application: { mongoTransformation: caseInsensitiveRegexMatch },
-        environment: { mongoTransformation: caseInsensitiveRegexMatch },
-        deployer: { mongoTransformation: caseInsensitiveRegexMatch },
-        environmentClass: { mongoTransformation: caseInsensitiveRegexMatch },
-        version: { mongoTransformation: caseInsensitiveRegexMatch },
-        last: {
-            mongoTransformation: fromMomentFormatToActualDate,
-            mapToKey: "deployed_timestamp",
-        },
-        onlyLatest: {
-            mongoTransformation: emptyOrAll,
-            mapToKey: "replaced_timestamp",
-        },
-        filterUndeployed: {
-            mongoTransformation: emptyOrNotExist,
-            mapToKey: "version",
-        } /* ,
-    csv: {} */,
-    }
-
     for (const [key, value] of Object.entries(query)) {
+        if (value == ""){
+            break
+        }
         const definition = parameterDefinition[key]
         if (definition) {
             const keyToUse = definition.mapToKey ? definition.mapToKey : key
@@ -58,7 +61,21 @@ function predicateSearchParam(query: IQueryParameter): IPredicateDefinition {
             )
         }
     }
-    //console.log("predicate", predicate)
+
+    // Setting default predicate if others are empty
+    //const defaultQuery= {onlyLatest: "true"}
+    if (Object.keys(predicate).length == 0) {
+        const defaultKey = "onlyLatest"
+        const defaultValue = "true"
+        //console.log("predicate is empty", predicate)
+        const definition = parameterDefinition[defaultKey]
+        const keyToUse = definition.mapToKey ? definition.mapToKey : defaultKey
+        const transformFunction = definition.mongoTransformation
+        if (transformFunction) {
+            predicate[keyToUse] = transformFunction(defaultValue)
+        } 
+    }
+    
     return predicate
 }
 

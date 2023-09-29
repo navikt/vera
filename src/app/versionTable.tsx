@@ -57,7 +57,7 @@ export default function VersionTable ({
                     const firstColumn: string = validateKeyString(row[0]) //_.head(row);
                     const dataColumns: (string | undefined | IEventEnriched)[] = tail(row) // _.tail(row);
                     const queryElement = inverseTable ? 'environment' : 'application';
-                     return (
+                    return (
                         <Table.Row key={uuidv4()}>
                             <Table.HeaderCell key={firstColumn}><Link href={"/log?"+queryElement+"="+firstColumn}>{firstColumn}</Link></Table.HeaderCell>
                             {dataColumns.map((cell: (string | undefined | IEventEnriched)) => {
