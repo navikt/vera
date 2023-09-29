@@ -1,4 +1,5 @@
-import { IEventEnriched, IEventResponse } from "@/interfaces/IFilteredJsonData"
+import { IEventResponse } from "@/interfaces/IFilteredJsonData"
+import { IEventEnriched } from "@/interfaces/IEvent"
 
 function doFiltersExist(filters: string[] | string): boolean {
     return !filters || filters.length === 0

@@ -1,4 +1,5 @@
-import { IEventEnriched, IFilteredJsonData, IHeader } from "@/interfaces/IFilteredJsonData"
+import { IFilteredJsonData, IHeader } from "@/interfaces/IFilteredJsonData"
+import { IEventEnriched } from "@/interfaces/IEvent"
 
 interface IGroupBy {
     [key: string]: IEventEnriched[]

@@ -1,5 +1,6 @@
 # docker run-time mounts
 /docker-mounts/
+/backup/
 
 # Logs
 logs

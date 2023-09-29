@@ -1,11 +1,4 @@
-import { Moment } from "moment"
-import { IEvent } from "./IEvent"
-
-export interface IEventEnriched extends IEvent {
-    [key: string]: string | Date | Moment | boolean | undefined
-    momentTimestamp: Moment
-    newDeployment?: boolean
-}
+import { IEventEnriched } from "./IEvent"
 
 export interface IFilteredJsonDataBody {
     [index: number]: string | undefined | IEventEnriched

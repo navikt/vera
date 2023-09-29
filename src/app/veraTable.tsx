@@ -1,12 +1,12 @@
 'use client'
-import { TextField, Button, Dropdown, Tooltip, Pagination } from "@navikt/ds-react";
+import { TextField, Button, Dropdown, Tooltip, Pagination, Loader } from "@navikt/ds-react";
 import axios from "axios";
 import { useState, useEffect } from "react";
 import { ArrowsSquarepathIcon, TrashIcon, CaretDownIcon } from '@navikt/aksel-icons';
 import VersionTable from "./versionTable";
-import moment, { Moment } from "moment";
 import buildVersionMatrix from "../lib/vera-parser";
-import { IEventEnriched, IFilteredJsonData, IFilteredJsonDataBody } from "@/interfaces/IFilteredJsonData";
+import { IFilteredJsonData } from "@/interfaces/IFilteredJsonData";
+import { IEventEnriched } from "@/interfaces/IEvent";
 import { lastDeployFilterMapping } from "../interfaces/lastDeployFilterMapping";
 import { ToggleButtonGroup } from "@/component/toggle-button-group";
 import { useSearchParams } from "next/navigation";
@@ -44,10 +44,6 @@ export default function VeraTable() {
     }
 
     const makeRequest = async (timespan: string) => {
-        const isDeployedLast24Hrs = (logEvent: IEventEnriched, deployDateBackInTime: Moment): boolean| undefined => {
-            return logEvent.momentTimestamp?.isAfter(deployDateBackInTime);
-        };
-
         console.log("Fetching new status")
         let urlQuery: string = "?onlyLatest=true&filterUndeployed=true"
         if (timespan != "") {
@@ -55,19 +51,8 @@ export default function VeraTable() {
         }
         await axios.get('/api/v1/deploylog'+urlQuery)
             .then(({ data }) => {
-                const enrichedLogEvents = data.map((logEvent: IEventEnriched) => {
-                    logEvent.momentTimestamp = moment(logEvent.deployed_timestamp);
-                    if (isDeployedLast24Hrs(logEvent, moment().subtract(24, 'hours'))) {
-                        logEvent.newDeployment = true;
-                    return logEvent;
-                }
-
-            return logEvent;
-        });
-
-        setData(enrichedLogEvents);
-          setIsDataFetched(true);
-          //console.log(data)
+            setData(data);
+             setIsDataFetched(true);
         })
     }
 
@@ -84,10 +69,9 @@ export default function VeraTable() {
             ["environmentClass"]: envClasses
         });
     }
-
     const applyFilters = (): IFilteredJsonData => {
         let filteredJsonData: IEventEnriched[] = [...data];
-       if (filters) {
+        if (filters) {
             Object.keys(filters).forEach((key) => {
                 const value = filters[key as keyof IFilter];
                 if (value) {
@@ -97,9 +81,14 @@ export default function VeraTable() {
         } 
  
         return buildVersionMatrix(filteredJsonData, inverseTable);
-    } 
+    }
+
     const filteredJsonData: IFilteredJsonData = applyFilters()
 
+    const sortData = filteredJsonData.body.length > 1 ? filteredJsonData.body.slice((page -1) * rowsPerPage, page * rowsPerPage): filteredJsonData.body
+    //let sortData = data.length > 1 ? data.slice((page -1) * rowsPerPage, page * rowsPerPage): data
+    
+    //const sortData = 
 
     useEffect(() => {
         for (const [key, value] of searchParams.entries()) {
@@ -120,8 +109,9 @@ export default function VeraTable() {
         location.href="?apps="+filters["application"]?.join(",").toLocaleLowerCase() +"&envs="+filters["environment"]?.join(",").toLocaleLowerCase();
     }
     //console.log(filteredJsonData)
-    let sortData: IFilteredJsonDataBody[] = filteredJsonData.body;
-    sortData = sortData.length>1 ? sortData.slice((page - 1) * rowsPerPage, page * rowsPerPage): sortData;
+    //let sortData: IFilteredJsonDataBody[] = filteredJsonData.body;
+    //sortData = sortData.length>1 ? sortData.slice((page - 1) * rowsPerPage, page * rowsPerPage): sortData;
+
 
     const clearFilters = (): void => {
         filters["application"] = []
@@ -166,21 +156,28 @@ export default function VeraTable() {
                     <ToggleButtonGroup.Item value="p">p</ToggleButtonGroup.Item>
             </ToggleButtonGroup>
             </Tooltip>
+            <span style={{verticalAlign:"bottom"}}>#rows</span>
             <Tooltip content="Rows per page">
-                <TextField label="rowsPerPage" hideLabel placeholder="rowsPerPage" style={{width: 40, margin:4}} inputMode="numeric" defaultValue={rowsPerPage} onInput={(e) => setRowsPerPageHandler(+e.currentTarget.value)}/>
+                <TextField label="rowsPerPage" hideLabel placeholder="rowsPerPage" style={{width: 60, margin:4}} inputMode="numeric" defaultValue={rowsPerPage} onInput={(e) => setRowsPerPageHandler(+e.currentTarget.value)}/>
             </Tooltip>
         </div>
-        <VersionTable filteredJsonData={filteredJsonData} inverseTable={inverseTable}/>
-        {
-            sortData && (
-            <Pagination
-              page={page}
-              onPageChange={setPage}
-              count={data.length > 0 ? Math.ceil(data.length / rowsPerPage): 1}
-              size="small"
-            />
-            ) 
-          }
+        { isDataFetched ? 
+        <>
+            <VersionTable filteredJsonData={sortData} headers={filteredJsonData.header} inverseTable={inverseTable}/>
+            {
+                sortData && (filteredJsonData.body.length > rowsPerPage) && (
+                <Pagination
+                page={page}
+                onPageChange={setPage}
+                count={filteredJsonData.body.length > 0 ? Math.ceil(filteredJsonData.body.length / rowsPerPage): 1}
+                size="small"
+                />
+                )
+            }
+        </> 
+        : <Loader size="3xlarge" title="Loading..." variant="interaction" />
+        }
+        
         </div>
     )
 }

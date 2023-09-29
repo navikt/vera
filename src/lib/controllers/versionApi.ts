@@ -2,9 +2,10 @@ import config from "../config/config"
 import connectDB from "../db"
 import Event from "../models/Event"
 import jsonToCSV from "@iwsio/json-csv-node"
-import moment, { unitOfTime } from "moment"
+import moment, { Moment, unitOfTime } from "moment"
 import { IEvent, IEventPost } from "@/interfaces/IEvent"
 import { IPredicateMongoDefinition, IQueryParameter } from "@/interfaces/querys"
+import { IEventEnriched } from "@/interfaces/IEvent"
 
 interface IPredicateDefinition {
     [key: string]: RegExp | { $exists: boolean } | { $gte: string } | { $ne: null } | null
@@ -13,28 +14,6 @@ interface IPredicateDefinition {
 function predicateSearchParam(query: IQueryParameter): IPredicateDefinition {
     const predicate: IPredicateDefinition = {}
 
-    /*   const parameterDefinition = {
-    application: { mongoTransformation: caseInsensitiveRegexMatch },
-    environment: { mongoTransformation: caseInsensitiveRegexMatch },
-    deployer: { mongoTransformation: caseInsensitiveRegexMatch },
-    environmentClass: { mongoTransformation: caseInsensitiveRegexMatch },
-    version: { mongoTransformation: caseInsensitiveRegexMatch },
-    last: {
-      mongoTransformation: fromMomentFormatToActualDate,
-      mapToKey: 'deployed_timestamp'
-    },
-    onlyLatest: {
-      mongoTransformation: emptyOrAll,
-      mapToKey: 'replaced_timestamp'
-    },
-    filterUndeployed: {
-      mongoTransformation: function (val: boolean) {
-        return val ? { $ne: null } : { $exists: true };
-      },
-      mapToKey: 'version'
-    },
-    csv: {}
-  }; */
     const parameterDefinition: IPredicateMongoDefinition = {
         application: { mongoTransformation: caseInsensitiveRegexMatch },
         environment: { mongoTransformation: caseInsensitiveRegexMatch },
@@ -55,25 +34,6 @@ function predicateSearchParam(query: IQueryParameter): IPredicateDefinition {
         } /* ,
     csv: {} */,
     }
-
-    /*   _.forOwn(query, function (value, key) {
-    //console.log("key: " + key + " value: " + value)
-    if (_.has(parameterDefinition, key)) {
-      const keyToUse = parameterDefinition[key].mapToKey ? parameterDefinition[key].mapToKey : key;
-      const transformFunction = parameterDefinition[key].mongoTransformation;
-      try {
-        if (transformFunction) {
-          predicate[keyToUse] = transformFunction(value);
-        }
-      } catch (exception) {
-        return new Error(exception);
-      }
-    } else {
-      return new Error(
-        `Unknown parameter provided: ${key}. Valid parameters are:  ${_.keys(parameterDefinition).join(', ')}`
-      );
-    }
-  }); */
 
     for (const [key, value] of Object.entries(query)) {
         const definition = parameterDefinition[key]
@@ -102,14 +62,32 @@ function predicateSearchParam(query: IQueryParameter): IPredicateDefinition {
     return predicate
 }
 
-export async function deployLog(query: IQueryParameter): Promise<IEvent[]> {
+function isDeployedLast24Hrs (momentTimestamp: Moment, deployDateBackInTime: Moment): boolean {
+    return momentTimestamp.isAfter(deployDateBackInTime);
+}
+
+export async function deployLog(query: IQueryParameter): Promise<IEventEnriched[]> {
     const predicate = predicateSearchParam(query)
     await connectDB()
 
-    const result: IEvent[] = await Event.find(predicate).sort([["deployed_timestamp", "descending"]])
+    const result: IEvent[] = await Event.find(predicate, { __v: 0, _id: 0 }).sort([["deployed_timestamp", "descending"]]).lean()
+    //console.log("result length ", result.length)
 
-    //console.log(result);
-    return result
+    const enrichedLogEvents:IEventEnriched[] = result.map((event) => {
+        let newDeployment: boolean = false
+        const momentTimestamp: Moment = moment(event.deployed_timestamp)
+        if (isDeployedLast24Hrs(momentTimestamp, moment().subtract(24, 'hours'))) {
+            newDeployment = true;
+        }
+
+        return {
+            ...event,
+            momentTimestamp: momentTimestamp,
+            newDeployment: newDeployment,
+        }
+    });
+
+    return enrichedLogEvents
 }
 
 export async function returnCSVPayload(events: IEvent[]) {

@@ -38,3 +38,16 @@ spec:
     requests:
       cpu: 50m
       memory: 64Mi
+
+
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  annotations:
+    iam.gke.io/gcp-service-account: {{serviceAccount}}
+  labels:
+    app: vera
+    team: team-atom
+  name: vera
+  namespace: team-atom

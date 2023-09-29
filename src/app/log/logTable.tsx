@@ -64,9 +64,16 @@ export default function LogTable() {
         //console.log("Fetching new status")
         let urlQuery = ""
         if (timespan) {
-          urlQuery += "?last="+timespan
+          urlQuery += "last="+timespan
         }
-        await axios.get('/api/v1/deploylog'+urlQuery)
+        //console.log("filters + makeRequest", filters)
+        if (filters["application"]) {
+          urlQuery += "&application="+filters["application"]
+        }
+        if (filters["environment"]) {
+          urlQuery += "&environment="+filters["environment"]
+        }
+        await axios.get('/api/v1/deploylog?'+urlQuery)
           .then(({ data }) => {
             setData(data);
             setIsDataFetched(true);
@@ -92,9 +99,12 @@ export default function LogTable() {
             ...prevFilters,
             [key]: value.split(',')
           }))
+          if (data.length == 0) {
+            setIsDataFetched(false)
+          }
         }
       }
-      
+
       if ( !isDataFetched) {
         //console.log("data is not fetched")
         makeRequest(deployEventTimeLimit);
@@ -103,28 +113,27 @@ export default function LogTable() {
 
     return (
       <div style={{marginRight: "auto", marginLeft: "auto", width: "90%" }}>
-        {/* <HStack gap={{ xs: "1", sm: "2", md: "6", lg: "10", xl: "16" }} justify='center'> */}
-        <div style={{display: "flex"}}>
-        <h2 style={{margin:4}}>Event {isDataFetched ? data.length : ""}   </h2>
-        <div style={{display: "inline-flex"}}>
-        <Dropdown>
-          <Button as={Dropdown.Toggle} icon={<CaretDownIcon title="Select timespan for log" fontSize="1.5rem" />} style={{margin:4, height:"20"}} size="small">{getLabelByDeployEventTimeLimit(deployEventTimeLimit)}</Button>
-          <Dropdown.Menu>
-            <Dropdown.Menu.List>
-              {lastDeployFilterMapping.map((choice) => {
-                return (
-                  <Dropdown.Menu.List.Item key={choice.momentValue} onClick={() => {makeRequest(choice.momentValue); setdeployEventTimeLimit(choice.momentValue)}} >{choice.label}</Dropdown.Menu.List.Item>
-                )
-              }
-              )}
-            </Dropdown.Menu.List>
-          </Dropdown.Menu>
-        </Dropdown>
-        <Tooltip content="#rader">
-          <TextField label="#rader" hideLabel style={{width: 40, margin:4}} inputMode="numeric" defaultValue={rowsPerPage} onInput={(e) => setRowsPerPageHandler(+e.currentTarget.value)}/>
-        </Tooltip>
-        </div>
-        </div>
+          <div style={{display: "flex"}}>
+          <h2 style={{margin:4}}>Event {isDataFetched ? data.length : ""}</h2>
+          <div style={{display: "inline-flex"}}>
+          <Dropdown>
+            <Button as={Dropdown.Toggle} icon={<CaretDownIcon title="Select timespan for log" fontSize="1.5rem" />} style={{margin:4, height:"20"}} size="small">{getLabelByDeployEventTimeLimit(deployEventTimeLimit)}</Button>
+            <Dropdown.Menu>
+              <Dropdown.Menu.List>
+                {lastDeployFilterMapping.map((choice) => {
+                  return (
+                    <Dropdown.Menu.List.Item key={choice.momentValue} onClick={() => {makeRequest(choice.momentValue); setdeployEventTimeLimit(choice.momentValue)}} >{choice.label}</Dropdown.Menu.List.Item>
+                  )
+                }
+                )}
+              </Dropdown.Menu.List>
+            </Dropdown.Menu>
+          </Dropdown>
+          <Tooltip content="#rader">
+            <TextField label="#rader" hideLabel style={{width: 40, margin:4}} inputMode="numeric" defaultValue={rowsPerPage} onInput={(e) => setRowsPerPageHandler(+e.currentTarget.value)}/>
+          </Tooltip>
+          </div>
+          </div>
           <Table size="medium" zebraStripes>
             <Table.Header>
               <Table.Row>
@@ -140,9 +149,8 @@ export default function LogTable() {
             </Table.Header>
             <Table.Body>
               {sortData.map(({application, environment, deployer, version, deployed_timestamp}, i) => {
-
-                    return (
-                     <Table.Row key={i + application + version}>
+                  return (
+                    <Table.Row key={i + application + version}>
                         <Table.HeaderCell scope="row">{application}</Table.HeaderCell>
                         <Table.DataCell>{environment}</Table.DataCell>
                         <Table.DataCell>{deployer}</Table.DataCell>
@@ -154,8 +162,7 @@ export default function LogTable() {
               })}
             </Table.Body>
           </Table>
-          {
-            sortData.length > 0 && (
+          { sortData.length > 0 && (
             <Pagination
               page={page}
               onPageChange={setPage}
@@ -164,7 +171,7 @@ export default function LogTable() {
             />
             )
           }
-        </div>
-      );
+      </div>
+      )
 }
 

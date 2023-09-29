@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from "next/server"
 import { deployLog, registerEvent, returnCSVPayload } from "../../../../lib/controllers/versionApi"
-import { IEvent } from "@/interfaces/IEvent"
+import { IEventEnriched } from "@/interfaces/IEvent"
 
 export async function GET(request: NextRequest) {
     const searchParams = request.nextUrl.searchParams
     const params = Object.fromEntries(searchParams.entries())
-    const result: IEvent[] = await deployLog(params)
+    const result: IEventEnriched[] = await deployLog(params)
     let header = {}
     if (searchParams.get("csv")) {
         header = {

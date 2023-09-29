@@ -3,7 +3,8 @@ import { Table, Link } from "@navikt/ds-react";
 import { StarFillIcon  } from '@navikt/aksel-icons';
 
 import { v4 as uuidv4 } from 'uuid';
-import { IEventEnriched, IFilteredJsonData, IFilteredJsonDataBody, IHeader } from "@/interfaces/IFilteredJsonData";
+import { IFilteredJsonDataBody, IHeader } from "@/interfaces/IFilteredJsonData";
+import { IEventEnriched } from "@/interfaces/IEvent";
 import * as HoverCard from '@radix-ui/react-hover-card';
 import hoverstyles from "./versionTable.module.css";
 
@@ -11,14 +12,16 @@ import hoverstyles from "./versionTable.module.css";
 
 export default function VersionTable ({
     filteredJsonData,
+    headers,
     inverseTable
 }:{
-    filteredJsonData: IFilteredJsonData,
+    filteredJsonData: IFilteredJsonDataBody[],
+    headers: IHeader[],
     inverseTable: boolean
 }) {
 
-    const headerToRender: IHeader[] = filteredJsonData.header
-    const bodyToRender: IFilteredJsonDataBody[] = filteredJsonData.body
+    const headerToRender: IHeader[] = headers
+    const bodyToRender: IFilteredJsonDataBody[] = filteredJsonData
 
     const createHeaderLinkQuery = (header: IHeader): string => {
         if (header.queryParams) {
@@ -100,7 +103,7 @@ function CellContent({
 
         return (
             <>
-                <div style={{fontSize: "1.0rem"}}>{versionEntry.momentTimestamp.fromNow() + " by: " + versionEntry.deployer}</div>
+                <div style={{fontSize: "1.0rem"}}>{versionEntry.momentTimestamp.fromNow + " by: " + versionEntry.deployer}</div>
                 {versionEntry.newDeployment ? newDeploymentLegend : null}
             </>
         )
@@ -118,11 +121,6 @@ function CellContent({
         );
     }
 
-    /* return (
-        <Tooltip content={buildTooltip(cell)}>
-            <Link href={"log?"+ createLinkQuery(cell)}>{cell.version} {cell.newDeployment ? newDeploymentIcon() : null}</Link>
-        </Tooltip>
-    ); */
     return (
         <HoverCard.Root openDelay={1}>
         <HoverCard.Trigger asChild><Link href={"log?"+ createLinkQuery(cell)}>{cell.version} {cell.newDeployment ? newDeploymentIcon() : null}</Link></HoverCard.Trigger>
