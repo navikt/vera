@@ -1,5 +1,5 @@
 'use client'
-import { TextField, Button, Dropdown, Tooltip, Pagination, Loader } from "@navikt/ds-react";
+import { TextField, Button, Dropdown, Tooltip, Pagination, Loader, Switch } from "@navikt/ds-react";
 import axios from "axios";
 import { useState, useEffect } from "react";
 import { ArrowsSquarepathIcon, TrashIcon, CaretDownIcon } from '@navikt/aksel-icons';
@@ -28,6 +28,7 @@ export default function VeraTable() {
     const [deployEventTimeLimit, setdeployEventTimeLimit] = useState("");
     const [page, setPage] = useState(1);
     const [rowsPerPage, setRowsPerPage] = useState<number>(42);
+    const [useClusterAsEnvironment, setUseClusterAsEnvironment] = useState(true)
 
     const getLabelByDeployEventTimeLimit = (deployEventTimeLimit: string) => {
         const filteredElement = lastDeployFilterMapping.find(element => element.momentValue === deployEventTimeLimit);
@@ -69,8 +70,20 @@ export default function VeraTable() {
             ["environmentClass"]: envClasses
         });
     }
+    const getContextAsEnv = ():IEventEnriched[] =>{
+        console.log("getContextAsEnv")
+        const remappedEnvs2: IEventEnriched[] = data.map((item: IEventEnriched) => {
+            return {
+                ...item,
+                environment: item.cluster ? item.cluster : item.environment,
+            }
+
+        })
+        console.log("contextdata", remappedEnvs2)
+        return remappedEnvs2;
+    }
     const applyFilters = (): IFilteredJsonData => {
-        let filteredJsonData: IEventEnriched[] = [...data];
+        let filteredJsonData: IEventEnriched[] = useClusterAsEnvironment ? getContextAsEnv() : [...data];
         if (filters) {
             Object.keys(filters).forEach((key) => {
                 const value = filters[key as keyof IFilter];
@@ -79,7 +92,7 @@ export default function VeraTable() {
                 }
             })
         } 
- 
+        console.log("applyfilters", filteredJsonData)
         return buildVersionMatrix(filteredJsonData, inverseTable);
     }
 
@@ -108,9 +121,6 @@ export default function VeraTable() {
     const applyFiltersButton = () => {
         location.href="?apps="+filters["application"]?.join(",").toLocaleLowerCase() +"&envs="+filters["environment"]?.join(",").toLocaleLowerCase();
     }
-    //console.log(filteredJsonData)
-    //let sortData: IFilteredJsonDataBody[] = filteredJsonData.body;
-    //sortData = sortData.length>1 ? sortData.slice((page - 1) * rowsPerPage, page * rowsPerPage): sortData;
 
 
     const clearFilters = (): void => {
@@ -120,7 +130,9 @@ export default function VeraTable() {
         filters["environmentClass"] = defaultFilter.environmentClass
 
     }
-
+    const makeContextAsEnvSwitch = () => {
+        setUseClusterAsEnvironment(useClusterAsEnvironment ? false: true)
+    }
     return (
         <div style={{marginRight: "auto", marginLeft: "auto", padding: "15px"}}>
         <div style={{display: "flex"}}>
@@ -160,6 +172,7 @@ export default function VeraTable() {
             <Tooltip content="Rows per page">
                 <TextField label="rowsPerPage" hideLabel placeholder="rowsPerPage" style={{width: 60, margin:4}} inputMode="numeric" defaultValue={rowsPerPage} onInput={(e) => setRowsPerPageHandler(+e.currentTarget.value)}/>
             </Tooltip>
+            <Switch size="small" onClick={makeContextAsEnvSwitch}>Use kubernetes context as environmet</Switch>
         </div>
         { isDataFetched ? 
         <>

@@ -96,11 +96,21 @@ export async function deployLog(query: IQueryParameter): Promise<IEventEnriched[
         if (isDeployedLast24Hrs(momentTimestamp, moment().subtract(24, 'hours'))) {
             newDeployment = true;
         }
+        let namespace: string| undefined
+        let cluster: string|undefined
+        const isClusterArray = event.environment.split(":")
+        if (isClusterArray.length == 2) {
+            const namespaces = event.environment.split(":")
+            namespace = namespaces[0]
+            cluster = namespaces[1]
+        }
 
         return {
             ...event,
             momentTimestamp: momentTimestamp,
             newDeployment: newDeployment,
+            namespace: namespace,
+            cluster: cluster
         }
     });
 

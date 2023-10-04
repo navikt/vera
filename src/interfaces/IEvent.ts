@@ -22,4 +22,6 @@ export interface IEventEnriched extends IEvent {
     [key: string]: string | Date | Moment | boolean | undefined
     momentTimestamp: Moment
     newDeployment?: boolean
+    namespace?: string
+    cluster?: string
 }

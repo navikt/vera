@@ -1,5 +1,5 @@
 'use client'
-import { Pagination, Table, TextField, Button, Tooltip, Dropdown } from "@navikt/ds-react";
+import { Pagination, Table, TextField, Button, Tooltip, Dropdown, Loader } from "@navikt/ds-react";
 import { TrashIcon,CaretDownIcon } from '@navikt/aksel-icons';
 import { useState, useEffect } from "react";
 import axios from "axios";
@@ -134,6 +134,8 @@ export default function LogTable() {
           </Tooltip>
           </div>
           </div>
+          {isDataFetched ? (
+          <>
           <Table size="medium" zebraStripes>
             <Table.Header>
               <Table.Row>
@@ -148,9 +150,10 @@ export default function LogTable() {
               </Table.Row>
             </Table.Header>
             <Table.Body>
+
               {sortData.map(({application, environment, deployer, version, deployed_timestamp}, i) => {
-                  return (
-                    <Table.Row key={i + application + version}>
+                return (
+                  <Table.Row key={i + application + version}>
                         <Table.HeaderCell scope="row">{application}</Table.HeaderCell>
                         <Table.DataCell>{environment}</Table.DataCell>
                         <Table.DataCell>{deployer}</Table.DataCell>
@@ -159,18 +162,22 @@ export default function LogTable() {
                         <Table.DataCell>{moment(deployed_timestamp).fromNow()}</Table.DataCell>
                       </Table.Row>
                     )
-              })}
+                  })}
             </Table.Body>
           </Table>
           { sortData.length > 0 && (
             <Pagination
-              page={page}
-              onPageChange={setPage}
-              count={ sortData.length == 0 ? 1 : Math.ceil(data.length / rowsPerPage)}
-              size="small"
+            page={page}
+            onPageChange={setPage}
+            count={ sortData.length == 0 ? 1 : Math.ceil(data.length / rowsPerPage)}
+            size="small"
             />
             )
           }
+          </>
+          ) :(
+           <Loader size="3xlarge" title="Loading..." variant="interaction" />
+          )}
       </div>
       )
 }
