@@ -71,7 +71,6 @@ export default function VeraTable() {
         });
     }
     const getContextAsEnv = ():IEventEnriched[] =>{
-        console.log("getContextAsEnv")
         const remappedEnvs2: IEventEnriched[] = data.map((item: IEventEnriched) => {
             return {
                 ...item,
@@ -79,7 +78,6 @@ export default function VeraTable() {
             }
 
         })
-        console.log("contextdata", remappedEnvs2)
         return remappedEnvs2;
     }
     const applyFilters = (): IFilteredJsonData => {
@@ -92,7 +90,6 @@ export default function VeraTable() {
                 }
             })
         } 
-        console.log("applyfilters", filteredJsonData)
         return buildVersionMatrix(filteredJsonData, inverseTable);
     }
 
@@ -172,7 +169,7 @@ export default function VeraTable() {
             <Tooltip content="Rows per page">
                 <TextField label="rowsPerPage" hideLabel placeholder="rowsPerPage" style={{width: 60, margin:4}} inputMode="numeric" defaultValue={rowsPerPage} onInput={(e) => setRowsPerPageHandler(+e.currentTarget.value)}/>
             </Tooltip>
-            <Switch size="small" onClick={makeContextAsEnvSwitch}>Use kubernetes context as environmet</Switch>
+            <Switch size="small" onClick={makeContextAsEnvSwitch} checked={useClusterAsEnvironment}>Use kubernetes context as environmet</Switch>
         </div>
         { isDataFetched ? 
         <>
