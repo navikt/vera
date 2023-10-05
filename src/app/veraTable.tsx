@@ -1,5 +1,5 @@
 'use client'
-import { TextField, Button, Dropdown, Tooltip, Pagination, Loader, Switch } from "@navikt/ds-react";
+import { TextField, Button, Dropdown, Tooltip, Pagination, Loader, Switch, HelpText } from "@navikt/ds-react";
 import axios from "axios";
 import { useState, useEffect } from "react";
 import { ArrowsSquarepathIcon, TrashIcon, CaretDownIcon } from '@navikt/aksel-icons';
@@ -11,7 +11,7 @@ import { lastDeployFilterMapping } from "../interfaces/lastDeployFilterMapping";
 import { ToggleButtonGroup } from "@/component/toggle-button-group";
 import { useSearchParams } from "next/navigation";
 import { IFilter } from "@/interfaces/IFilter";
-import { regexpMatchByValuesIEvent } from "@/lib/frontendlibs/utils";
+import { regexpMatchByValuesIEventEnriched } from "@/lib/frontendlibs/utils";
 
 const defaultFilter: IFilter = {application: [],
     environment: [],
@@ -86,7 +86,7 @@ export default function VeraTable() {
             Object.keys(filters).forEach((key) => {
                 const value = filters[key as keyof IFilter];
                 if (value) {
-                    filteredJsonData = regexpMatchByValuesIEvent(filteredJsonData, key, value)
+                    filteredJsonData = regexpMatchByValuesIEventEnriched(filteredJsonData, key, value)
                 }
             })
         } 
@@ -132,44 +132,55 @@ export default function VeraTable() {
     }
     return (
         <div style={{marginRight: "auto", marginLeft: "auto", padding: "15px"}}>
-        <div style={{display: "flex"}}>
-            <Tooltip content={regexpTooltipsString}>
-            <TextField label="application" hideLabel placeholder="application" style={{width: 200, margin:4}} defaultValue={filters["application"]?.join(",")} onInput={(e) => handleFilter("application", e.currentTarget.value)}/>
-            </Tooltip>
-            <Tooltip content={regexpTooltipsString}>
-            <TextField label="environment" hideLabel placeholder="environment" style={{width: 200, margin:4}} defaultValue={filters["environment"]?.join(",")} onInput={(e) => handleFilter("environment", e.currentTarget.value)}/>
-            </Tooltip>
-            <Button variant="primary" size="small" style={{margin:4}} onClick={() => applyFiltersButton()} icon={<ArrowsSquarepathIcon title="Apply filters" fontSize="1.5rem" />}>apply</Button>
-            <Button variant="primary" size="small" style={{margin:4}} onClick={() => clearFilters()} icon={<TrashIcon title="clear-filters"/>} >clear filter</Button>
-            <Button variant="primary-neutral" size="small" style={{margin:4}} onClick={changeInverseTable} icon={<ArrowsSquarepathIcon title="invertere tabell" fontSize="1.5rem" />} >inverse</Button>
-            <Dropdown>
-            <Button as={Dropdown.Toggle} icon={<CaretDownIcon title="Velg tidsrom" fontSize="1.5rem" />} size="small" style={{margin:4}} variant="primary">
-                {getLabelByDeployEventTimeLimit(deployEventTimeLimit)}
-            </Button>
-            <Dropdown.Menu>
-                <Dropdown.Menu.List>
-                {lastDeployFilterMapping.map((choice) => {
-                    return (
-                    <Dropdown.Menu.List.Item key={choice.momentValue} onClick={() => {makeRequest(choice.momentValue); setdeployEventTimeLimit(choice.momentValue)}} >{choice.label}</Dropdown.Menu.List.Item>
-                    )
-                }
-                )}
-                </Dropdown.Menu.List>
-            </Dropdown.Menu>
-            </Dropdown>
+        <div style={{display: "flex", justifyContent: "space-evenly", alignItems: "baseline"}}>
+            <div style={{display:"inherit", alignItems: "inherit"}}>
+                <Tooltip content={regexpTooltipsString}>
+                <TextField label="application" hideLabel placeholder="application" style={{width: 200, margin:4}} defaultValue={filters["application"]?.join(",")} onInput={(e) => handleFilter("application", e.currentTarget.value)}/>
+                </Tooltip>
+                <Tooltip content={regexpTooltipsString}>
+                <TextField label="environment" hideLabel placeholder="environment" style={{width: 200, margin:4}} defaultValue={filters["environment"]?.join(",")} onInput={(e) => handleFilter("environment", e.currentTarget.value)}/>
+                </Tooltip>
+                <HelpText title="Helptext">{regexpTooltipsString}</HelpText>
+            </div>
+            <div style={{display:"inherit", justifyContent: "inherit", alignItems:"inherit"}}>
+                <Button variant="primary" size="small" style={{margin:4}} onClick={() => applyFiltersButton()} icon={<ArrowsSquarepathIcon title="Apply filters" fontSize="1.5rem" />}>apply</Button>
+                <Button variant="primary" size="small" style={{margin:4}} onClick={() => clearFilters()} icon={<TrashIcon title="clear-filters"/>} >clear filter</Button>
+                <Button variant="primary-neutral" size="small" style={{margin:4}} onClick={changeInverseTable} icon={<ArrowsSquarepathIcon title="invertere tabell" fontSize="1.5rem" />} >inverse</Button>
+                <Dropdown>
+                <Button as={Dropdown.Toggle} icon={<CaretDownIcon title="Velg tidsrom" fontSize="1.5rem" />} size="small" style={{margin:4}} variant="primary">
+                    {getLabelByDeployEventTimeLimit(deployEventTimeLimit)}
+                </Button>
+                <Dropdown.Menu>
+                    <Dropdown.Menu.List>
+                    {lastDeployFilterMapping.map((choice) => {
+                        return (
+                        <Dropdown.Menu.List.Item key={choice.momentValue} onClick={() => {makeRequest(choice.momentValue); setdeployEventTimeLimit(choice.momentValue)}} >{choice.label}</Dropdown.Menu.List.Item>
+                        )
+                    }
+                    )}
+                    </Dropdown.Menu.List>
+                </Dropdown.Menu>
+                </Dropdown>
+            </div>
+            <div style={{display:"inherit", alignItems: "inherit"}}>
             <Tooltip content="Show envclasses">
-            <ToggleButtonGroup onChange={setEnvClassFilter} style={{margin:4}} defaultValue={filters.environmentClass} variant="action" size="small">
+            <ToggleButtonGroup onChange={setEnvClassFilter} style={{margin:4}} defaultValue={filters.environmentClass} variant="action" >
                     <ToggleButtonGroup.Item value="u">u</ToggleButtonGroup.Item>
                     <ToggleButtonGroup.Item value="t">t</ToggleButtonGroup.Item>
                     <ToggleButtonGroup.Item value="q">q</ToggleButtonGroup.Item>
                     <ToggleButtonGroup.Item value="p">p</ToggleButtonGroup.Item>
             </ToggleButtonGroup>
             </Tooltip>
+            </div>
+            <div style={{display:"inherit", alignItems: "inherit"}}>
             <span style={{verticalAlign:"bottom"}}>#rows</span>
-            <Tooltip content="Rows per page">
-                <TextField label="rowsPerPage" hideLabel placeholder="rowsPerPage" style={{width: 60, margin:4}} inputMode="numeric" defaultValue={rowsPerPage} onInput={(e) => setRowsPerPageHandler(+e.currentTarget.value)}/>
-            </Tooltip>
-            <Switch size="small" onClick={makeContextAsEnvSwitch} checked={useClusterAsEnvironment}>Use kubernetes context as environmet</Switch>
+                <Tooltip content="Rows per page">
+                    <TextField label="rowsPerPage" hideLabel placeholder="rowsPerPage" style={{width: 60, margin:4}} inputMode="numeric" defaultValue={rowsPerPage} onInput={(e) => setRowsPerPageHandler(+e.currentTarget.value)}/>
+                </Tooltip>
+            </div>
+            <div style={{display:"inherit", alignItems: "inherit"}}>
+                <Switch size="small" onClick={makeContextAsEnvSwitch} checked={useClusterAsEnvironment}>Use kubernetes context as environmet</Switch>
+            </div>
         </div>
         { isDataFetched ? 
         <>

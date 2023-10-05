@@ -39,7 +39,7 @@ export function regexpMatchByValuesIEventResponse(
     })
 }
 
-export function regexpMatchByValuesIEvent(
+export function regexpMatchByValuesIEventEnriched(
     collection: IEventEnriched[],
     key: string,
     filters: string[] | string,

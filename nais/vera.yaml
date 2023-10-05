@@ -28,8 +28,6 @@ spec:
   env:
     - name: VERADB_URL
       value: mongodb://vera-mongo-0.vera-mongo:27017,vera-mongo-1.vera-mongo:27017,vera-mongo-2.vera-mongo:27017/deploy_log?replicaSet=MainRepSet
-    - name: VERADB_USERNAME
-      value: "sera"
   skipCaBundle: true
   resources:
     limits:
