@@ -7,6 +7,8 @@ import { IFilteredJsonDataBody, IHeader } from "@/interfaces/IFilteredJsonData";
 import { IEventEnriched } from "@/interfaces/IEvent";
 import * as HoverCard from '@radix-ui/react-hover-card';
 import hoverstyles from "./versionTable.module.css";
+import moment from "moment"
+
 
 
 
@@ -103,7 +105,7 @@ function CellContent({
 
         return (
             <>
-                <div style={{fontSize: "1.0rem"}}>{versionEntry.momentTimestamp.fromNow + " by: " + versionEntry.deployer}</div>
+                <div style={{fontSize: "1.0rem"}}>{moment(versionEntry.momentTimestamp).fromNow() + " by: " + versionEntry.deployer}</div>
                 {versionEntry.newDeployment ? newDeploymentLegend : null}
             </>
         )
