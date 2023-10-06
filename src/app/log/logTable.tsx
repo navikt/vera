@@ -7,7 +7,7 @@ import moment from "moment";
 import { lastDeployFilterMapping } from "../../interfaces/lastDeployFilterMapping";
 import { IEventResponse } from "@/interfaces/IFilteredJsonData";
 import { useSearchParams } from 'next/navigation'
-import { IFilter } from "@/interfaces/IFilter";
+import { IFilter } from "@/interfaces/iFilter";
 import { regexpMatchByValuesIEventResponse } from "@/lib/frontendlibs/utils";
 
 const defaultRowsPerPage = 42;

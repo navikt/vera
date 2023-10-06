@@ -1,7 +1,7 @@
 'use client'
 import { TextField, Button, Dropdown, Tooltip, Pagination, Loader, Switch, HelpText } from "@navikt/ds-react";
 import axios from "axios";
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { ArrowsSquarepathIcon, TrashIcon, CaretDownIcon } from '@navikt/aksel-icons';
 import VersionTable from "./versionTable";
 import buildVersionMatrix from "../lib/vera-parser";
@@ -10,20 +10,20 @@ import { IEventEnriched } from "@/interfaces/IEvent";
 import { lastDeployFilterMapping } from "../interfaces/lastDeployFilterMapping";
 import { ToggleButtonGroup } from "@/component/toggle-button-group";
 import { useSearchParams } from "next/navigation";
-import { IFilter } from "@/interfaces/IFilter";
 import { regexpMatchByValuesIEventEnriched } from "@/lib/frontendlibs/utils";
+import { useRouter } from "next/navigation";
 
-const defaultFilter: IFilter = {application: [],
-    environment: [],
-    environmentClass: ['t', 'q', 'p']}
 
 const regexpTooltipsString = "rexep values '.' and '*' are allowed";
 
 export default function VeraTable() {
+    const router = useRouter();
     const searchParams = useSearchParams();
+    const applicationFilter = (searchParams.get("application") || "") as string;
+    const environmentFilter = (searchParams.get("environment") || "") as string;
+    const environmentClassFilter = (searchParams.get("environmentClass") || "t,q,p") as string;
     const [data, setData] = useState<IEventEnriched[]>([]);
     const [isDataFetched, setIsDataFetched] = useState(false);
-    const [filters, setFilters] = useState<IFilter>(defaultFilter);
     const [inverseTable, setInverseTable] = useState(false);
     const [deployEventTimeLimit, setdeployEventTimeLimit] = useState("");
     const [page, setPage] = useState(1);
@@ -57,19 +57,36 @@ export default function VeraTable() {
         })
     }
 
-    const handleFilter = ( field: string, e: string) => {
-        setFilters({
-          ...filters,
-          [field]: e.split(","),
-        });
-      };
-
     const setEnvClassFilter = (envClasses: string[]) => {
-        setFilters({
-            ...filters,
-            ["environmentClass"]: envClasses
-        });
+        updateURL("environmentClass", envClasses.join(","))
     }
+
+     const updateURL= (key: string, value: string): void => {
+        console.log("UpdateURL")
+        let url: string = ""
+        if (key == "application") {
+            url = `?${new URLSearchParams({
+                application: value,
+                environment: environmentFilter,
+                environmentClass: environmentClassFilter
+            })}`
+        } else if (key == "environment") {
+            url = `?${new URLSearchParams({
+                application: applicationFilter,
+                environment: value,
+                environmentClass: environmentClassFilter
+            })}`
+        } else if (key == "environmentClass") {
+            url = `?${new URLSearchParams({
+                application: applicationFilter,
+                environment: environmentFilter,
+                environmentClass: value
+            })}`
+        }
+
+        router.push(url, {scroll: true})
+    } 
+
     const getContextAsEnv = ():IEventEnriched[] =>{
         const remappedEnvs2: IEventEnriched[] = data.map((item: IEventEnriched) => {
             return {
@@ -82,68 +99,64 @@ export default function VeraTable() {
     }
     const applyFilters = (): IFilteredJsonData => {
         let filteredJsonData: IEventEnriched[] = useClusterAsEnvironment ? getContextAsEnv() : [...data];
-        if (filters) {
-            Object.keys(filters).forEach((key) => {
-                const value = filters[key as keyof IFilter];
-                if (value) {
-                    filteredJsonData = regexpMatchByValuesIEventEnriched(filteredJsonData, key, value)
-                }
-            })
-        } 
+        if (applicationFilter != "") {
+            filteredJsonData = regexpMatchByValuesIEventEnriched(filteredJsonData, "application", applicationFilter.split(","))
+
+        }
+        if (environmentFilter != "") {
+            filteredJsonData = regexpMatchByValuesIEventEnriched(filteredJsonData, "environment", environmentFilter.split(","))
+
+        }
+        if (environmentClassFilter != "") {
+            filteredJsonData = regexpMatchByValuesIEventEnriched(filteredJsonData, "environmentClass", environmentClassFilter.split(","))
+        }
+    
         return buildVersionMatrix(filteredJsonData, inverseTable);
     }
 
     const filteredJsonData: IFilteredJsonData = applyFilters()
 
     const sortData = filteredJsonData.body.length > 1 ? filteredJsonData.body.slice((page -1) * rowsPerPage, page * rowsPerPage): filteredJsonData.body
-    //let sortData = data.length > 1 ? data.slice((page -1) * rowsPerPage, page * rowsPerPage): data
     
-    //const sortData = 
-
     useEffect(() => {
-        for (const [key, value] of searchParams.entries()) {
-            if (key in filters) {
-              setFilters(prevFilters => ({
-                ...prevFilters,
-                [key]: value.split(',')
-              }))
-            }
-        }
+        console.log("useffect")
         if ( !isDataFetched) {
             console.log("data is not fetched")
             makeRequest(deployEventTimeLimit);
         }
-    }, [filters, searchParams, isDataFetched, deployEventTimeLimit]);
+    }, [isDataFetched, deployEventTimeLimit]);
     
-    const applyFiltersButton = () => {
-        location.href="?apps="+filters["application"]?.join(",").toLocaleLowerCase() +"&envs="+filters["environment"]?.join(",").toLocaleLowerCase();
-    }
-
-
+  
     const clearFilters = (): void => {
-        filters["application"] = []
-        filters["environment"] = []
         setInverseTable(false)
-        filters["environmentClass"] = defaultFilter.environmentClass
-
+        router.push("/")
+        console.log("Clear filters")
+        
     }
     const makeContextAsEnvSwitch = () => {
         setUseClusterAsEnvironment(useClusterAsEnvironment ? false: true)
+    }
+
+    const onApplicationFilter = (e: React.ChangeEvent<HTMLInputElement>) => {
+        updateURL("application", e.target.value)
+    }
+    const onenvironmentFilter = (e: React.ChangeEvent<HTMLInputElement>) => {
+        updateURL("environment", e.target.value)
     }
     return (
         <div style={{marginRight: "auto", marginLeft: "auto", padding: "15px"}}>
         <div style={{display: "flex", justifyContent: "space-evenly", alignItems: "baseline"}}>
             <div style={{display:"inherit", alignItems: "inherit"}}>
                 <Tooltip content={regexpTooltipsString}>
-                <TextField label="application" hideLabel placeholder="application" style={{width: 200, margin:4}} defaultValue={filters["application"]?.join(",")} onInput={(e) => handleFilter("application", e.currentTarget.value)}/>
+                <TextField label="application" hideLabel placeholder="application" style={{width: 200, margin:4}} defaultValue={applicationFilter} onChange={onApplicationFilter}/>
                 </Tooltip>
                 <Tooltip content={regexpTooltipsString}>
-                <TextField label="environment" hideLabel placeholder="environment" style={{width: 200, margin:4}} defaultValue={filters["environment"]?.join(",")} onInput={(e) => handleFilter("environment", e.currentTarget.value)}/>
+                <TextField label="environment" hideLabel placeholder="environment" style={{width: 200, margin:4}} defaultValue={environmentFilter} onChange={onenvironmentFilter}/>
                 </Tooltip>
                 <HelpText title="Helptext">{regexpTooltipsString}</HelpText>
             </div>
             <div style={{display:"inherit", justifyContent: "inherit", alignItems:"inherit"}}>
-                <Button variant="primary" size="small" style={{margin:4}} onClick={() => applyFiltersButton()} icon={<ArrowsSquarepathIcon title="Apply filters" fontSize="1.5rem" />}>apply</Button>
+                {/* <Button variant="primary" size="small" style={{margin:4}} onClick={() => applyFiltersButton()} icon={<ArrowsSquarepathIcon title="Apply filters" fontSize="1.5rem" />}>apply</Button> */}
                 <Button variant="primary" size="small" style={{margin:4}} onClick={() => clearFilters()} icon={<TrashIcon title="clear-filters"/>} >clear filter</Button>
                 <Button variant="primary-neutral" size="small" style={{margin:4}} onClick={changeInverseTable} icon={<ArrowsSquarepathIcon title="invertere tabell" fontSize="1.5rem" />} >inverse</Button>
                 <Dropdown>
@@ -164,7 +177,7 @@ export default function VeraTable() {
             </div>
             <div style={{display:"inherit", alignItems: "inherit"}}>
             <Tooltip content="Show envclasses">
-            <ToggleButtonGroup onChange={setEnvClassFilter} style={{margin:4}} defaultValue={filters.environmentClass} variant="action" >
+            <ToggleButtonGroup onChange={setEnvClassFilter} style={{margin:4}} defaultValue={environmentClassFilter.split(",")} variant="action" >
                     <ToggleButtonGroup.Item value="u">u</ToggleButtonGroup.Item>
                     <ToggleButtonGroup.Item value="t">t</ToggleButtonGroup.Item>
                     <ToggleButtonGroup.Item value="q">q</ToggleButtonGroup.Item>
@@ -188,7 +201,7 @@ export default function VeraTable() {
             {
                 sortData && (filteredJsonData.body.length > rowsPerPage) && (
                 <Pagination
-                page={page}
+                page={page > Math.ceil(sortData.length / rowsPerPage) ? Math.ceil(sortData.length / rowsPerPage) : page}
                 onPageChange={setPage}
                 count={filteredJsonData.body.length > 0 ? Math.ceil(filteredJsonData.body.length / rowsPerPage): 1}
                 size="small"
