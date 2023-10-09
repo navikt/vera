@@ -25,7 +25,7 @@ export default function VeraTable() {
     const [data, setData] = useState<IEventEnriched[]>([]);
     const [isDataFetched, setIsDataFetched] = useState(false);
     const [inverseTable, setInverseTable] = useState(false);
-    const [deployEventTimeLimit, setdeployEventTimeLimit] = useState("");
+    const [deployEventTimeLimit, setdeployEventTimeLimit] = useState("1y");
     const [page, setPage] = useState(1);
     const [rowsPerPage, setRowsPerPage] = useState<number>(42);
     const [useClusterAsEnvironment, setUseClusterAsEnvironment] = useState(true)
@@ -40,7 +40,6 @@ export default function VeraTable() {
     }
 
     const setRowsPerPageHandler = (rowsPerPage: number): void => {
-        console.log("Set rows " + rowsPerPage)
         setRowsPerPage(rowsPerPage);
     }
 
@@ -119,7 +118,6 @@ export default function VeraTable() {
     const sortData = filteredJsonData.body.length > 1 ? filteredJsonData.body.slice((page -1) * rowsPerPage, page * rowsPerPage): filteredJsonData.body
     
     useEffect(() => {
-        console.log("useffect")
         if ( !isDataFetched) {
             console.log("data is not fetched")
             makeRequest(deployEventTimeLimit);
@@ -127,37 +125,34 @@ export default function VeraTable() {
     }, [isDataFetched, deployEventTimeLimit]);
     
   
-    const clearFilters = (): void => {
+    const handleClearFilters = (): void => {
         setInverseTable(false)
         router.push("/")
-        console.log("Clear filters")
-        
     }
     const makeContextAsEnvSwitch = () => {
         setUseClusterAsEnvironment(useClusterAsEnvironment ? false: true)
     }
-
     const onApplicationFilter = (e: React.ChangeEvent<HTMLInputElement>) => {
         updateURL("application", e.target.value)
     }
-    const onenvironmentFilter = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const onEnvironmentFilter = (e: React.ChangeEvent<HTMLInputElement>) => {
         updateURL("environment", e.target.value)
     }
+
     return (
         <div style={{marginRight: "auto", marginLeft: "auto", padding: "15px"}}>
         <div style={{display: "flex", justifyContent: "space-evenly", alignItems: "baseline"}}>
             <div style={{display:"inherit", alignItems: "inherit"}}>
                 <Tooltip content={regexpTooltipsString}>
-                <TextField label="application" hideLabel placeholder="application" style={{width: 200, margin:4}} defaultValue={applicationFilter} onChange={onApplicationFilter}/>
+                <TextField label="application" hideLabel placeholder="application" style={{width: 200, margin:4}} value={applicationFilter} onChange={onApplicationFilter}/>
                 </Tooltip>
                 <Tooltip content={regexpTooltipsString}>
-                <TextField label="environment" hideLabel placeholder="environment" style={{width: 200, margin:4}} defaultValue={environmentFilter} onChange={onenvironmentFilter}/>
+                <TextField label="environment" hideLabel placeholder="environment" style={{width: 200, margin:4}} value={environmentFilter} onChange={onEnvironmentFilter}/>
                 </Tooltip>
                 <HelpText title="Helptext">{regexpTooltipsString}</HelpText>
             </div>
             <div style={{display:"inherit", justifyContent: "inherit", alignItems:"inherit"}}>
-                {/* <Button variant="primary" size="small" style={{margin:4}} onClick={() => applyFiltersButton()} icon={<ArrowsSquarepathIcon title="Apply filters" fontSize="1.5rem" />}>apply</Button> */}
-                <Button variant="primary" size="small" style={{margin:4}} onClick={() => clearFilters()} icon={<TrashIcon title="clear-filters"/>} >clear filter</Button>
+                <Button variant="primary" size="small" style={{margin:4}} onClick={handleClearFilters} icon={<TrashIcon title="clear-filters"/>} >clear filter</Button>
                 <Button variant="primary-neutral" size="small" style={{margin:4}} onClick={changeInverseTable} icon={<ArrowsSquarepathIcon title="invertere tabell" fontSize="1.5rem" />} >inverse</Button>
                 <Dropdown>
                 <Button as={Dropdown.Toggle} icon={<CaretDownIcon title="Velg tidsrom" fontSize="1.5rem" />} size="small" style={{margin:4}} variant="primary">

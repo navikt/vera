@@ -6,54 +6,49 @@ import axios from "axios";
 import moment from "moment";
 import { lastDeployFilterMapping } from "../../interfaces/lastDeployFilterMapping";
 import { IEventResponse } from "@/interfaces/IFilteredJsonData";
-import { useSearchParams } from 'next/navigation'
-import { IFilter } from "@/interfaces/iFilter";
+import { useRouter, useSearchParams } from 'next/navigation'
 import { regexpMatchByValuesIEventResponse } from "@/lib/frontendlibs/utils";
 
 const defaultRowsPerPage = 42;
 
 
-  const regexpTooltipsString = "rexep values '.' and '*' are allowed";
+const regexpTooltipsString = "rexep values '.' and '*' are allowed";
 export default function LogTable() {
   const searchParams = useSearchParams();
-  const defaultFilter: IFilter = {
-    application: searchParams.get("application")?.split(',') || [],
-    environment: searchParams.get("environment")?.split(',') || [],
-    environmentClass: ['u', 't', 'q', 'p'],
-    version: ""
-  }
-
+  const router = useRouter();
+  const applicationFilter = (searchParams.get("application") || "") as string;
+  const environmentFilter = (searchParams.get("environment") || "") as string;
+  const [deployerFilter, setDeployerFilter] = useState("")
+  const [versionFilter, setVersionFilter] = useState("")
+  const [timeFilter, setTimeFilter] = useState("")
   const [data, setData] = useState<IEventResponse[]>([]);
   const [isDataFetched, setIsDataFetched] = useState(false);
-  const [filters, setFilters] = useState<IFilter>(defaultFilter);
   const [page, setPage] = useState(1);
-  const [deployEventTimeLimit, setdeployEventTimeLimit] = useState("");
+  const [deployEventTimeLimit, setdeployEventTimeLimit] = useState("1y");
   const [rowsPerPage, setRowsPerPage] = useState(defaultRowsPerPage);
 
-  const handleFilter = ( field: string, e: string) => {
-    setFilters({
-      ...filters,
-      [field]: e.split(","),
-    });
-  };
-
   const setRowsPerPageHandler = (rowsPerPage: number): void => {
-    console.log("Set rows " + rowsPerPage)
     setRowsPerPage(rowsPerPage);
   }
-
 
   const applyFilters = ():IEventResponse[] => {
   
     let filteredJsonData:IEventResponse[] = [...data];
 
-    if (filters) {
-      Object.keys(filters).forEach((key) => {
-        const value = filters[key as keyof IFilter];
-        if (value) {
-          filteredJsonData = regexpMatchByValuesIEventResponse(filteredJsonData, key, value)
-        }
-      })
+    if (applicationFilter != ""){
+      filteredJsonData = regexpMatchByValuesIEventResponse(filteredJsonData, "application", applicationFilter.split(","))
+    }
+    if (environmentFilter != ""){
+      filteredJsonData = regexpMatchByValuesIEventResponse(filteredJsonData, "environment", environmentFilter.split(","))
+    }
+    if (deployerFilter != "") {
+      filteredJsonData = regexpMatchByValuesIEventResponse(filteredJsonData, "deployer", deployerFilter)
+    }
+    if (versionFilter != "") {
+      filteredJsonData = regexpMatchByValuesIEventResponse(filteredJsonData, "version", versionFilter)
+    }
+    if (timeFilter != "") {
+      filteredJsonData = regexpMatchByValuesIEventResponse(filteredJsonData, "deployed_timestamp", timeFilter)
     }
     return filteredJsonData
   }
@@ -63,28 +58,24 @@ export default function LogTable() {
     sortData = sortData.length >1 ? sortData.slice((page - 1) * rowsPerPage, page * rowsPerPage): sortData;
 
     const makeRequest = async (timespan: string) => {
-        let params = {}
+        const params = new URLSearchParams()
 
-        filters["application"].forEach((value:string) => {
-          params = {
-            ...params,
-            "application": value
-          }
-        })
-        filters["environment"].forEach((value:string) => {
-          params = {
-            ...params,
-            "environment": value
-          }
-        })
+        if (applicationFilter != ""){
+          applicationFilter.split(",").forEach((value) => {
+            params.append("application", value)
+          })
+        }
+        
+        if (environmentFilter != "") {
+         environmentFilter.split(",").forEach((value) => {
+            params.append("environment", value)
+         })
+        }
+        
         if (timespan) {
-          params = {
-            ...params,
-            "last": timespan
-          }
+          params.append("last", timespan)
         }
 
-        console.log("params", params)
         await axios.get('/api/v1/deploylog', {params: params})
           .then(({ data }) => {
             setData(data);
@@ -93,10 +84,11 @@ export default function LogTable() {
     }
     
     const clearFilters = (): void => {
-        handleFilter("application", "")
-        handleFilter("environment", "")
         setRowsPerPage(defaultRowsPerPage);
-        location.replace("/log")
+        setDeployerFilter("")
+        setVersionFilter("")
+        setTimeFilter("")
+        router.push("/log")
     }
 
     const getLabelByDeployEventTimeLimit = (deployEventTimeLimit: string) => {
@@ -109,7 +101,39 @@ export default function LogTable() {
         //console.log("data is not fetched")
         makeRequest(deployEventTimeLimit);
       }
-    }, [deployEventTimeLimit,isDataFetched, searchParams]);
+    }, [deployEventTimeLimit,isDataFetched]);
+
+    const updateURL= (key: string, value: string): void => {
+      let url: string = ""
+      if (key == "application") {
+        url = `?${new URLSearchParams({
+            application: value,
+            environment: environmentFilter
+          })}`
+      } else if (key == "environment") {
+        url = `?${new URLSearchParams({
+            application: applicationFilter,
+            environment: value
+          })}`
+      } 
+    router.push(url, {scroll: true})
+    }
+
+    const onApplicationFilter = (e: React.ChangeEvent<HTMLInputElement>) => {
+      updateURL("application", e.target.value)
+    }
+    const onEnvironmentFilter = (e: React.ChangeEvent<HTMLInputElement>) => {
+      updateURL("environment", e.target.value)
+    }
+    const onDeployerFilter = (e: React.ChangeEvent<HTMLInputElement>) => {
+      setDeployerFilter(e.target.value)
+    }
+    const onVersionFilter = (e: React.ChangeEvent<HTMLInputElement>) => {
+      setVersionFilter(e.target.value)
+    }
+    const onTimeFilter = (e: React.ChangeEvent<HTMLInputElement>) => {
+      setTimeFilter(e.target.value)
+    }
 
     return (
       <div style={{marginRight: "auto", marginLeft: "auto", width: "90%" }}>
@@ -139,11 +163,11 @@ export default function LogTable() {
           <Table size="medium" zebraStripes>
             <Table.Header>
               <Table.Row>
-                <Table.HeaderCell scope="col"><Tooltip content={regexpTooltipsString}><TextField label="application" hideLabel placeholder="application" defaultValue={filters["application"]?.join(",")} onInput={(e) => handleFilter("application", e.currentTarget.value)}/></Tooltip></Table.HeaderCell>
-                <Table.HeaderCell scope="col"><TextField label="environment" hideLabel placeholder="environment" defaultValue={filters["environment"]?.join(",")} onInput={(e) => handleFilter("environment", e.currentTarget.value)}/></Table.HeaderCell>
-                <Table.HeaderCell scope="col"><TextField label="deployer" hideLabel placeholder="deployer" defaultValue={filters["deployer"]} onInput={(e) => handleFilter("deployer", e.currentTarget.value)}/></Table.HeaderCell>
-                <Table.HeaderCell scope="col"><TextField label="version" hideLabel placeholder="version" defaultValue={filters["version"]} onInput={(e) => handleFilter("version", e.currentTarget.value)}/></Table.HeaderCell>
-                <Table.HeaderCell scope="col"><TextField label="time" hideLabel placeholder="time" defaultValue={filters["time"]} onInput={(e) => handleFilter("time", e.currentTarget.value)}/></Table.HeaderCell>
+                <Table.HeaderCell scope="col"><Tooltip content={regexpTooltipsString}><TextField label="application" hideLabel placeholder="application" value={applicationFilter} onChange={onApplicationFilter}/></Tooltip></Table.HeaderCell>
+                <Table.HeaderCell scope="col"><TextField label="environment" hideLabel placeholder="environment" value={environmentFilter} onChange={onEnvironmentFilter}/></Table.HeaderCell>
+                <Table.HeaderCell scope="col"><TextField label="deployer" hideLabel placeholder="deployer" value={deployerFilter} onChange={onDeployerFilter}/></Table.HeaderCell>
+                <Table.HeaderCell scope="col"><TextField label="version" hideLabel placeholder="version" value={versionFilter} onChange={onVersionFilter}/></Table.HeaderCell>
+                <Table.HeaderCell scope="col"><TextField label="time" hideLabel placeholder="time" value={timeFilter} onChange={onTimeFilter}/></Table.HeaderCell>
                 <Table.DataCell scope="col">
                   <Tooltip content="Clear filters"><Button variant="primary-neutral" size="medium" onClick={clearFilters} icon={<TrashIcon title="clear-filters"/>} ></Button></Tooltip>
                 </Table.DataCell>
