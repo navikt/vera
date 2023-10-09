@@ -153,7 +153,7 @@ export default function VeraTable() {
             </div>
             <div style={{display:"inherit", justifyContent: "inherit", alignItems:"inherit"}}>
                 <Button variant="primary" size="small" style={{margin:4}} onClick={handleClearFilters} icon={<TrashIcon title="clear-filters"/>} >clear filter</Button>
-                <Button variant="primary-neutral" size="small" style={{margin:4}} onClick={changeInverseTable} icon={<ArrowsSquarepathIcon title="invertere tabell" fontSize="1.5rem" />} >inverse</Button>
+                <Button variant={inverseTable? "primary-neutral": "primary"} size="small" style={{margin:4}} onClick={changeInverseTable} icon={<ArrowsSquarepathIcon title="invertere tabell" fontSize="1.5rem" />} >inverse</Button>
                 <Dropdown>
                 <Button as={Dropdown.Toggle} icon={<CaretDownIcon title="Velg tidsrom" fontSize="1.5rem" />} size="small" style={{margin:4}} variant="primary">
                     {getLabelByDeployEventTimeLimit(deployEventTimeLimit)}
