@@ -138,6 +138,11 @@ export default function VeraTable() {
     const onEnvironmentFilter = (e: React.ChangeEvent<HTMLInputElement>) => {
         updateURL("environment", e.target.value)
     }
+    const onClickDeployFilter = (momentValue: string) => {
+        setIsDataFetched(false)
+        makeRequest(momentValue)
+        setdeployEventTimeLimit(momentValue)
+    }
 
     return (
         <div style={{marginRight: "auto", marginLeft: "auto", padding: "15px"}}>
@@ -162,7 +167,7 @@ export default function VeraTable() {
                     <Dropdown.Menu.List>
                     {lastDeployFilterMapping.map((choice) => {
                         return (
-                        <Dropdown.Menu.List.Item key={choice.momentValue} onClick={() => {makeRequest(choice.momentValue); setdeployEventTimeLimit(choice.momentValue)}} >{choice.label}</Dropdown.Menu.List.Item>
+                        <Dropdown.Menu.List.Item key={choice.momentValue} onClick={() => onClickDeployFilter(choice.momentValue)} >{choice.label}</Dropdown.Menu.List.Item>
                         )
                     }
                     )}
