@@ -2,7 +2,7 @@ import { deployLog, getConfig, registerEvent, returnCSVPayload } from "../versio
 import Event from "../../models/Event";
 import { MongoMemoryServer } from "mongodb-memory-server";
 import mongoose, { Mongoose } from 'mongoose';
-import { IEventEnriched } from "@/interfaces/IEvent";
+import { IEvent, IEventEnriched } from "@/interfaces/IEvent";
 import { IQueryParameter } from "@/interfaces/querys";
 
 
@@ -133,8 +133,7 @@ describe ("Test versionApi",  () => {
         const deployInfo = await deployLog({"application": "testApp3"})
         const csvOutput = await returnCSVPayload(deployInfo)
 
-        const csvRegex = /^(?:(?:(?:"[^"]*"|[^",]+)\s*,\s*)*(?:"[^"]*"|[^",]+)\s*;\s*)*(?:"[^"]*"|[^",]+)\s*$/;
-        
+        const csvRegex =/^(\n)((?:[^,"\n]+|"(?:[^"]|"")*")+)(\n(?:,(?:[^,"\n]+|"(?:[^"]|"")*"))*)*(\n)$/
         csvRegex.test(String(csvOutput))
         
     })
