@@ -3,6 +3,7 @@ import { IEvent } from "../../interfaces/IEvent"
 
 mongoose.Error.messages.general.required = "Property {PATH} is required in JSON request"
 
+
 const eventSchema = new Schema<IEvent>({
     application: { type: String, lowercase: true, trim: true, required: true },
     environment: { type: String, lowercase: true, trim: true, required: true },
@@ -20,11 +21,6 @@ eventSchema.set("toJSON", {
         delete ret._id
     },
 })
-
-/* eventSchema.statics.getLatestDeployedApplicationsFor = function (predicate: Record<string, any>[]) {
-  console.log('getLatestDeployedApplicationsFor');
-  return this.find({ replaced_timestamp: null, version: { $ne: null } }).or(predicate);
-}; */
 
 const Event: Model<IEvent> = mongoose.models.Event || mongoose.model<IEvent>("Event", eventSchema)
 

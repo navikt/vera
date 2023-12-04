@@ -1,5 +1,4 @@
 import config from "../config/config"
-import connectDB from "../db"
 import Event from "../models/Event"
 import jsonToCSV from "@iwsio/json-csv-node"
 import moment, { Moment, unitOfTime } from "moment"
@@ -53,11 +52,7 @@ function predicateSearchParam(query: IQueryParameter): IPredicateDefinition {
                 throw new Error("" + exception)
             }
         } else {
-            throw new Error(
-                `Unknown parameter provided: ${key}. Valid parameters are: ${Object.keys(parameterDefinition).join(
-                    ", ",
-                )}`,
-            )
+            throw new Error(`Unknown parameter provided: ${key}. Valid parameters are: ${Object.keys(parameterDefinition).join(", ")}`);
         }
     }
 
@@ -87,7 +82,7 @@ export async function deployLog(query: IQueryParameter): Promise<IEventEnriched[
         delete query.csv
     }
     const predicate = predicateSearchParam(query)
-    await connectDB()
+    //await connectDB()
 
     const result: IEvent[] = await Event.find(predicate, { __v: 0, _id: 0 }).sort([["deployed_timestamp", "descending"]]).lean()
     //console.log("result length ", result.length)
@@ -208,21 +203,22 @@ function createEventFromObject(obj: IEventPost) {
         application: obj.application,
         environment: obj.environment,
         version: obj.version || null,
-        deployer: obj.deployedBy,
+        deployer: obj.deployer || obj.deployedBy,
         deployed_timestamp: new Date(),
         replaced_timestamp: null,
         environmentClass: obj.environmentClass ? obj.environmentClass : getEnvClassFromEnv(obj.environment),
     })
 }
-export async function registerEvent(data: IEvent) {
+export async function registerEvent(data: IEventPost) {
     /**
      * Creates a new event object, and stores it in mongo if there are no validation errors
      * If a new event document is successfully created, the existing documents for this application and environment are
      * updated so that latest is set to false
      * */
-
-    await connectDB()
-
+    if (!(data.deployer || data.deployedBy)) {
+        throw new Error("deployer or deployedBy must be set")
+    }
+    
     const newEvent = new Event(createEventFromObject(data))
 
     // Updating existing events
@@ -231,8 +227,8 @@ export async function registerEvent(data: IEvent) {
         application: new RegExp("^" + newEvent.application + "$", "i"),
         replaced_timestamp: null,
     }).exec()
-    await existingEvent.map(async (e) => {
-        console.log("existing event replacing" + e)
+    existingEvent.map(async (e) => {
+        console.log("existing event replacing " + e.application)
         e.replaced_timestamp = new Date()
         return e.save()
     })
@@ -240,10 +236,10 @@ export async function registerEvent(data: IEvent) {
     // Save new event
     const savedEvent = await newEvent.save()
 
-    console.log(savedEvent)
+/*     console.log(savedEvent)
     console.log(existingEvent)
     console.log("existingEvent")
-    console.log(existingEvent)
+    console.log(existingEvent) */
 
     //await Promise.all(updatePromise);
     return savedEvent

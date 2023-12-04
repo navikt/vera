@@ -1,41 +1,4 @@
-#FROM library/node:20 AS base_dependencies
-#
-#WORKDIR /src
-#COPY package.json yarn.lock ./
-#
-## Install production requirements only
-#RUN yarn install --frozen-lockfile --prod
-#
-#FROM library/node:20 AS frontend_builder
-#
-#WORKDIR /app/static
-#
-#COPY package.json yarn.lock ./
-#
-## Install the dev dependencies, too
-#RUN yarn install --frozen-lockfile
-#
-#COPY gulpfile.mjs server.js app.jsx ./
-#COPY frontend ./frontend
-#
-#RUN yarn gulp test && yarn gulp dist
-#
-#
-#FROM library/node:20-alpine AS server
-#RUN apk add --no-cache bash
-#
-#WORKDIR /src
-#
-#COPY --from=base_dependencies /src/node_modules /src/node_modules
-#COPY --from=frontend_builder /app/static/frontend/build /src/frontend/build
-#
-#COPY package.json yarn.lock docker_vera_startup.sh server.js ./
-#COPY backend ./backend
-#
-#EXPOSE 8080
-#ENV NODE_ENV=production
-#CMD ["node", "server.js"]
-FROM node:18-alpine AS base
+FROM node:20-alpine AS base
 
 # Install dependencies only when needed
 FROM base AS deps
@@ -47,17 +10,17 @@ WORKDIR /app
 COPY package.json yarn.lock ./
 RUN yarn install --frozen-lockfile  
 
-
 # Rebuild the source code only when needed
 FROM base AS builder
 WORKDIR /app
-COPY --from=deps /app/node_modules ./node_modules
-COPY . .
 
 # Next.js collects completely anonymous telemetry data about general usage.
 # Learn more here: https://nextjs.org/telemetry
 # Uncomment the following line in case you want to disable telemetry during the build.
 ENV NEXT_TELEMETRY_DISABLED 1
+
+COPY --from=deps /app/node_modules ./node_modules
+COPY . .
 
 RUN yarn build
 

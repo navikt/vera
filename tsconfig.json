@@ -8,8 +8,7 @@
     "noEmit": true,
     "esModuleInterop": true,
     "module": "esnext",
-    "types": ["node"],
-    "moduleResolution": "bundler",
+    "moduleResolution": "node",
     "resolveJsonModule": true,
     "isolatedModules": true,
     "jsx": "preserve",
@@ -23,6 +22,6 @@
       "@/*": ["./src/*"]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
-  "exclude": ["node_modules"]
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "src/lib/controllers/__tests__/diffService.test.ts.no", "src/lib/controllers/__tests__/monitoring.test.ts.no", "src/lib/controllers/__tests__/versionApi.test.ts.no", "src/lib/controllers/__tests__/monitoring.test.ts.no", "src/lib/controllers/__tests__/diffService.test.ts.no"],
+  "exclude": ["node_modules", "docker-mounts"]
 }

@@ -24,7 +24,7 @@ const config = {
     // collectCoverageFrom: undefined,
   
     // The directory where Jest should output its coverage files
-    coverageDirectory: "output/coverage",
+    coverageDirectory: "coverage",
   
     // An array of regexp pattern strings used to skip coverage collection
     // coveragePathIgnorePatterns: [
@@ -180,8 +180,7 @@ const config = {
     // An array of regexp pattern strings that are matched against all source file paths, matched files will skip transformation
     transformIgnorePatterns: [
       "/node_modules/",
-      "\\.pnp\\.[^\\/]+$",
-      "/old/"
+      "\\.pnp\\.[^\\/]+$"
     ],
   
     // An array of regexp pattern strings that are matched against all modules before the module loader will automatically return a mock for them

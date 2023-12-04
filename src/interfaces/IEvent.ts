@@ -5,7 +5,7 @@ export interface IEvent {
     environment: string
     environmentClass?: string
     version?: string
-    deployer: string
+    deployer?: string
     deployed_timestamp?: Date
     replaced_timestamp?: Date
 }

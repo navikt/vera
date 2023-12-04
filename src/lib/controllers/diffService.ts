@@ -1,8 +1,8 @@
-import connectDB from "../db"
+//import connectDB from "../db"
 import Event from "../models/Event"
 
 export async function diffEnvironments(base: string, comparewith: string) {
-    await connectDB()
+    //await connectDB()
 
     const baseEnv: string = base
     const environments = comparewith.split(",").concat(baseEnv)
