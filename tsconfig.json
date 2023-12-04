@@ -22,6 +22,6 @@
       "@/*": ["./src/*"]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "src/lib/controllers/__tests__/diffService.test.ts.no", "src/lib/controllers/__tests__/monitoring.test.ts.no", "src/lib/controllers/__tests__/versionApi.test.ts.no", "src/lib/controllers/__tests__/monitoring.test.ts.no", "src/lib/controllers/__tests__/diffService.test.ts.no"],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
   "exclude": ["node_modules", "docker-mounts"]
 }

@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 
 describe("Test monitoring service", () => {
     let mongoServer:MongoMemoryServer;
-    let mongoUri: String;
+    let mongoUri: string;
 
     beforeAll(async() =>{
         mongoServer = await MongoMemoryServer.create();

@@ -30,12 +30,9 @@ spec:
       value: mongodb://vera-mongo-0.vera-mongo:27017,vera-mongo-1.vera-mongo:27017,vera-mongo-2.vera-mongo:27017/deploy_log?replicaSet=MainRepSet
   skipCaBundle: true
   resources:
-    limits:
-      cpu: 500m
-      memory: 2Gi
     requests:
       cpu: 50m
-      memory: 64Mi
+      memory: 128Mi
 
 
 ---
