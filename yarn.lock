@@ -412,18 +412,6 @@
   resolved "https://registry.yarnpkg.com/@istanbuljs/schema/-/schema-0.1.3.tgz#e45e384e4b8ec16bce2fd903af78450f6bf7ec98"
   integrity sha512-ZXRY4jNvVgSVQ8DL3LTcakaAtXwTVUxE81hslsyD2AtoXW/wVob10HkOJ1X/pAlcI7D+2YoZKg5do8G/w6RYgA==
 
-"@iwsio/json-csv-core@^1", "@iwsio/json-csv-core@^1.0.1":
-  version "1.1.3"
-  resolved "https://registry.yarnpkg.com/@iwsio/json-csv-core/-/json-csv-core-1.1.3.tgz#4c88754ff0bac0db4109d52d505251b3e38b4d97"
-  integrity sha512-a8+v2sOK6XJIxOiZh8ygfMpiBy/z/9uzzdlKmZMyM4YUhLr5O8rPNpV6Lcn2YaaKtMGYyWQ2b9//KTS5vBCWAg==
-
-"@iwsio/json-csv-node@6":
-  version "6.1.2"
-  resolved "https://registry.yarnpkg.com/@iwsio/json-csv-node/-/json-csv-node-6.1.2.tgz#00de39d9830a5c75a66ac58a910b55dbf125ecd0"
-  integrity sha512-vok1Zo2Xv+cIsfM+Gs2v6PQOVYHn/d6cCYdDLlwzRkSVSugEi/1XuoCClmhPA5eC833SBkfEsxQlWibwGui3sw==
-  dependencies:
-    "@iwsio/json-csv-core" "^1"
-
 "@jest/console@^29.7.0":
   version "29.7.0"
   resolved "https://registry.yarnpkg.com/@jest/console/-/console-29.7.0.tgz#cd4822dbdb84529265c5a2bdb529a3c9cc950ffc"
@@ -1940,6 +1928,11 @@ csstype@^3.0.2:
   version "3.1.2"
   resolved "https://registry.yarnpkg.com/csstype/-/csstype-3.1.2.tgz#1d4bf9d572f11c14031f0436e1c10bc1f571f50b"
   integrity sha512-I7K1Uu0MBPzaFKg4nI5Q7Vs2t+3gWWW648spaF+Rg7pI9ds18Ugn+lvg4SHczUdKlHI5LWBXyqfS8+DufyBsgQ==
+
+csv42@^5.0.0:
+  version "5.0.0"
+  resolved "https://registry.yarnpkg.com/csv42/-/csv42-5.0.0.tgz#02715c9450cacee7b4b52f2780db5677ac4851bc"
+  integrity sha512-CUniGKBgHkEkpcPJYC41r8b5PJO1J80W2QmrSeuVDWkiH+bt3wcz16odu62DT/9V6AbfwnCojf1QcPOH2ibfhQ==
 
 damerau-levenshtein@^1.0.8:
   version "1.0.8"

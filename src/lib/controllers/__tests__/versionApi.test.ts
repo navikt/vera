@@ -4,6 +4,7 @@ import { MongoMemoryServer } from "mongodb-memory-server";
 import mongoose, { Mongoose } from 'mongoose';
 import { IEventEnriched } from "@/interfaces/IEvent";
 import { IQueryParameter } from "@/interfaces/querys";
+import {csv2json} from 'csv42'
 
 
 describe ("Test versionApi",  () => {
@@ -131,10 +132,15 @@ describe ("Test versionApi",  () => {
         await registerEvent(testApp3)
 
         const deployInfo: IEventEnriched[] = await deployLog({"application": "testApp3"})
-        const csvOutput = await returnCSVPayload(deployInfo)
+        const csvOutput = returnCSVPayload(deployInfo)
 
-        const csvRegex =/^(\n)((?:[^,"\n]+|"(?:[^"]|"")*")+)(\n(?:,(?:[^,"\n]+|"(?:[^"]|"")*"))*)*(\n)$/
-        csvRegex.test(String(csvOutput))
+        const csvtojson: IEventEnriched[] = csv2json(csvOutput)
+
+        expect(csvtojson[0].application).toBe(deployInfo[0].application)
+        expect(csvtojson[0].environment).toBe(deployInfo[0].environment)
+        expect(csvtojson[0].version).toBe(deployInfo[0].version)
+        expect(csvtojson[0].deployer).toBe(deployInfo[0].deployer)
+        expect(csvtojson[0].newDeployment).toBe(deployInfo[0].newDeployment)
         
     })
 

@@ -1,11 +1,10 @@
 import config from "../config/config"
 import Event from "../models/Event"
-import jsonToCSV from "@iwsio/json-csv-node"
 import moment, { Moment, unitOfTime } from "moment"
 import { IEvent, IEventPost } from "@/interfaces/IEvent"
 import { IPredicateMongoDefinition, IQueryParameter } from "@/interfaces/querys"
 import { IEventEnriched } from "@/interfaces/IEvent"
-
+import { json2csv } from 'csv42'
 interface IPredicateDefinition {
     [key: string]: RegExp | { $exists: boolean } | { $gte: string } | { $ne: null } | null
 }
@@ -113,34 +112,28 @@ export async function deployLog(query: IQueryParameter): Promise<IEventEnriched[
     return enrichedLogEvents
 }
 
-export async function returnCSVPayload(events: IEvent[]) {
-    const toExcelDateFormat = function (value: Date) {
+export function returnCSVPayload(events: IEventEnriched[]) {
+    const toExcelDateFormat = function (value?: Date) {
         if (value) {
             return moment(value).format("YYYY-MM-DD HH:mm:ss")
         }
     }
-    const jsonToCsvMapping = {
-        fields: [
-            { name: "environment", label: "environment" },
-            { name: "application", label: "application" },
-            { name: "version", label: "version" },
-            { name: "deployer", label: "deployer" },
-            {
-                name: "deployed_timestamp",
-                label: "deployed_timestamp",
-                filter: toExcelDateFormat,
-            },
-            {
-                name: "replaced_timestamp",
-                label: "replaced_timestamp",
-                filter: toExcelDateFormat,
-            },
-            { name: "environmentClass", label: "environmentClass" },
-            { name: "id", label: "id" },
-        ],
-    }
 
-    return await jsonToCSV.buffered(events, jsonToCsvMapping)
+    return json2csv(events, {
+        header: true,
+        fields: [
+            { name: "application", getValue: (item) => item.application },
+            { name: "environment", getValue: (item) => item.environment },
+            { name: "environmentClass", getValue: (item) => item.environmentClass },
+            { name: "version", getValue: (item) => item.version },
+            { name: "deployer", getValue: (item) => item.deployer },
+            { name: "deployed_timestamp", getValue: (item) => toExcelDateFormat(item.deployed_timestamp) },
+            { name: "replaced_timestamp", getValue: (item) => toExcelDateFormat(item.replaced_timestamp) },
+            { name: "newDeployment", getValue: (item) => item.newDeployment },
+            { name: "namespace", getValue: (item) => item.namespace },
+            { name: "cluster", getValue: (item) => item.cluster },
+        ],
+    })
 }
 
 function caseInsensitiveRegexMatch(val: string): RegExp {

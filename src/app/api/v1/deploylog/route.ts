@@ -12,7 +12,7 @@ export async function GET(request: NextRequest) {
             "Content-Type": "text/csv; charset=utf-8",
             "Content-Disposition": "attachment; filename=exported-vera.csv",
         }
-        const csvData = await returnCSVPayload(result)
+        const csvData = returnCSVPayload(result)
 
         return NextResponse.json(csvData, {
             headers: header,
