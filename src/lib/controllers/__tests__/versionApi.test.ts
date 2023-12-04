@@ -2,7 +2,7 @@ import { deployLog, getConfig, registerEvent, returnCSVPayload } from "../versio
 import Event from "../../models/Event";
 import { MongoMemoryServer } from "mongodb-memory-server";
 import mongoose, { Mongoose } from 'mongoose';
-import { IEvent, IEventEnriched } from "@/interfaces/IEvent";
+import { IEventEnriched } from "@/interfaces/IEvent";
 import { IQueryParameter } from "@/interfaces/querys";
 
 
@@ -130,7 +130,7 @@ describe ("Test versionApi",  () => {
         await registerEvent(testApp2)
         await registerEvent(testApp3)
 
-        const deployInfo = await deployLog({"application": "testApp3"})
+        const deployInfo: IEventEnriched[] = await deployLog({"application": "testApp3"})
         const csvOutput = await returnCSVPayload(deployInfo)
 
         const csvRegex =/^(\n)((?:[^,"\n]+|"(?:[^"]|"")*")+)(\n(?:,(?:[^,"\n]+|"(?:[^"]|"")*"))*)*(\n)$/
