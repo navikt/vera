@@ -1,4 +1,4 @@
-FROM library/node:20 AS base_dependencies
+FROM library/node:21 AS base_dependencies
 
 WORKDIR /src
 COPY package.json yarn.lock ./
@@ -6,7 +6,7 @@ COPY package.json yarn.lock ./
 # Install production requirements only
 RUN yarn install --frozen-lockfile --prod
 
-FROM library/node:20 AS frontend_builder
+FROM library/node:21 AS frontend_builder
 
 WORKDIR /app/static
 
@@ -21,7 +21,7 @@ COPY frontend ./frontend
 RUN yarn gulp test && yarn gulp dist
 
 
-FROM library/node:20-alpine AS server
+FROM library/node:21-alpine AS server
 RUN apk add --no-cache bash
 
 WORKDIR /src
