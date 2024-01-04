@@ -28,7 +28,7 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: Request) {
     const body = await request.json()
-    const headers = new Headers(request.headers)
+    //const headers = new Headers(request.headers)
     if (!body.environment) {
         return NextResponse.json("Property environment is missing in request", {
             status: 400,
