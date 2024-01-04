@@ -1,4 +1,4 @@
-name: Build, push and deploy prod
+name: Build vera backup
 
 on:
   workflow_dispatch:
