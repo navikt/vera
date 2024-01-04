@@ -2,9 +2,9 @@ apiVersion: nais.io/v1
 kind: Naisjob
 metadata:
   labels:
-    team: aura
+    team: team-atom
   name: vera-backup
-  namespace: aura
+  namespace: team-atom
 spec:
   activeDeadlineSeconds: 6000
   backoffLimit: 5
@@ -33,9 +33,9 @@ kind: NetworkPolicy
 metadata:
   labels:
     app: vera-backup
-    team: aura
+    team: team-atom
   name: vera-backup-apiserver
-  namespace: aura
+  namespace: team-atom
 spec:
   egress:
   - to:
@@ -51,7 +51,7 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
   name: vera-backup
-  namespace: aura
+  namespace: team-atom
 rules:
   - apiGroups: [ "" ]
     resources: [ "pods/exec" ]
@@ -61,12 +61,12 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
   name: vera-backup
-  namespace: aura
+  namespace: team-atom
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
   name: vera-backup
 subjects:
-- namespace: aura
+- namespace: team-atom
   kind: ServiceAccount
   name: vera-backup
