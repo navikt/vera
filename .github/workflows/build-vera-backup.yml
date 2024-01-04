@@ -18,7 +18,7 @@ jobs:
           team: team-atom #
           docker_context: './vera-backup' # optional, default .
           dockerfile: './vera-backup/Dockerfile'
-          image_suffix: '-backup'
+          image_suffix: 'backup'
           project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }} # required, but is defined as an organization variable
           identity_provider: ${{ secrets.NAIS_WORKLOAD_IDENTITY_PROVIDER }} # required, but is defined as an organization secret
       - name: Print image version
