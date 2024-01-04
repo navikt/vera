@@ -2,7 +2,7 @@ apiVersion: nais.io/v1
 kind: Naisjob
 metadata:
   labels:
-    team: aura
+    team: team-atom
   name: vera-backup
   namespace: team-atom
 spec:
@@ -14,7 +14,7 @@ spec:
       - cascadingDelete: false
         name: vera-backup-bucket
         retentionPeriodDays: 30
-  image: ghcr.io/nais/mongo-backup:0.9.1
+  image: europe-north1-docker.pkg.dev/nais-management-233d/team-atom/vera-backup:2024.01.04-15.20-c65f274
   resources:
     limits:
       cpu: 200m
@@ -33,7 +33,7 @@ kind: NetworkPolicy
 metadata:
   labels:
     app: vera-backup
-    team: aura
+    team: team-atom
   name: vera-backup-apiserver
   namespace: team-atom
 spec:

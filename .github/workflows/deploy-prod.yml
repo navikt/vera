@@ -11,6 +11,7 @@ on:
       - '*.jenkinsfile'
       - Makefile
       - CODEOWNERS
+      - ./vera-backup/*
 
 jobs:
   build_and_push:

@@ -19,7 +19,7 @@ on:
     branches: [ main ]
   schedule:
     - cron: '00 04 * * 1-6'
-  workflow_dispatch: 
+  workflow_dispatch:
 
 jobs:
   analyze:

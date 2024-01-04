@@ -11,6 +11,7 @@ on:
       - '*.jenkinsfile'
       - Makefile
       - CODEOWNERS
+      - ./vera-backup/*
   workflow_dispatch:
 
 jobs:
