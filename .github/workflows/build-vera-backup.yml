@@ -3,9 +3,6 @@ name: Build, push and deploy prod
 on:
   workflow_dispatch:
 
-  
-env:
-  VERSION: 0.9.4
 jobs:
   build:
     permissions:
