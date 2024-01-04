@@ -44,6 +44,6 @@ export async function POST(request: Request) {
     }
 
     const savedEvent = await registerEvent(body)
-    console.log(`Saved event ${savedEvent} from client ip ${headers.get("x-forwarded-for") || headers.get("ip")}`)
+    //console.log(`Saved event ${savedEvent} from client ip ${headers.get("x-forwarded-for") || headers.get("ip")}`)
     return NextResponse.json({ savedEvent })
 }

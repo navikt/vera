@@ -221,7 +221,7 @@ export async function registerEvent(data: IEventPost) {
         replaced_timestamp: null,
     }).exec()
     existingEvent.map(async (e) => {
-        console.log("existing event replacing " + e.application)
+        //console.log("existing event replacing " + e.application)
         e.replaced_timestamp = new Date()
         return e.save()
     })

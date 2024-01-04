@@ -24,7 +24,7 @@ export default function LogTable() {
   const [data, setData] = useState<IEventResponse[]>([]);
   const [isDataFetched, setIsDataFetched] = useState(false);
   const [page, setPage] = useState(1);
-  const [deployEventTimeLimit, setdeployEventTimeLimit] = useState("1y");
+  const [deployEventTimeLimit, setdeployEventTimeLimit] = useState("1M");
   const [rowsPerPage, setRowsPerPage] = useState(defaultRowsPerPage);
 
   const setRowsPerPageHandler = (rowsPerPage: number): void => {
