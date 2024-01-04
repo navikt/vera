@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-if ! kubectl exec -it -n aura vera-mongo-0 -c mongod-container -- mongodump --archive --gzip > /tmp/dump.gz; then
+if ! kubectl exec -it vera-mongo-0 -c mongod-container -- mongodump --archive --gzip > /tmp/dump.gz; then
   echo "failed to execute mongodump"
   exit 1
 fi
