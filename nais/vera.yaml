@@ -2,20 +2,20 @@ apiVersion: "nais.io/v1alpha1"
 kind: "Application"
 metadata:
   name: vera
-  namespace: aura
+  namespace: team-atom
   labels:
-    team: aura
+    team: team-atom
 spec:
   image: {{ image }}
-  port: 8080
+  port: 3000
   accessPolicy:
     outbound:
       rules:
       - application: vera-mongo
   liveness:
-    path: /selftest
+    path: /api/isalive
   readiness:
-    path: /selftest
+    path: /api/selftest
   prometheus:
     path: /metrics
   replicas:
@@ -28,13 +28,21 @@ spec:
   env:
     - name: VERADB_URL
       value: mongodb://vera-mongo-0.vera-mongo:27017,vera-mongo-1.vera-mongo:27017,vera-mongo-2.vera-mongo:27017/deploy_log?replicaSet=MainRepSet
-    - name: VERADB_USERNAME
-      value: "sera"
   skipCaBundle: true
   resources:
-    limits:
-      cpu: 500m
-      memory: 2Gi
     requests:
       cpu: 50m
-      memory: 64Mi
+      memory: 128Mi
+
+
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  annotations:
+    iam.gke.io/gcp-service-account: {{serviceAccount}}
+  labels:
+    app: vera
+    team: team-atom
+  name: vera
+  namespace: team-atom

@@ -3,7 +3,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: vera-mongo
-  namespace: aura
+  namespace: team-atom
   labels:
     name: vera-mongo
 spec:
@@ -18,7 +18,7 @@ apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   name: vera-mongo
-  namespace: aura
+  namespace: team-atom
 spec:
   serviceName: vera-mongo
   replicas: 3
@@ -76,9 +76,9 @@ kind: NetworkPolicy
 metadata:
   labels:
     app: vera-mongo
-    team: aura
+    team: team-atom
   name: vera-mongo
-  namespace: aura
+  namespace: team-atom
 spec:
   egress:
     - to:
@@ -110,7 +110,7 @@ spec:
     - from:
         - namespaceSelector:
             matchLabels:
-              name: aura
+              name: team-atom
           podSelector:
             matchLabels:
               app: vera

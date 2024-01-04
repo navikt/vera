@@ -1,21 +1,23 @@
 version: '3.9'
 services:
   mongo-db:
-    image: mongo:4
+    #image: mongo:6-nanoserver
+    image: mongo:5
     container_name: mongo-db
     volumes:
       - ./docker-mounts/mongo/db/:/data/db
     ports:
       - 27017:27017
+    environment:
+      #- MONGO_INITDB_ROOT_USERNAME=vera
+      #- MONGO_INITDB_ROOT_PASSWORD=hemmelig
+      - MONGO_INITDB_DATABASE=deploy_log
 
   vera:
-    build:
-      context: .
-      dockerfile: Dockerfile.dev
-   
+    build: .
     depends_on:
       - mongo-db
     environment:
       VERADB_URL: mongodb://mongo-db:27017/deploy_log
     ports:
-      - "8080:8080"
+      - "3000:3000"
