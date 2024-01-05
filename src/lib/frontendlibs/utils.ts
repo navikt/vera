@@ -1,11 +1,11 @@
-import { IEventResponse } from "@/interfaces/IFilteredJsonData"
+//import { IEventResponse } from "@/interfaces/IFilteredJsonData"
 import { IEventEnriched } from "@/interfaces/IEvent"
 
 function doFiltersExist(filters: string[] | string): boolean {
     return !filters || filters.length === 0
 }
 
-export function regexpMatchByValuesIEventResponse(
+/* export function regexpMatchByValuesIEventResponse(
     collection: IEventResponse[],
     property: string,
     filters: string[] | string,
@@ -37,7 +37,7 @@ export function regexpMatchByValuesIEventResponse(
         }
         return match
     })
-}
+} */
 
 export function regexpMatchByValuesIEventEnriched(
     collection: IEventEnriched[],

@@ -8,10 +8,8 @@ on:
     paths-ignore:
       - README.md
       - docker-compose.yaml
-      - '*.jenkinsfile'
-      - Makefile
       - CODEOWNERS
-      - ./vera-backup/*
+      - 'vera-backup/**'
   workflow_dispatch:
 
 jobs:

@@ -83,7 +83,7 @@ export async function deployLog(query: IQueryParameter): Promise<IEventEnriched[
     const predicate = predicateSearchParam(query)
     //await connectDB()
 
-    const result: IEvent[] = await Event.find(predicate, { __v: 0, _id: 0 }).sort([["deployed_timestamp", "descending"]]).lean()
+    const result: IEvent[] = await Event.find(predicate, { __v: 0, _id: 0 }).sort([["deployed_timestamp", "descending"]]).allowDiskUse(true).lean()
     //console.log("result length ", result.length)
     const enrichedLogEvents:IEventEnriched[] = result.map((event) => {
         let newDeployment: boolean = false

@@ -5,9 +5,10 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import moment from "moment";
 import { lastDeployFilterMapping } from "../../interfaces/lastDeployFilterMapping";
-import { IEventResponse } from "@/interfaces/IFilteredJsonData";
 import { useRouter, useSearchParams } from 'next/navigation'
-import { regexpMatchByValuesIEventResponse } from "@/lib/frontendlibs/utils";
+import { regexpMatchByValuesIEventEnriched } from "@/lib/frontendlibs/utils";
+import { IEventEnriched } from "@/interfaces/IEvent";
+import { IQueryParameter } from "@/interfaces/querys";
 
 const defaultRowsPerPage = 42;
 
@@ -21,7 +22,7 @@ export default function LogTable() {
   const [deployerFilter, setDeployerFilter] = useState("")
   const [versionFilter, setVersionFilter] = useState("")
   const [timeFilter, setTimeFilter] = useState("")
-  const [data, setData] = useState<IEventResponse[]>([]);
+  const [data, setData] = useState<IEventEnriched[]>([]);
   const [isDataFetched, setIsDataFetched] = useState(false);
   const [page, setPage] = useState(1);
   const [deployEventTimeLimit, setdeployEventTimeLimit] = useState("1M");
@@ -31,24 +32,24 @@ export default function LogTable() {
     setRowsPerPage(rowsPerPage);
   }
 
-  const applyFilters = ():IEventResponse[] => {
+  const applyFilters = ():IEventEnriched[] => {
   
-    let filteredJsonData:IEventResponse[] = [...data];
+    let filteredJsonData:IEventEnriched[] = [...data];
 
     if (applicationFilter != ""){
-      filteredJsonData = regexpMatchByValuesIEventResponse(filteredJsonData, "application", applicationFilter.split(","))
+      filteredJsonData = regexpMatchByValuesIEventEnriched(filteredJsonData, "application", applicationFilter.split(","))
     }
     if (environmentFilter != ""){
-      filteredJsonData = regexpMatchByValuesIEventResponse(filteredJsonData, "environment", environmentFilter.split(","))
+      filteredJsonData = regexpMatchByValuesIEventEnriched(filteredJsonData, "environment", environmentFilter.split(","))
     }
     if (deployerFilter != "") {
-      filteredJsonData = regexpMatchByValuesIEventResponse(filteredJsonData, "deployer", deployerFilter)
+      filteredJsonData = regexpMatchByValuesIEventEnriched(filteredJsonData, "deployer", deployerFilter)
     }
     if (versionFilter != "") {
-      filteredJsonData = regexpMatchByValuesIEventResponse(filteredJsonData, "version", versionFilter)
+      filteredJsonData = regexpMatchByValuesIEventEnriched(filteredJsonData, "version", versionFilter)
     }
     if (timeFilter != "") {
-      filteredJsonData = regexpMatchByValuesIEventResponse(filteredJsonData, "deployed_timestamp", timeFilter)
+      filteredJsonData = regexpMatchByValuesIEventEnriched(filteredJsonData, "deployed_timestamp", timeFilter)
     }
     return filteredJsonData
   }
@@ -58,28 +59,31 @@ export default function LogTable() {
     sortData = sortData.length >1 ? sortData.slice((page - 1) * rowsPerPage, page * rowsPerPage): sortData;
 
     const makeRequest = async (timespan: string) => {
-        const params = new URLSearchParams()
+        const params: IQueryParameter = {}  // = new URLSearchParams()
 
         if (applicationFilter != ""){
           applicationFilter.split(",").forEach((value) => {
-            params.append("application", value)
+            params["application"] = value
           })
         }
         
         if (environmentFilter != "") {
          environmentFilter.split(",").forEach((value) => {
-            params.append("environment", value)
+            params["environment"] = value
          })
         }
         
         if (timespan) {
-          params.append("last", timespan)
+          params["last"] = timespan
         }
 
         await axios.get('/api/v1/deploylog', {params: params})
           .then(({ data }) => {
             setData(data);
             setIsDataFetched(true);
+          })
+          .catch(() => {
+            console.error("Fetching data failed")
           })
     }
     
@@ -150,6 +154,7 @@ export default function LogTable() {
             <Dropdown.Menu>
               <Dropdown.Menu.List>
                 {lastDeployFilterMapping.map((choice) => {
+                  if (choice.momentValue == "" || choice.momentValue.endsWith("y") ) { return }
                   return (
                     <Dropdown.Menu.List.Item key={choice.momentValue} onClick={() => {onClickDeployFilter(choice.momentValue)}} >{choice.label}</Dropdown.Menu.List.Item>
                   )
@@ -187,7 +192,7 @@ export default function LogTable() {
                         <Table.DataCell>{environment}</Table.DataCell>
                         <Table.DataCell>{deployer}</Table.DataCell>
                         <Table.DataCell>{version ? version: <div><TrashIcon title="Undeployed"/>Undeployed</div>}</Table.DataCell>
-                        <Table.DataCell>{deployed_timestamp}</Table.DataCell>
+                        {/* <Table.DataCell>{deployed_timestamp ? deployed_timestamp.toLocaleDateString : ""}</Table.DataCell> */}
                         <Table.DataCell>{moment(deployed_timestamp).fromNow()}</Table.DataCell>
                       </Table.Row>
                     )
