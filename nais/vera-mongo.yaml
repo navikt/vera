@@ -69,7 +69,7 @@ spec:
         storageClassName: "ssd-storage"
         resources:
           requests:
-            storage: 1Gi
+            storage: 2Gi
 ---
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy

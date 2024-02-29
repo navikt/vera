@@ -25,7 +25,13 @@ export default function LogTable() {
   const [data, setData] = useState<IEventEnriched[]>([]);
   const [isDataFetched, setIsDataFetched] = useState(false);
   const [page, setPage] = useState(1);
-  const [deployEventTimeLimit, setdeployEventTimeLimit] = useState("1M");
+  const [deployEventTimeLimit, setdeployEventTimeLimit] = useState(() => {
+    if (applicationFilter != "" && environmentFilter != "") {
+      return "6M"
+    } else {
+      return "1M"
+    }
+  });
   const [rowsPerPage, setRowsPerPage] = useState(defaultRowsPerPage);
 
   const setRowsPerPageHandler = (rowsPerPage: number): void => {
@@ -54,37 +60,37 @@ export default function LogTable() {
     return filteredJsonData
   }
 
-    const filteredData = applyFilters();
-    let sortData = filteredData;
-    sortData = sortData.length >1 ? sortData.slice((page - 1) * rowsPerPage, page * rowsPerPage): sortData;
+  const filteredData = applyFilters();
+  let sortData = filteredData;
+  sortData = sortData.length >1 ? sortData.slice((page - 1) * rowsPerPage, page * rowsPerPage): sortData;
 
-    const makeRequest = async (timespan: string) => {
-        const params: IQueryParameter = {}  // = new URLSearchParams()
+  const makeRequest = async (timespan: string) => {
+      const params: IQueryParameter = {}  // = new URLSearchParams()
 
-        if (applicationFilter != ""){
-          applicationFilter.split(",").forEach((value) => {
-            params["application"] = value
-          })
-        }
-        
-        if (environmentFilter != "") {
-         environmentFilter.split(",").forEach((value) => {
-            params["environment"] = value
-         })
-        }
-        
-        if (timespan) {
-          params["last"] = timespan
-        }
+      if (applicationFilter != ""){
+        applicationFilter.split(",").forEach((value) => {
+          params["application"] = value
+        })
+      }
 
-        await axios.get('/api/v1/deploylog', {params: params})
-          .then(({ data }) => {
-            setData(data);
-            setIsDataFetched(true);
-          })
-          .catch(() => {
-            console.error("Fetching data failed")
-          })
+      if (environmentFilter != "") {
+        environmentFilter.split(",").forEach((value) => {
+          params["environment"] = value
+        })
+      }
+
+      if (timespan) {
+        params["last"] = timespan
+      }
+
+      await axios.get('/api/v1/deploylog', {params: params})
+        .then(({ data }) => {
+          setData(data);
+          setIsDataFetched(true);
+        })
+        .catch(() => {
+          console.error("Fetching data failed")
+        })
     }
     
     const clearFilters = (): void => {
@@ -215,4 +221,3 @@ export default function LogTable() {
       </div>
       )
 }
-

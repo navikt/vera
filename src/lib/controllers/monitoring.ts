@@ -17,14 +17,14 @@ export async function selftest() {
     const checkResult: ICheckresult = {
         endpoint: config.dbUrl,
         description: "Check mongodb connectivity",
-        result: mongoose.STATES[mongoose.connection.readyState]
+        result: mongoose.STATES[mongoose.connection.readyState],
     }
 
     if (checkResult.result != "connected") {
         console.log("No connection to database. Trying to reconnect")
         try {
             const connection: typeof mongoose = await connectDB()
-            if ( connection ) {
+            if (connection) {
                 console.log("DB Connected")
             }
             const endTime = Date.now()
@@ -32,7 +32,7 @@ export async function selftest() {
             checkResult.responseTime = endTime - startTime + " ms"
             if (checkResult.result.toLowerCase() == "connected") {
                 selftestResult.statusCode = 200
-            } 
+            }
         } catch (error) {
             console.log("DB catch error")
             const endTime = Date.now()

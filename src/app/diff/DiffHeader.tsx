@@ -71,7 +71,7 @@ export default function DiffHeader() {
             <TextField label="baseEnvironment" name="baseEnvironment" style={{width: 200}} type="text" defaultValue={baseEnvironment} onInput={(e) => setBaseEnvironment(e.currentTarget.value)}/>
             <TextField label="comparewith" name="comparewith" style={{width: 200}} type="text" defaultValue={environmentsToCompare.join(",")} onInput={(e) => setEnvironmentsToCompare(e.currentTarget.value.split(","))} onKeyUp={(e) => checkKeyboard(e.key)}/>
             <TextField label="appFilter" name="appFilter" style={{width: 200}} defaultValue={appFilter.join(",")} onInput={(e) =>setAppFilter(e.currentTarget.value.split(","))} type="text" onKeyUp={(e) => checkKeyboard(e.key)}/>
-            <Button variant="primary-neutral" onClick={() => makeApplyButton()} onKeyDown={(e) => checkKeyboard(e.key)} icon={<BranchingIcon title="diff" fontSize="1.5rem"/>}>hent diff</Button>
+            <Button variant="primary" style={{height:"50%", marginTop: 32}} onClick={() => makeApplyButton()} onKeyDown={(e) => checkKeyboard(e.key)} icon={<BranchingIcon title="diff" fontSize="1.5rem"/>}>Hent diff</Button>
             <Link href='https://confluence.adeo.no/display/AURA/versjonsnummer+i+vera'><QuestionmarkDiamondFillIcon title="vera's version numbers" fontSize="1.5rem" />vera&apos;s take on version numbers</Link>
         {/* </form> */}
         </HStack>

@@ -16,12 +16,3 @@ export interface IFilteredJsonData {
     body: IFilteredJsonDataBody[]
     header: IHeader[]
 }
-
-/* export interface IEventResponse {
-    [key: string]: string
-    application: string
-    environment: string
-    version: string
-    deployer: string
-    deployed_timestamp: string
-} */

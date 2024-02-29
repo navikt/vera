@@ -17,11 +17,11 @@ if (!cached) {
 }
 
 export default async function connectDB() {
-    console.log("dburl", config.dbUrl);
+    console.log("dburl", config.dbUrl)
     if (cached.conn) {
         return cached.conn
     }
-    
+
     if (!cached.promise) {
         const opts = {
             bufferCommands: false,
@@ -29,7 +29,7 @@ export default async function connectDB() {
                 username: config.dbUser,
                 password: config.dbPassword,
             },
-            serverSelectionTimeoutMS: 3000
+            serverSelectionTimeoutMS: 3000,
         }
 
         cached.promise = mongoose.connect(config.dbUrl, opts).then((mongoose) => {
