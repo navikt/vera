@@ -15,6 +15,7 @@ import { useRouter } from "next/navigation";
 
 
 const regexpTooltipsString = "rexep values '.' and '*' are allowed";
+const defaultTimespan = "1y"
 
 export default function VeraTable() {
     const router = useRouter();
@@ -25,7 +26,7 @@ export default function VeraTable() {
     const [data, setData] = useState<IEventEnriched[]>([]);
     const [isDataFetched, setIsDataFetched] = useState(false);
     const [inverseTable, setInverseTable] = useState(false);
-    const [deployEventTimeLimit, setdeployEventTimeLimit] = useState("1y");
+    const [deployEventTimeLimit, setdeployEventTimeLimit] = useState(searchParams.get("last") || defaultTimespan);
     const [page, setPage] = useState(1);
     const [rowsPerPage, setRowsPerPage] = useState<number>(42);
     const [useClusterAsEnvironment, setUseClusterAsEnvironment] = useState(true)
@@ -80,6 +81,13 @@ export default function VeraTable() {
                 application: applicationFilter,
                 environment: environmentFilter,
                 environmentClass: value
+            })}`
+        } else if (key == "last") {
+            url = `?${new URLSearchParams({
+                application: applicationFilter,
+                environment: environmentFilter,
+                environmentClass: environmentClassFilter,
+                last: value
             })}`
         }
 
@@ -142,6 +150,7 @@ export default function VeraTable() {
         setIsDataFetched(false)
         makeRequest(momentValue)
         setdeployEventTimeLimit(momentValue)
+        updateURL("last", momentValue)
     }
 
     return (

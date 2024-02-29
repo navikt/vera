@@ -4,7 +4,7 @@ import moment, { Moment, unitOfTime } from "moment"
 import { IEvent, IEventPost } from "@/interfaces/IEvent"
 import { IPredicateMongoDefinition, IQueryParameter } from "@/interfaces/querys"
 import { IEventEnriched } from "@/interfaces/IEvent"
-import { json2csv } from 'csv42'
+import { json2csv } from "csv42"
 interface IPredicateDefinition {
     [key: string]: RegExp | { $exists: boolean } | { $gte: string } | { $ne: null } | null
 }
@@ -26,14 +26,14 @@ const parameterDefinition: IPredicateMongoDefinition = {
     filterUndeployed: {
         mongoTransformation: emptyOrNotExist,
         mapToKey: "version",
-    }
+    },
 }
 
 function predicateSearchParam(query: IQueryParameter): IPredicateDefinition {
     const predicate: IPredicateDefinition = {}
 
     for (const [key, value] of Object.entries(query)) {
-        if (value == ""){
+        if (value == "") {
             break
         }
         const definition = parameterDefinition[key]
@@ -51,7 +51,9 @@ function predicateSearchParam(query: IQueryParameter): IPredicateDefinition {
                 throw new Error("" + exception)
             }
         } else {
-            throw new Error(`Unknown parameter provided: ${key}. Valid parameters are: ${Object.keys(parameterDefinition).join(", ")}`);
+            throw new Error(
+                `Unknown parameter provided: ${key}. Valid parameters are: ${Object.keys(parameterDefinition).join(", ")}`,
+            )
         }
     }
 
@@ -66,33 +68,36 @@ function predicateSearchParam(query: IQueryParameter): IPredicateDefinition {
         const transformFunction = definition.mongoTransformation
         if (transformFunction) {
             predicate[keyToUse] = transformFunction(defaultValue)
-        } 
+        }
     }
-    
+
     return predicate
 }
 
-function isDeployedLast24Hrs (momentTimestamp: Moment, deployDateBackInTime: Moment): boolean {
-    return momentTimestamp.isAfter(deployDateBackInTime);
+function isDeployedLast24Hrs(momentTimestamp: Moment, deployDateBackInTime: Moment): boolean {
+    return momentTimestamp.isAfter(deployDateBackInTime)
 }
 
 export async function deployLog(query: IQueryParameter): Promise<IEventEnriched[]> {
-    if(query["csv"]) {
+    if (query["csv"]) {
         delete query.csv
     }
     const predicate = predicateSearchParam(query)
     //await connectDB()
 
-    const result: IEvent[] = await Event.find(predicate, { __v: 0, _id: 0 }).sort([["deployed_timestamp", "descending"]]).lean()
+    const result: IEvent[] = await Event.find(predicate, { __v: 0, _id: 0 })
+        .sort([["deployed_timestamp", "descending"]])
+        .allowDiskUse(true)
+        .lean()
     //console.log("result length ", result.length)
-    const enrichedLogEvents:IEventEnriched[] = result.map((event) => {
+    const enrichedLogEvents: IEventEnriched[] = result.map((event) => {
         let newDeployment: boolean = false
         const momentTimestamp: Moment = moment(event.deployed_timestamp)
-        if (isDeployedLast24Hrs(momentTimestamp, moment().subtract(24, 'hours'))) {
-            newDeployment = true;
+        if (isDeployedLast24Hrs(momentTimestamp, moment().subtract(24, "hours"))) {
+            newDeployment = true
         }
-        let namespace: string| undefined
-        let cluster: string|undefined
+        let namespace: string | undefined
+        let cluster: string | undefined
         const isClusterArray = event.environment.split(":")
         if (isClusterArray.length == 2) {
             const namespaces = event.environment.split(":")
@@ -105,9 +110,9 @@ export async function deployLog(query: IQueryParameter): Promise<IEventEnriched[
             momentTimestamp: momentTimestamp,
             newDeployment: newDeployment,
             namespace: namespace,
-            cluster: cluster
+            cluster: cluster,
         }
-    });
+    })
 
     return enrichedLogEvents
 }
@@ -211,7 +216,7 @@ export async function registerEvent(data: IEventPost) {
     if (!(data.deployer || data.deployedBy)) {
         throw new Error("deployer or deployedBy must be set")
     }
-    
+
     const newEvent = new Event(createEventFromObject(data))
 
     // Updating existing events
@@ -229,7 +234,7 @@ export async function registerEvent(data: IEventPost) {
     // Save new event
     const savedEvent = await newEvent.save()
 
-/*     console.log(savedEvent)
+    /*     console.log(savedEvent)
     console.log(existingEvent)
     console.log("existingEvent")
     console.log(existingEvent) */

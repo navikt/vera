@@ -3,7 +3,6 @@ import { IEvent } from "../../interfaces/IEvent"
 
 mongoose.Error.messages.general.required = "Property {PATH} is required in JSON request"
 
-
 const eventSchema = new Schema<IEvent>({
     application: { type: String, lowercase: true, trim: true, required: true },
     environment: { type: String, lowercase: true, trim: true, required: true },
