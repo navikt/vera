@@ -40,7 +40,7 @@ spec:
   egress:
   - to:
     - ipBlock:
-        cidr: 172.16.0.2/32
+        cidr: 172.16.0.13/32
   podSelector:
     matchLabels:
       app: vera-backup
