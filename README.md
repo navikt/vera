@@ -29,11 +29,10 @@ Det kreves at du har en lokal mongodb installasjon som applikasjonen kan koble s
 
 ## Henvendelser
 
-Spørsmål knyttet til koden eller prosjektet kan rettes til Team Aura.
+Spørsmål knyttet til koden eller prosjektet kan rettes til Team Atom.
 
 For eksterne kontakt en av følgende:
-
-- Mats Byfuglien (mats.byfuglien@nav.no)
-- Johnny Horvi (johnny.horvi@nav.no)
-- Roger Bjørnstad (roger.bjornstad@nav.no)
-For NAV-ansatte kan henvendelser sendes via slack i kanalen #aura
+- Håvard Tronhus (havard.tronhus@nav.no)
+- Eirik Molnes (eirik.molnes@nav.no)
+  
+For NAV-ansatte kan henvendelser sendes via slack i kanalen #team-atom
