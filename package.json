@@ -21,7 +21,7 @@
     "clsx": "^2.1.x",
     "csv42": "^5.0.x",
     "moment": "^2.30.x",
-    "mongoose": "^8.5.x",
+    "mongoose": "^8.8.x",
     "next": "14.2.x",
     "prettier": "^3.3.x",
     "react": "18.3.x",
