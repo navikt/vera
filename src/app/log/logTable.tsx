@@ -199,7 +199,7 @@ export default function LogTable() {
                         <Table.DataCell>{deployer}</Table.DataCell>
                         <Table.DataCell>{version ? version: <div><TrashIcon title="Undeployed"/>Undeployed</div>}</Table.DataCell>
                         {/* <Table.DataCell>{deployed_timestamp ? deployed_timestamp.toLocaleDateString : ""}</Table.DataCell> */}
-                        <Table.DataCell>{moment(deployed_timestamp).fromNow()}</Table.DataCell>
+                        <Table.DataCell>{moment(deployed_timestamp).fromNow() + " (" + moment(deployed_timestamp).format('lll') + ")"}</Table.DataCell>
                       </Table.Row>
                     )
                   })}
