@@ -1,4 +1,4 @@
 ingress:
   - https://vera.intern.dev.nav.no
 serviceAccount: vera-aura-agdktcq@nais-dev-2e7b.iam.gserviceaccount.com
-mongoimage: mongo:5
+mongoimage: mongo:8

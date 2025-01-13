@@ -1,8 +1,7 @@
 version: '3.9'
 services:
   mongo-db:
-    image: mongo:6
-    #image: mongo:5
+    image: mongo:8
     container_name: mongo-db
     volumes:
       - ./docker-mounts/mongo/db/:/data/db
