@@ -105,7 +105,7 @@ function CellContent({
 
         return (
             <>
-                <div style={{fontSize: "1.0rem"}}>{moment(versionEntry.momentTimestamp).fromNow() + " by: " + versionEntry.deployer}</div>
+                <div style={{fontSize: "1.0rem"}}>{moment(versionEntry.momentTimestamp).fromNow() +" (" + moment(versionEntry.momentTimestamp).format('lll') + ") by: " + versionEntry.deployer}</div>
                 {versionEntry.newDeployment ? newDeploymentLegend : null}
             </>
         )
