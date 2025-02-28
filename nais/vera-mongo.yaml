@@ -82,61 +82,37 @@ metadata:
 spec:
   egress:
     - to:
-        - namespaceSelector:
-            matchLabels:
-              linkerd.io/is-control-plane: "true"
-        - namespaceSelector: {}
-          podSelector:
-            matchLabels:
-              role: vera-mongo
-        - namespaceSelector: {}
-          podSelector:
-            matchLabels:
-              k8s-app: kube-dns
-        - ipBlock:
-            cidr: 0.0.0.0/0
-            except:
-              - 10.6.0.0/15
-              - 172.16.0.0/12
-              - 192.168.0.0/16
+      - podSelector:
+          matchLabels:
+            role: vera-mongo
+      - podSelector:
+          matchLabels:
+            k8s-app: kube-dns
+      - ipBlock:
+          cidr: 0.0.0.0/0
+          except:
+            - 10.6.0.0/15
+            - 172.16.0.0/12
+            - 192.168.0.0/16
   ingress:
     - from:
         - namespaceSelector:
             matchLabels:
-              name: nais
+              kubernetes.io/metadata.name: nais-system
           podSelector:
             matchLabels:
               app: prometheus
     - from:
         - namespaceSelector:
             matchLabels:
-              name: team-atom
+              kubernetes.io/metadata.name: team-atom
           podSelector:
             matchLabels:
               app: vera
     - from:
-        - namespaceSelector: {}
-          podSelector:
+        - podSelector:
             matchLabels:
               role: vera-mongo
-    - from:
-        - namespaceSelector:
-            matchLabels:
-              linkerd.io/is-control-plane: "true"
-    - from:
-        - namespaceSelector:
-            matchLabels:
-              linkerd.io/extension: viz
-          podSelector:
-            matchLabels:
-              component: tap
-    - from:
-        - namespaceSelector:
-            matchLabels:
-              linkerd.io/extension: viz
-          podSelector:
-            matchLabels:
-              component: prometheus
   podSelector:
     matchLabels:
       role: vera-mongo
