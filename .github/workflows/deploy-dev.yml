@@ -10,6 +10,7 @@ on:
       - docker-compose.yaml
       - CODEOWNERS
       - 'vera-backup/**'
+      - nais/vera-mongo.yaml
   workflow_dispatch:
 
 jobs:

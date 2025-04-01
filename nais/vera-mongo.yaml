@@ -19,6 +19,8 @@ kind: StatefulSet
 metadata:
   name: vera-mongo
   namespace: team-atom
+  annotations:
+    kyverno.policy.exclusion.nais.io/require-run-as-nonroot: "true"
 spec:
   serviceName: vera-mongo
   replicas: 3
