@@ -11,7 +11,7 @@ interface IPredicateDefinition {
 
 const parameterDefinition: IPredicateMongoDefinition = {
     application: { mongoTransformation: caseInsensitiveRegexMatch },
-    environment: { mongoTransformation: caseInsensitiveRegexMatch },
+    environment: { mongoTransformation: caseInsensitiveEnvironmentRegexMatch },
     deployer: { mongoTransformation: caseInsensitiveRegexMatch },
     environmentClass: { mongoTransformation: caseInsensitiveRegexMatch },
     version: { mongoTransformation: caseInsensitiveRegexMatch },
@@ -143,6 +143,10 @@ export function returnCSVPayload(events: IEventEnriched[]) {
 
 function caseInsensitiveRegexMatch(val: string): RegExp {
     return new RegExp("^" + val + "$", "i")
+}
+
+function caseInsensitiveEnvironmentRegexMatch(val: string): RegExp {
+    return new RegExp(val + "$", "i")
 }
 
 function fromMomentFormatToActualDate(momentValue: string): { $gte: string } {
