@@ -112,7 +112,7 @@ function CellContent({
     }
     
     const createLinkQuery = (cellContent: IEventEnriched): string => {
-        return "environment="+ cellContent.environment +"&application=" + cellContent.application
+        return "application="+ cellContent.application +"&environment=" + cellContent.environment
     }
 
     const newDeploymentIcon = () => {
