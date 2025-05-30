@@ -148,7 +148,7 @@ export default function LogTable() {
 
     const onClickDeployFilter = (momentValue: string) => {
       setIsDataFetched(false)
-      makeRequest(momentValue)
+      //makeRequest(momentValue)
       setdeployEventTimeLimit(momentValue);
       updateURL("last", momentValue)
   }
