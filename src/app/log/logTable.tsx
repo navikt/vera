@@ -11,6 +11,7 @@ import { IEventEnriched } from "@/interfaces/IEvent";
 import { IQueryParameter } from "@/interfaces/querys";
 
 const defaultRowsPerPage = 42;
+const defaultTimespan = "6M"
 
 
 const regexpTooltipsString = "rexep values '.' and '*' are allowed";
@@ -25,13 +26,7 @@ export default function LogTable() {
   const [data, setData] = useState<IEventEnriched[]>([]);
   const [isDataFetched, setIsDataFetched] = useState(false);
   const [page, setPage] = useState(1);
-  const [deployEventTimeLimit, setdeployEventTimeLimit] = useState(() => {
-    if (applicationFilter != "" && environmentFilter != "") {
-      return "6M"
-    } else {
-      return "1M"
-    }
-  });
+  const [deployEventTimeLimit, setdeployEventTimeLimit] = useState(searchParams.get("last") || defaultTimespan);
   const [rowsPerPage, setRowsPerPage] = useState(defaultRowsPerPage);
 
   const setRowsPerPageHandler = (rowsPerPage: number): void => {
@@ -125,7 +120,13 @@ export default function LogTable() {
             application: applicationFilter,
             environment: value
           })}`
-      } 
+      } else if (key == "last") {
+            url = `?${new URLSearchParams({
+                application: applicationFilter,
+                environment: environmentFilter,
+                last: value
+            })}`
+        }
     router.push(url, {scroll: true})
     }
 
@@ -149,6 +150,7 @@ export default function LogTable() {
       setIsDataFetched(false)
       makeRequest(momentValue)
       setdeployEventTimeLimit(momentValue);
+      updateURL("last", momentValue)
   }
     return (
       <div style={{marginRight: "auto", marginLeft: "auto", width: "90%" }}>
@@ -160,7 +162,7 @@ export default function LogTable() {
             <Dropdown.Menu>
               <Dropdown.Menu.List>
                 {lastDeployFilterMapping.map((choice) => {
-                  if (choice.momentValue == "" || choice.momentValue.endsWith("y") ) { return }
+                  if (choice.momentValue == "" ) { return }
                   return (
                     <Dropdown.Menu.List.Item key={choice.momentValue} onClick={() => {onClickDeployFilter(choice.momentValue)}} >{choice.label}</Dropdown.Menu.List.Item>
                   )
