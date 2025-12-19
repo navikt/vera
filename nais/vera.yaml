@@ -12,6 +12,8 @@ spec:
     outbound:
       rules:
       - application: vera-mongo
+      - application: deploy-forwarder
+        namespace: nais-analyse
   liveness:
     path: /api/isalive
   readiness:
