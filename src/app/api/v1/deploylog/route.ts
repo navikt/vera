@@ -43,7 +43,18 @@ export async function POST(request: Request) {
         )
     }
 
+    const response = await fetch("http://deploy-forwarder.nais-analyse/api/deployment", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: request.body,
+    })
+    if (!response.ok) {
+        console.log("Failed to forward the request: ", response.statusText)
+        console.log(body)
+    }
+
     const savedEvent = await registerEvent(body)
-    //console.log(`Saved event ${savedEvent} from client ip ${headers.get("x-forwarded-for") || headers.get("ip")}`)
     return NextResponse.json({ savedEvent })
 }
