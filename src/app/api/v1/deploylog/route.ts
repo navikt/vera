@@ -48,7 +48,7 @@ export async function POST(request: Request) {
         headers: {
             "Content-Type": "application/json",
         },
-        body: request.body,
+        body: JSON.stringify(body),
     })
     if (!response.ok) {
         console.log("Failed to forward the request: ", response.statusText)
