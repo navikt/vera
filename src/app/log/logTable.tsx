@@ -11,7 +11,7 @@ import { IEventEnriched } from "@/interfaces/IEvent";
 import { IQueryParameter } from "@/interfaces/querys";
 
 const defaultRowsPerPage = 42;
-const defaultTimespan = "6M"
+const defaultTimespan = "4d"
 
 
 const regexpTooltipsString = "rexep values '.' and '*' are allowed";
