@@ -15,7 +15,7 @@ const eventSchema = new Schema<IEvent>({
 
 eventSchema.set("toJSON", {
     getters: true,
-    transform: function (doc, ret) {
+    transform: function (doc, ret: any) {
         delete ret.__v
         delete ret._id
     },
