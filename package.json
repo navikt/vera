@@ -35,7 +35,7 @@
     "@types/react-dom": "19.2.x",
     "@types/uuid": "^11.0.0",
     "@typescript-eslint/eslint-plugin": "^8.57.1",
-    "@typescript-eslint/parser": "^8.57.1",
+    "@typescript-eslint/parser": "^8.57.2",
     "eslint": "^10.0.3",
     "eslint-config-next": "16.1.x",
     "jest": "^30.3.0",
