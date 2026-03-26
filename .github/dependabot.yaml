@@ -4,17 +4,11 @@ updates:
     directory: "/"
     schedule:
       interval: "monthly"
-    reviewers:
-      - "@nais/core-dependabot-reviewers"
   - package-ecosystem: "docker"
     directory: "/"
     schedule:
-      interval: "monthly"
-    reviewers:
-      - "@nais/core-dependabot-reviewers"
+      interval: "weekly"
   - package-ecosystem: "npm"
-    directory: "/frontend"
+    directory: "/"
     schedule:
-      interval: "monthly"
-    reviewers:
-      - "@nais/core-dependabot-reviewers"
+      interval: "daily"
