@@ -14,7 +14,7 @@ spec:
       - cascadingDelete: false
         name: vera-backup-bckt
         retentionPeriodDays: 30
-  image: europe-north1-docker.pkg.dev/nais-management-233d/team-atom/vera-backup:2025.02.28-20.43-4092553
+  image: europe-north1-docker.pkg.dev/nais-management-233d/team-atom/vera-backup:2026.03.18-14.49-34cc404
   resources:
     limits:
       cpu: 200m
