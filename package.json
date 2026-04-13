@@ -37,7 +37,7 @@
     "@typescript-eslint/eslint-plugin": "^8.57.1",
     "@typescript-eslint/parser": "^8.57.1",
     "eslint": "^10.0.3",
-    "eslint-config-next": "16.1.x",
+    "eslint-config-next": "16.2.x",
     "jest": "^30.3.0",
     "mongodb-memory-server": "^11.0.x",
     "supertest": "^7.2.x",
