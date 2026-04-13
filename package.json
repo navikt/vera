@@ -42,6 +42,6 @@
     "mongodb-memory-server": "^11.0.x",
     "supertest": "^7.2.x",
     "ts-jest": "^29.4.x",
-    "typescript": "5.9.x"
+    "typescript": "6.0.x"
   }
 }
