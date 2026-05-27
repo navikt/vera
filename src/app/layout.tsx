@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import VeraHeader from './veraHeader';
-import "@navikt/ds-css";
+import "@navikt/ds-css/dist/index.css";
 
 export const metadata: Metadata = {
   title: 'Vera',

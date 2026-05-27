@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
-    "target": "es6",
+    "rootDir": ".",
+    "target": "es2024",
     "lib": [
       "dom",
       "dom.iterable",
