@@ -66,7 +66,7 @@ export default function DiffHeader() {
 
     return (
         <div>
-        <HStack gap={{ xs: "1", sm: "2", md: "6", lg: "10", xl: "16" }} justify='center' > 
+        <HStack gap="space-16" justify='center' > 
         {/* <form style={{display: "flex", margin: "5px"}}> */}
             <TextField label="baseEnvironment" name="baseEnvironment" style={{width: 200}} type="text" defaultValue={baseEnvironment} onInput={(e) => setBaseEnvironment(e.currentTarget.value)}/>
             <TextField label="comparewith" name="comparewith" style={{width: 200}} type="text" defaultValue={environmentsToCompare.join(",")} onInput={(e) => setEnvironmentsToCompare(e.currentTarget.value.split(","))} onKeyUp={(e) => checkKeyboard(e.key)}/>
