@@ -4072,10 +4072,10 @@ mongodb-connection-string-url@^7.0.0:
     "@types/whatwg-url" "^13.0.0"
     whatwg-url "^14.1.0"
 
-mongodb-memory-server-core@11.1.0:
-  version "11.1.0"
-  resolved "https://registry.yarnpkg.com/mongodb-memory-server-core/-/mongodb-memory-server-core-11.1.0.tgz#7c97df3ad026929e0637457e76069e11c660d984"
-  integrity sha512-GwpnJVIiUyXdi5BoTsExrvLupSt3sJzCSX5P6fxlr0dCrJkhumiq8SQIqtTBqTu2mMpFMCHdjSS0QMUvFMpbWw==
+mongodb-memory-server-core@11.2.0:
+  version "11.2.0"
+  resolved "https://registry.yarnpkg.com/mongodb-memory-server-core/-/mongodb-memory-server-core-11.2.0.tgz#d9ae32dd8c10e239fc91386b2c7ff87da3b9a30d"
+  integrity sha512-vOoDtn0JiLrHvZY81Rp/UtKXXK0rtJHZGZFVnccvJwYitPLNspO0Ty0grqFQOe7iAET8+GI4zAQcphg+R3vxQg==
   dependencies:
     async-mutex "^0.5.0"
     camelcase "^6.3.0"
@@ -4088,14 +4088,14 @@ mongodb-memory-server-core@11.1.0:
     semver "^7.7.3"
     tar-stream "^3.1.8"
     tslib "^2.8.1"
-    yauzl "^3.3.0"
+    yauzl "^3.3.1"
 
-mongodb-memory-server@^11.1.x:
-  version "11.1.0"
-  resolved "https://registry.yarnpkg.com/mongodb-memory-server/-/mongodb-memory-server-11.1.0.tgz#3c5e223bf78150b2ad96943acfe5cd25d3850f80"
-  integrity sha512-x9psV1KXRgG5t14AmsrfcWCqlNXvPOzcyroMSeRU5vkAm8jxEF5WiLGdGCONLOgeCNjRnpg6igyDum/eTwiooA==
+mongodb-memory-server@^11.2.x:
+  version "11.2.0"
+  resolved "https://registry.yarnpkg.com/mongodb-memory-server/-/mongodb-memory-server-11.2.0.tgz#d1b15bceb3781a133d0bddaaf60aa47d3721246f"
+  integrity sha512-506AD8qvClVx8Raw/WhAUUWBgIXPyi856iC01aa5vAzHmn6WOXC6ulvudkTF7oTMzJxkyA0A84VpD4BpyfqJ9w==
   dependencies:
-    mongodb-memory-server-core "11.1.0"
+    mongodb-memory-server-core "11.2.0"
     tslib "^2.8.1"
 
 mongodb@^7.2.0, mongodb@~7.2:
@@ -5462,7 +5462,7 @@ yargs@^17.7.2:
     y18n "^5.0.5"
     yargs-parser "^21.1.1"
 
-yauzl@^3.3.0:
+yauzl@^3.3.1:
   version "3.3.1"
   resolved "https://registry.yarnpkg.com/yauzl/-/yauzl-3.3.1.tgz#b0de68ae3a862715e130849679a4236f54dba45f"
   integrity sha512-RNPCUkiE/ZgO4w8i9U5yDQVHaFDdnzaFANElRvpJteCspvmv2VqrRb9lvS6odVD+jqI/zDsxAHJVsafpcheVQQ==
