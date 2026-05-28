@@ -39,7 +39,7 @@
     "eslint": "^10.3.x",
     "eslint-config-next": "16.2.x",
     "jest": "^30.4.x",
-    "mongodb-memory-server": "^11.1.x",
+    "mongodb-memory-server": "^11.2.x",
     "supertest": "^7.2.x",
     "ts-jest": "^29.4.x",
     "typescript": "^6.0.x"
