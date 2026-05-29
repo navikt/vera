@@ -13,7 +13,7 @@
     "prettier:check": "prettier -c src"
   },
   "dependencies": {
-    "@navikt/ds-css": "^8.11.0",
+    "@navikt/ds-css": "^8.11.1",
     "@navikt/ds-react": "^8.11.0",
     "@radix-ui/react-hover-card": "^1.1.15",
     "@radix-ui/react-toggle-group": "^1.1.11",
