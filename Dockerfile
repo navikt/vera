@@ -1,17 +1,31 @@
-FROM node:25-alpine AS base
+ARG NODE_VERSION=26-alpine
 
-# Install dependencies only when needed
-FROM base AS deps
+FROM node:${NODE_VERSION} AS dependencies
+
 # Check https://github.com/nodejs/docker-node/tree/b4117f9333da4138b03a546ec926ef50a31506c3#nodealpine to understand why libc6-compat might be needed.
-RUN apk add --no-cache libc6-compat
+# RUN apk add --no-cache libc6-compat
+# https://github.com/nodejs/docker-node/blob/main/README.md#nodealpine
+RUN apk add --no-cache gcompat 
+
 WORKDIR /app
 
 # Install dependencies based on the preferred package manager
-COPY package.json yarn.lock ./
-RUN yarn install --frozen-lockfile  
+COPY package.json yarn.lock* package-lock.json* pnpm-lock.yaml* .npmrc* ./
 
-# Rebuild the source code only when needed
-FROM base AS builder
+# Install project dependencies with frozen lockfile for reproducible builds
+RUN \
+  if [ -f package-lock.json ]; then npm ci; \
+  elif [ -f yarn.lock ]; then npm install -g yarn && yarn --frozen-lockfile; \
+  elif [ -f pnpm-lock.yaml ]; then npm install -g pnpm && pnpm i --frozen-lockfile; \
+  elif [ -f bun.lockb ]; then npm install -g bun && bun install --frozen-lockfile; \
+  else echo "Lockfile not found." && exit 1; \
+  fi
+
+# ============================================
+# Stage 2: Build Next.js application in standalone mode
+# ============================================
+
+FROM node:${NODE_VERSION} AS builder
 WORKDIR /app
 
 # Next.js collects completely anonymous telemetry data about general usage.
@@ -19,13 +33,19 @@ WORKDIR /app
 # Uncomment the following line in case you want to disable telemetry during the build.
 ENV NEXT_TELEMETRY_DISABLED=1
 
-COPY --from=deps /app/node_modules ./node_modules
+COPY --from=dependencies /app/node_modules ./node_modules
 COPY . .
 
-RUN yarn build
+RUN \
+  if [ -f package-lock.json ]; then npm run build; \
+  elif [ -f yarn.lock ]; then npm install -g yarn && yarn build; \
+  elif [ -f pnpm-lock.yaml ]; then npm install -g pnpm && pnpm run build; \
+  elif [ -f bun.lockb ]; then npm install -g bun && bun run build; \
+  else echo "Lockfile not found." && exit 1; \
+  fi
 
 # Production image, copy all the files and run next
-FROM base AS runner
+FROM node:${NODE_VERSION} AS runner
 WORKDIR /app
 
 ENV NODE_ENV=production
