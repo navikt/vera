@@ -867,9 +867,9 @@
   integrity sha512-fyoDI6rimF3OnTT16+CrFdS8m7R+Ffn9/fJN1/2Q6SMThitpm1EmHFz+0RLeH2U20aLEIzQvzKfdryU5cUMCaA==
 
 "@navikt/ds-css@^8.12.x":
-  version "8.12.0"
-  resolved "https://registry.yarnpkg.com/@navikt/ds-css/-/ds-css-8.12.0.tgz#6dbc970d209725f1aff7ba28530a726b97c9f940"
-  integrity sha512-yHWnAFOhkfzmxC9fOfmIrY3bfbhCgoFWjdJqECZpSKvM8X8qxIm428liLgUwMkLD3uFdfLuGOEh81ONq2aUhyg==
+  version "8.12.1"
+  resolved "https://registry.yarnpkg.com/@navikt/ds-css/-/ds-css-8.12.1.tgz#3f43013514e6a0827ee11c94376e461254e57146"
+  integrity sha512-4PgSwo/HKPifRgSkfPupR/VJTi3LrATzKk2g3/c/Pe3OUOpI5ldgR199r4r5WBBM+5Z2rosRwm9eC7jCWlQ9nQ==
 
 "@navikt/ds-react@^8.12.x":
   version "8.12.0"
