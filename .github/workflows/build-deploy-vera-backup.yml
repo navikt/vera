@@ -24,7 +24,9 @@ jobs:
           image_suffix: 'backup'
           project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }} # required, but is defined as an organization variable
           identity_provider: ${{ secrets.NAIS_WORKLOAD_IDENTITY_PROVIDER }} # required, but is defined as an organization secret
-      - name: Print image version
+      - name: Deploy prod-gcp
+        uses: nais/deploy/actions/deploy@v2
         env:
-          IMAGE: ${{ steps.docker-push.outputs.image }}
-        run: echo "image $IMAGE"
+          CLUSTER: prod-gcp
+          RESOURCE: vera-backup/vera-backup.yaml
+          VAR: image=${{ steps.docker-push.outputs.image }}
