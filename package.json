@@ -30,7 +30,7 @@
   },
   "devDependencies": {
     "@types/jest": "^30.0.0",
-    "@types/node": "25.9.x",
+    "@types/node": "26.1.x",
     "@types/react": "19.2.x",
     "@types/react-dom": "19.2.x",
     "@types/uuid": "^11.0.0",
