@@ -1,39 +1,60 @@
 ARG NODE_VERSION=26-alpine
+ARG NODE_VERSION_TEST=26-bookworm-slim
 
-FROM node:${NODE_VERSION} AS dependencies
-
-# Check https://github.com/nodejs/docker-node/tree/b4117f9333da4138b03a546ec926ef50a31506c3#nodealpine to understand why libc6-compat might be needed.
-# RUN apk add --no-cache libc6-compat
-# https://github.com/nodejs/docker-node/blob/main/README.md#nodealpine
-RUN apk add --no-cache gcompat 
-
+# ============================================
+# Stage 1: Run tests (Debian — needed for MongoMemoryServer)
+# ============================================
+FROM node:${NODE_VERSION_TEST} AS tester
+RUN apt-get update && apt-get install -y --no-install-recommends libcurl4 libssl3 && rm -rf /var/lib/apt/lists/*
 WORKDIR /app
 
-# Install dependencies based on the preferred package manager
+COPY package.json yarn.lock* package-lock.json* pnpm-lock.yaml* .npmrc* ./
+# Install all dependencies (including devDependencies) on glibc so native modules work
+RUN \
+if [ -f package-lock.json ]; then npm ci; \
+  elif [ -f yarn.lock ]; then npm install -g yarn && yarn install; \
+  elif [ -f pnpm-lock.yaml ]; then npm install -g pnpm && pnpm i; \
+  elif [ -f bun.lockb ]; then npm install -g bun && bun install; \
+  else echo "Lockfile not found." && exit 1; \
+  fi
+COPY . .
+
+RUN \
+  if [ -f package-lock.json ]; then npm verify; \
+  elif [ -f yarn.lock ]; then yarn verify; \
+  elif [ -f pnpm-lock.yaml ]; then pnpm verify; \
+  elif [ -f bun.lockb ]; then bun verify; \
+  else echo "Lockfile not found." && exit 1; \
+  fi
+
+
+# ============================================
+# Stage 2: Install dependencies (Alpine)
+# ============================================
+FROM node:${NODE_VERSION} AS dependencies
+WORKDIR /app
+
 COPY package.json yarn.lock* package-lock.json* pnpm-lock.yaml* .npmrc* ./
 
-# Install project dependencies with frozen lockfile for reproducible builds
 RUN \
   if [ -f package-lock.json ]; then npm ci; \
-  elif [ -f yarn.lock ]; then npm install -g yarn && yarn --frozen-lockfile; \
+  elif [ -f yarn.lock ]; then npm install -g yarn && yarn install --frozen-lockfile; \
   elif [ -f pnpm-lock.yaml ]; then npm install -g pnpm && pnpm i --frozen-lockfile; \
   elif [ -f bun.lockb ]; then npm install -g bun && bun install --frozen-lockfile; \
   else echo "Lockfile not found." && exit 1; \
   fi
 
 # ============================================
-# Stage 2: Build Next.js application in standalone mode
+# Stage 3: Build Next.js application (Alpine)
 # ============================================
-
 FROM node:${NODE_VERSION} AS builder
 WORKDIR /app
 
-# Next.js collects completely anonymous telemetry data about general usage.
-# Learn more here: https://nextjs.org/telemetry
-# Uncomment the following line in case you want to disable telemetry during the build.
 ENV NEXT_TELEMETRY_DISABLED=1
 
 COPY --from=dependencies /app/node_modules ./node_modules
+# Ensure tester stage ran (tests must pass before build proceeds)
+COPY --from=tester /app/src ./src
 COPY . .
 
 RUN \

@@ -2,10 +2,16 @@
   "name": "vera",
   "version": "0.1.0",
   "private": true,
+  "config": {
+    "mongodbMemoryServer": {
+      "version": "7.0.24"
+    }
+  },
   "scripts": {
     "dev": "next dev --turbopack",
     "prebuild": "next telemetry disable",
     "build": "next build",
+    "verify": "yarn test && yarn build",
     "start": "node .next/standalone/server.js",
     "lint": "next lint",
     "test": "jest",
@@ -22,7 +28,7 @@
     "csv42": "^5.0.3",
     "moment": "^2.30.1",
     "mongoose": "^9.9.x",
-    "next": "16.2.x",
+    "next": "16.3.x",
     "prettier": "^3.9.x",
     "react": "19.2.x",
     "react-dom": "19.2.x",
