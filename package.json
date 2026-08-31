@@ -44,7 +44,7 @@
     "@typescript-eslint/parser": "^8.67.x",
     "eslint": "^10.8.x",
     "eslint-config-next": "16.3.x",
-    "jest": "^30.4.x",
+    "jest": "^30.5.x",
     "mongodb-memory-server": "^11.2.x",
     "supertest": "^7.2.x",
     "ts-jest": "^29.4.x",
