@@ -23,7 +23,7 @@
     "@navikt/ds-react": "^8.16.x",
     "@radix-ui/react-hover-card": "^1.1.x",
     "@radix-ui/react-toggle-group": "^1.1.x",
-    "axios": "^1.19.x",
+    "axios": "^1.20.x",
     "clsx": "^2.1.1",
     "csv42": "^5.0.3",
     "moment": "^2.30.1",
