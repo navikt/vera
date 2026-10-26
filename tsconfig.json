@@ -2,6 +2,7 @@
   "compilerOptions": {
     "rootDir": ".",
     "target": "es2024",
+    "types": ["node", "jest"],
     "lib": [
       "dom",
       "dom.iterable",
