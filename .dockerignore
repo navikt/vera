@@ -1,5 +1,8 @@
 node_modules
-npm-debug.log
+*.log
+.git
+.pnpm-store
+.env*
 
 docker-mounts
 coverage

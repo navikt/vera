@@ -27,7 +27,7 @@ describe("Test diffService", () => {
             connectDB: jest.fn().mockResolvedValue(cached.conn),
         }
         await db.connectDB()
-    })
+    }, 120_000)
 
     afterAll(async () => {
         await cached.conn?.connection.close()

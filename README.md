@@ -20,7 +20,7 @@ OBS!!! La mongodb starte opp i 20-120 sekunder før du prøver å starte `docker
 ### Kjør (uten docker)
 
 ```console
-npm install
+pnpm install
 gulp
 ```
 

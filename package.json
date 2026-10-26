@@ -2,6 +2,7 @@
   "name": "vera",
   "version": "0.1.0",
   "private": true,
+  "packageManager": "pnpm@12.15.0",
   "config": {
     "mongodbMemoryServer": {
       "version": "7.0.24"
@@ -11,7 +12,7 @@
     "dev": "next dev --turbopack",
     "prebuild": "next telemetry disable",
     "build": "next build",
-    "verify": "yarn test && yarn build",
+    "verify": "pnpm run test && pnpm run build",
     "start": "node .next/standalone/server.js",
     "lint": "next lint",
     "test": "jest",
@@ -21,6 +22,7 @@
   "dependencies": {
     "@navikt/ds-css": "^8.16.x",
     "@navikt/ds-react": "^8.16.x",
+    "@navikt/aksel-icons": "^8.16.x",
     "@radix-ui/react-hover-card": "^1.1.x",
     "@radix-ui/react-toggle-group": "^1.1.x",
     "axios": "^1.19.x",

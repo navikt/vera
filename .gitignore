@@ -11,6 +11,7 @@ logs
 
 # dependencies
 /node_modules
+/.pnpm-store/
 /.pnp
 .pnp.js
 
@@ -54,5 +55,4 @@ next-env.d.ts
 
 # docker-compose mongodb
 ./db/
-
 
