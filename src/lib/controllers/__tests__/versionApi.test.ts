@@ -30,7 +30,7 @@ describe("Test versionApi", () => {
             connectDB: jest.fn().mockResolvedValue(cached.conn),
         }
         await db.connectDB()
-    })
+    }, 120_000)
 
     afterAll(async () => {
         await mongoose.connection.close()

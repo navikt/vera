@@ -12,7 +12,7 @@ describe("Test monitoring service", () => {
             ...jest.requireActual("../../config/config"),
             dbUrl: mongoUri,
         }))
-    })
+    }, 120_000)
 
     afterAll(async () => {
         await mongoose.disconnect()
