@@ -16,12 +16,9 @@ spec:
         retentionPeriodDays: 30
   image: "{{ image }}"
   resources:
-    limits:
-      cpu: 200m
-      memory: 128Mi
     requests:
       cpu: 100m
-      memory: 64Mi
+      memory: 256Mi
   restartPolicy: Never
   schedule: '0 */6 * * *'
   skipCaBundle: true
