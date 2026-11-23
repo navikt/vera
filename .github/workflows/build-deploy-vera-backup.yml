@@ -2,6 +2,8 @@ name: Build vera-backup
 
 on:
   push:
+    branches:
+      - main
     paths:
       - 'vera-backup/**'
   workflow_dispatch:
