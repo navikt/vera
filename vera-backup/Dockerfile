@@ -1,4 +1,4 @@
-FROM google/cloud-sdk:slim
+FROM gcr.io/google.com/cloudsdktool/google-cloud-cli:stable
 ENV CLOUDSDK_CONFIG=/tmp/config
 ENV HOME=/tmp
 RUN apt-get update && apt-get upgrade -y && apt-get -y install \
